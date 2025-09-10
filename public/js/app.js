@@ -144,21 +144,34 @@ async function loadAvailableModels() {
         
         console.log('Available models:', models);
         
-        // Load each model and create floating instances distributed around header
-        for (let i = 0; i < models.length; i++) {
-            const modelInfo = models[i];
-            await loadAndCreateFloatingModel(modelInfo.url, modelInfo.name, i, models.length);
+        // Define specific model-to-position mapping
+        const modelPositions = [
+            { name: 'tiktok', position: 0 },      // Top left
+            { name: 'davinci', position: 1 },     // Top right
+            { name: 'insta', position: 2 },       // Center left
+            { name: 'premiere', position: 3 },    // Center right
+            { name: 'youtube', position: 4 },     // Bottom left
+            { name: 'capcut', position: 5 }       // Bottom right
+        ];
+        
+        // Load models in specific positions
+        for (const modelInfo of models) {
+            const modelMapping = modelPositions.find(mapping => 
+                modelInfo.name.toLowerCase().includes(mapping.name)
+            );
+            
+            if (modelMapping) {
+                await loadAndCreateFloatingModel(modelInfo.url, modelInfo.name, modelMapping.position, 6);
+            }
         }
         
         // If no models found, create a fallback
         if (models.length === 0) {
-            console.log('No GLB models found, creating geometric shapes as fallback');
-            createFallbackShapes();
+            console.log('No GLB models found in assets folder');
         }
         
     } catch (error) {
         console.error('Failed to load models list:', error);
-        createFallbackShapes();
     }
 }
 
@@ -170,45 +183,77 @@ async function loadAndCreateFloatingModel(modelUrl, modelName, modelIndex, total
             (gltf) => {
                 console.log(`Successfully loaded model: ${modelName}`);
                 
-                // Create distributed positions around the header area
-                const positions = createDistributedPositions(totalModels);
-                const modelPositions = positions.filter((_, index) => index % totalModels === modelIndex);
+                // Get specific position for this model
+                const position = getModelPosition(modelIndex);
                 
-                // Adjust scale based on model type
-                let scale = 1.2;
-                if (modelName.includes('duck')) scale = 1.5;
-                else if (modelName.includes('tiktok')) scale = 2.0;
-                else if (modelName.includes('youtube')) scale = 1.8;
-                else if (modelName.includes('davinci')) scale = 1.6;
+                // Skip duck model
+                if (modelName.includes('duck')) {
+                    resolve(gltf);
+                    return;
+                }
                 
-                modelPositions.forEach((position, i) => {
-                    const modelClone = gltf.scene.clone();
-                    
-                    // Fixed positions
-                    modelClone.position.set(
-                        position.x,
-                        position.y,
-                        position.z
-                    );
-                    
-                    // Varied initial rotation
-                    modelClone.rotation.set(0, Math.PI * 0.4 * (modelIndex + i), 0);
-                    
-                    modelClone.scale.set(scale, scale, scale);
-                    
-                    // Store animation data for gentle bobbing
-                    modelClone.userData = {
-                        originalY: modelClone.position.y,
-                        originalRotY: modelClone.rotation.y,
-                        floatSpeed: 1.0 + (modelIndex * 0.2) + (i * 0.15),
-                        rotateSpeed: 0.3 + (modelIndex * 0.1) + (i * 0.1),
-                        fixedPosition: { ...position },
-                        modelName: modelName
-                    };
-                    
-                    scene.add(modelClone);
-                    floatingModels.push(modelClone);
-                });
+                // All models same volume - adjust scale based on model type
+                let scale = 1.5; // Base scale for consistent volume
+                if (modelName.includes('tiktok')) scale = 0.7; // TikTok is naturally larger
+                else if (modelName.includes('youtube')) scale = 18.0; // YouTube is naturally smaller
+                else if (modelName.includes('davinci')) scale = 1.8; // DaVinci medium size
+                else if (modelName.includes('capcut')) scale = 1.6; // CapCut medium size
+                else if (modelName.includes('premiere')) scale = 1.4; // Premiere Pro medium size
+                else if (modelName.includes('insta')) scale = 1.7; // Instagram medium size
+                else return;
+                
+                const modelClone = gltf.scene.clone();
+                
+                // Fixed positions
+                modelClone.position.set(
+                    position.x,
+                    position.y,
+                    position.z
+                );
+                
+                // All models face toward screen with slight variations
+                let rotationY = 0;
+                let rotationX = 0;
+                let rotationZ = 0;
+                
+                if (modelName.includes('tiktok')) {
+                    rotationY = Math.PI * 0.1; // Slight turn toward viewer
+                    rotationX = Math.PI * 0.05; // Very slight tilt
+                } else if (modelName.includes('youtube')) {
+                    rotationY = Math.PI * 0.2; // Turn toward viewer
+                    rotationX = Math.PI * 0.1; // Slight upward tilt
+                } else if (modelName.includes('davinci')) {
+                    rotationY = Math.PI * 0.15; // Face viewer
+                    rotationX = Math.PI * -0.05; // Slight downward tilt
+                } else if (modelName.includes('capcut')) {
+                    rotationY = Math.PI * 0.12; // Face viewer
+                    rotationX = Math.PI * 0.06; // Slight tilt
+                } else if (modelName.includes('premiere')) {
+                    rotationY = Math.PI * -0.36; // Face viewer
+                    rotationX = Math.PI * 0.03; // Very slight tilt
+                } else if (modelName.includes('insta')) {
+                    rotationY = Math.PI * 0.37; // Face viewer
+                    rotationX = Math.PI * 0.04; // Slight tilt
+                } else {
+                    return;
+                }
+                
+                modelClone.rotation.set(rotationX, rotationY, rotationZ);
+                
+                modelClone.scale.set(scale, scale, scale);
+                
+                // Store animation data for gentle bobbing
+                modelClone.userData = {
+                    originalY: modelClone.position.y,
+                    originalRotY: modelClone.rotation.y,
+                    floatSpeed: 1.0 + (modelIndex * 0.2),
+                    rotateSpeed: 0.3 + (modelIndex * 0.1),
+                    fixedPosition: { ...position },
+                    modelName: modelName
+                };
+                
+                scene.add(modelClone);
+                floatingModels.push(modelClone);
                 
                 resolve(gltf);
             },
@@ -223,79 +268,22 @@ async function loadAndCreateFloatingModel(modelUrl, modelName, modelIndex, total
     });
 }
 
-// Create distributed positions for models around the header area
-function createDistributedPositions(totalModels) {
+// Get specific position for each model by index - 6 positions in zigzag pattern
+function getModelPosition(modelIndex) {
+    // Fixed positions for 6 models in zigzag pattern at consistent depth
     const positions = [
-        // Top area positions
-        { x: -14, y: 6, z: -3 },   // Far left top
-        { x: -8, y: 8, z: -4 },    // Left top
-        { x: 8, y: 8, z: -4 },     // Right top
-        { x: 14, y: 6, z: -3 },    // Far right top
-        
-        // Middle-side positions
-        { x: -16, y: 2, z: -5 },   // Left middle
-        { x: 16, y: 2, z: -5 },    // Right middle
-        
-        // Bottom area positions  
-        { x: -12, y: -6, z: -4 },  // Left bottom
-        { x: 12, y: -6, z: -4 },   // Right bottom
-        
-        // Additional scattered positions
-        { x: -4, y: 4, z: -6 },    // Left center high
-        { x: 4, y: 4, z: -6 },     // Right center high
-        { x: -6, y: -2, z: -5 },   // Left center low
-        { x: 6, y: -2, z: -5 }     // Right center low
+        { x: -14, y: 8, z: -4 },   // Top left (model 0)
+        { x: 14, y: 8, z: -4 },    // Top right (model 1)  
+        { x: -18, y: 1, z: -4 },   // Center left (model 2) - more left
+        { x: 18, y: 1, z: -4 },    // Center right (model 3) - more right
+        { x: -14, y: -6, z: -4 },  // Bottom left (model 4)
+        { x: 14, y: -6, z: -4 }    // Bottom right (model 5)
     ];
     
-    // Return only the number of positions we need, distributed evenly
-    const step = Math.floor(positions.length / Math.max(totalModels, 1));
-    const selectedPositions = [];
-    
-    for (let i = 0; i < Math.min(totalModels * 2, positions.length); i += step) {
-        selectedPositions.push(positions[i]);
-    }
-    
-    return selectedPositions;
+    // Return position based on model index, with fallback
+    return positions[modelIndex % positions.length];
 }
 
-// Fallback geometric shapes if no GLB models are available
-function createFallbackShapes() {
-    const positions = createDistributedPositions(4); // Create 4 fallback shapes
-    const colors = [0xff6b6b, 0x4ecdc4, 0xffdd44, 0x96ceb4];
-    
-    for (let i = 0; i < Math.min(4, positions.length); i++) {
-        const geometry = new THREE.SphereGeometry(1, 16, 16);
-        const material = new THREE.MeshBasicMaterial({ 
-            color: colors[i % colors.length],
-            transparent: true,
-            opacity: 0.8
-        });
-        const shape = new THREE.Mesh(geometry, material);
-        
-        // Fixed positions
-        shape.position.set(
-            positions[i].x,
-            positions[i].y,
-            positions[i].z
-        );
-        
-        // Slight initial rotation
-        shape.rotation.set(0, Math.PI * 0.3 * i, 0);
-        
-        // Store animation data for gentle bobbing
-        shape.userData = {
-            originalY: shape.position.y,
-            originalRotY: shape.rotation.y,
-            floatSpeed: 1.0 + i * 0.2,
-            rotateSpeed: 0.3 + i * 0.1,
-            fixedPosition: { ...positions[i] },
-            modelName: `fallback_${i}`
-        };
-        
-        scene.add(shape);
-        floatingModels.push(shape);
-    }
-}
 
 camera.position.z = 15;
 
@@ -325,11 +313,17 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// Handle window resize
+// Handle window resize - OPTIMIZED
+let resizeTimeout;
 window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    // Debounce resize events for better performance
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    }, 100);
 });
 
 // Models stay in fixed positions
