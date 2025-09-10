@@ -1,0 +1,70 @@
+<!-- Final Success Message -->
+<div class="max-w-2xl mx-auto bg-white bg-opacity-10 backdrop-blur-lg rounded-3xl p-8 mt-6 border border-green-400 border-opacity-30">
+    
+    <!-- Progress indicator - all complete -->
+    <div class="flex justify-center mb-8">
+        <div class="flex items-center">
+            <div class="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">✓</div>
+            <div class="w-12 h-1 bg-green-400 mx-2"></div>
+            <div class="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">✓</div>
+            <div class="w-12 h-1 bg-green-400 mx-2"></div>
+            <div class="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">✓</div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <!-- Success icon -->
+        <div class="w-24 h-24 bg-gradient-to-r from-green-400 to-teal-400 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+
+        <h2 class="text-white text-3xl font-bold mb-4">Rezervasyon Tamamlandı! 🎉</h2>
+        
+        <div class="bg-gradient-to-r from-green-400 to-teal-400 bg-opacity-20 rounded-2xl p-6 mb-6">
+            <p class="text-white text-lg mb-3">
+                <strong>Harika!</strong> Rezervasyonunuz başarıyla alındı.
+            </p>
+            <p class="text-green-200 text-base">
+                Bilgileriniz Virtualite ekibine iletildi. Size <strong>24 saat içinde</strong> dönüş yapacağız.
+            </p>
+        </div>
+
+        <!-- Next steps -->
+        <div class="bg-white bg-opacity-5 rounded-2xl p-6 mb-6">
+            <h3 class="text-white text-xl font-semibold mb-4">Sırada Ne Var?</h3>
+            <div class="space-y-3 text-left">
+                <div class="flex items-start">
+                    <span class="bg-teal-400 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">1</span>
+                    <p class="text-white">Ekibimiz sizinle telefonda görüşme yapacak</p>
+                </div>
+                <div class="flex items-start">
+                    <span class="bg-teal-400 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">2</span>
+                    <p class="text-white">İhtiyaçlarınızı değerlendirip özelleştirilmiş strateji belirleyeceğiz</p>
+                </div>
+                <div class="flex items-start">
+                    <span class="bg-teal-400 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">3</span>
+                    <p class="text-white">Viral olmaya hazır içeriklerin üretimine başlayacağız!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Return to homepage -->
+        <button onclick="window.location.href='/'" 
+                class="mt-6 bg-gradient-to-r from-red-400 to-teal-400 text-white py-3 px-8 rounded-full font-semibold transition-all duration-300 hover:scale-105">
+            Ana Sayfaya Dön
+        </button>
+
+    </div>
+</div>
+
+<script>
+// Hide all previous steps
+document.getElementById('datetime-selection').style.display = 'none';
+
+// Add some confetti effect (optional)
+setTimeout(() => {
+    // You could add a confetti library here for celebration
+}, 500);
+</script>

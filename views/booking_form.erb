@@ -1,0 +1,136 @@
+<!-- Step 2: Contact Information Form -->
+<div class="max-w-2xl mx-auto bg-white bg-opacity-10 backdrop-blur-lg rounded-3xl p-8 mt-6 border border-white border-opacity-20">
+    
+    <!-- Progress indicator -->
+    <div class="flex justify-center mb-8">
+        <div class="flex items-center">
+            <div class="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">✓</div>
+            <div class="w-12 h-1 bg-green-400 mx-2"></div>
+            <div class="w-8 h-8 bg-gradient-to-r from-red-400 to-teal-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">2</div>
+            <div class="w-12 h-1 bg-gray-300 mx-2"></div>
+            <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-semibold text-sm">3</div>
+        </div>
+    </div>
+
+    <h3 class="text-white text-2xl font-bold text-center mb-6">Bilgilerinizi Girin</h3>
+    
+    <p class="text-white text-center mb-6 opacity-90">
+        Seçtiğiniz tarih: <strong><%= selected_date %></strong> - <strong><%= selected_time %></strong>
+    </p>
+
+    <form id="contact-form" hx-post="/verify-phone" hx-target="#verification-step" hx-indicator="#loading">
+        <input type="hidden" name="selected_date" value="<%= selected_date %>">
+        <input type="hidden" name="selected_time" value="<%= selected_time %>">
+
+        <!-- Name input -->
+        <div class="mb-6">
+            <label class="block text-white font-semibold mb-2">Adınız Soyadınız *</label>
+            <input type="text" 
+                   name="name" 
+                   required 
+                   class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
+                   placeholder="Adınız ve soyadınızı girin">
+        </div>
+
+        <!-- Phone input -->
+        <div class="mb-6">
+            <label class="block text-white font-semibold mb-2">Telefon Numaranız *</label>
+            <input type="tel" 
+                   name="phone_number" 
+                   required 
+                   pattern="[0-9\s\-\+\(\)]*"
+                   class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
+                   placeholder="+90 555 123 45 67">
+        </div>
+
+        <!-- Content experience -->
+        <div class="mb-6">
+            <label class="block text-white font-semibold mb-3">Daha önce içerik ürettiniz mi? *</label>
+            <div class="space-y-3">
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" 
+                           name="has_content" 
+                           value="false" 
+                           required
+                           class="sr-only"
+                           hx-trigger="change"
+                           hx-target="#social-fields"
+                           hx-get="/social-fields?has_content=false">
+                    <div class="w-5 h-5 border-2 border-white rounded-full mr-3 flex items-center justify-center">
+                        <div class="w-2 h-2 bg-white rounded-full hidden radio-dot"></div>
+                    </div>
+                    <span class="text-white">Hayır, ilk defa içerik üretmeyi düşünüyorum</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" 
+                           name="has_content" 
+                           value="true" 
+                           required
+                           class="sr-only"
+                           hx-trigger="change"
+                           hx-target="#social-fields"
+                           hx-get="/social-fields?has_content=true">
+                    <div class="w-5 h-5 border-2 border-white rounded-full mr-3 flex items-center justify-center">
+                        <div class="w-2 h-2 bg-white rounded-full hidden radio-dot"></div>
+                    </div>
+                    <span class="text-white">Evet, sosyal medyada içerik üretiyorum</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Social media fields (populated by HTMX) -->
+        <div id="social-fields"></div>
+
+        <!-- Submit button -->
+        <button type="submit" 
+                class="w-full bg-gradient-to-r from-red-400 to-teal-400 text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:opacity-50">
+            <span class="htmx-indicator" id="loading">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </span>
+            Devam Et
+        </button>
+    </form>
+
+    <!-- Back button -->
+    <button onclick="document.getElementById('datetime-selection').style.display='block'; document.getElementById('booking-steps').innerHTML=''" 
+            class="w-full mt-4 text-white text-center py-2 opacity-70 hover:opacity-100 transition-opacity">
+        ← Tarih seçimine geri dön
+    </button>
+
+</div>
+
+<!-- Verification step area -->
+<div id="verification-step"></div>
+
+<style>
+/* Custom radio button styling */
+input[type="radio"]:checked + div .radio-dot {
+    display: block !important;
+}
+
+input[type="radio"]:checked + div {
+    border-color: #4ecdc4;
+    background-color: rgba(78, 205, 196, 0.1);
+}
+
+.htmx-indicator {
+    display: none;
+}
+
+.htmx-request .htmx-indicator {
+    display: inline;
+}
+
+.htmx-request button {
+    opacity: 0.7;
+    pointer-events: none;
+}
+</style>
+
+<script>
+// Hide the datetime selection when form loads
+document.getElementById('datetime-selection').style.display = 'none';
+</script>

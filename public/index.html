@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtualite - Kaydırmayı Durduran İçerikler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Custom cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ff6b6b;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: all 0.1s ease;
+        }
+
+        .cursor.hover {
+            transform: scale(2);
+            border-color: #4ecdc4;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(0, 0, 0, 0.95);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 107, 107, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Hero section with animated gradient */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(1px);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            padding: 2rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(4rem, 12vw, 12rem);
+            font-weight: 900;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #fff, #ff6b6b, #4ecdc4);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textGlow 3s ease-in-out infinite alternate;
+            line-height: 0.9;
+            letter-spacing: -0.02em;
+        }
+
+        @keyframes textGlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        .hero p {
+            font-size: 1.8rem;
+            margin-bottom: 3rem;
+            opacity: 0.95;
+            font-weight: 300;
+            line-height: 1.4;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.2rem 3.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: none;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.3);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* Content showcase section */
+        .content-showcase {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            position: relative;
+        }
+
+        .content-showcase::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.4rem;
+            margin-bottom: 4rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        .content-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .content-video {
+            width: 100%;
+            height: 250px;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .content-info {
+            padding: 1.5rem;
+        }
+
+        .content-brand {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .content-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* Contact section */
+        .contact-section {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            text-align: center;
+        }
+
+        .contact-title {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .contact-subtitle {
+            font-size: 1.4rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+
+        .booking-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .calendar-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            background: rgba(255, 107, 107, 0.3);
+            transform: scale(1.1);
+        }
+
+        .calendar-day.selected {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+        }
+
+        .time-slot {
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .time-slot:hover {
+            background: rgba(255, 107, 107, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .time-slot.selected {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        }
+
+        /* 3D Canvas for floating models */
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.6;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 4rem;
+            }
+            
+            .hero p {
+                font-size: 1.3rem;
+            }
+            
+            .section-title {
+                font-size: 2.5rem;
+            }
+            
+            .contact-title {
+                font-size: 2.8rem;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <!-- TailwindCSS for easier styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- HTMX for reactive forms -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <!-- Three.js for 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
+    <div class="cursor"></div>
+    
+    <canvas id="three-canvas"></canvas>
+
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="logo"></div>
+            <ul class="nav-links">
+                <li><a href="#home">HAKKIMIZDA</a></li>
+                <li><a href="#services">HİZMETLERİMİZ</a></li>
+                <li><a href="#portfolio">İŞLERİMİZ</a></li>
+                <li><a href="#contact">BİZE ULAŞ</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Kaydırmayı Durduran İçerikler</h1>
+            <p>Herkesin izlemekten zevk alacağı, kalbinde TikTok olan etkili ve viral potansiyeli içerikler üretiyoruz.</p>
+            <a href="#services" class="cta-button">Tanışalım mı?</a>
+        </div>
+        <div class="scroll-indicator">Keşfetmek için kaydır</div>
+    </section>
+
+    <section class="content-showcase" id="services">
+        <div class="container">
+            <h2 class="section-title">Ezber Bozan</h2>
+            <p class="section-subtitle">İçerikler Üretiyoruz</p>
+            <p class="section-subtitle">TikTok'ta boşuna saatlerce kaydırmadık. Markanzın ihtiyaçlarına en uygun içerik formüllerini geliştirdik. Eşi benzeri görülmemiş kreatifleri hayata geçiriyoruz.</p>
+            
+            <div class="content-grid">
+                <div class="content-card">
+                    <div class="content-video">
+                        <div class="video-placeholder">📱</div>
+                    </div>
+                    <div class="content-info">
+                        <div class="content-brand">Domino's</div>
+                        <div class="content-title">Sipariş & Teslimat</div>
+                        <div class="content-stats">
+                            <span>2.1M görüntülenme</span>
+                            <span>•</span>
+                            <span>95K beğeni</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="content-video">
+                        <div class="video-placeholder">🎨</div>
+                    </div>
+                    <div class="content-info">
+                        <div class="content-brand">Reflect Studio</div>
+                        <div class="content-title">Kreatif İçerik</div>
+                        <div class="content-stats">
+                            <span>1.8M görüntülenme</span>
+                            <span>•</span>
+                            <span>87K beğeni</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="content-video">
+                        <div class="video-placeholder">🎵</div>
+                    </div>
+                    <div class="content-info">
+                        <div class="content-brand">Duolingo</div>
+                        <div class="content-title">Önce bayramı aşayım, sonra peşinize düşerim 😊</div>
+                        <div class="content-stats">
+                            <span>3.2M görüntülenme</span>
+                            <span>•</span>
+                            <span>128K beğeni</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="content-video">
+                        <div class="video-placeholder">🎭</div>
+                    </div>
+                    <div class="content-info">
+                        <div class="content-brand">QNB</div>
+                        <div class="content-title">Charlie'nin Çikolatası</div>
+                        <div class="content-stats">
+                            <span>1.5M görüntülenme</span>
+                            <span>•</span>
+                            <span>76K beğeni</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <h2 class="contact-title">Tanışalım mı?</h2>
+            <p class="contact-subtitle">Bir ücretsiz görüşme ayarlayalım!</p>
+            
+            <div class="booking-container">
+                <!-- Step 1: Date and Time Selection -->
+                <div class="calendar-section" id="datetime-selection">
+                    <h3 class="text-white text-xl font-semibold mb-4">Tarih ve Saat Seçin</h3>
+                    
+                    <div class="calendar-grid" id="calendar">
+                        <!-- Calendar will be populated by JavaScript -->
+                    </div>
+                    
+                    <div class="time-slots mb-6" id="timeSlots">
+                        <div class="time-slot">15:00</div>
+                        <div class="time-slot">15:30</div>
+                        <div class="time-slot">16:00</div>
+                        <div class="time-slot">16:30</div>
+                        <div class="time-slot">17:00</div>
+                        <div class="time-slot">17:30</div>
+                        <div class="time-slot">18:00</div>
+                    </div>
+
+                    <button id="proceed-to-form" 
+                            class="w-full bg-gradient-to-r from-red-400 to-teal-400 text-white py-3 px-6 rounded-full font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled
+                            hx-get="/booking-form" 
+                            hx-target="#booking-steps"
+                            hx-include="#selected-date, #selected-time">
+                        İletişim Bilgilerinizi Girin
+                    </button>
+                    
+                    <!-- Hidden inputs to track selections -->
+                    <input type="hidden" id="selected-date" name="selected_date" />
+                    <input type="hidden" id="selected-time" name="selected_time" />
+                </div>
+
+                <!-- Multi-step booking form area -->
+                <div id="booking-steps"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
