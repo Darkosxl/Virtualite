@@ -226,10 +226,10 @@ async function loadAndCreateFloatingModel(modelUrl, modelName, modelIndex, total
                     rotationY = Math.PI * 0.15; // Face viewer
                     rotationX = Math.PI * -0.05; // Slight downward tilt
                 } else if (modelName.includes('capcut')) {
-                    rotationY = Math.PI * 0.12; // Face viewer
+                    rotationY = Math.PI * -0.15; // Face viewer
                     rotationX = Math.PI * 0.06; // Slight tilt
                 } else if (modelName.includes('premiere')) {
-                    rotationY = Math.PI * -0.36; // Face viewer
+                    rotationY = Math.PI * 0.06; // Face viewer
                     rotationX = Math.PI * 0.03; // Very slight tilt
                 } else if (modelName.includes('insta')) {
                     rotationY = Math.PI * 0.37; // Face viewer
