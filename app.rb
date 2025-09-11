@@ -2,6 +2,8 @@ require 'sinatra'
 require 'sinatra/json'
 require 'json'
 require 'mail'
+require 'net/smtp'
+require 'dotenv/load'
 require_relative 'database'
 
 # Configuration
@@ -12,6 +14,24 @@ set :sessions, true
 
 # Database initialization
 $db = Database.new
+
+# Mail configuration - configure once at startup
+begin
+  Mail.defaults do
+    delivery_method :smtp, {
+      address: 'smtp.gmail.com',
+      port: 587,
+      domain: 'gmail.com',
+      user_name: ENV['GMAIL_USERNAME'],
+      password: ENV['GMAIL_PASSWORD'],
+      authentication: 'plain',
+      enable_starttls_auto: true
+    }
+  end
+  puts "Mail configuration successful"
+rescue => e
+  puts "Mail configuration error: #{e.message}"
+end
 
 # Routes
 get '/' do
@@ -102,12 +122,20 @@ post '/submit-booking' do
   selected_time = params['selected_time']
   
   # Handle multiple social platforms
-  social_platforms = params['social_platforms[]'] || []
+  social_platforms = params['social_platforms'] || []
   social_usernames = {}
+  
+  # Debug: Print received params
+  puts "DEBUG - All params: #{params.inspect}"
+  puts "DEBUG - social_platforms: #{social_platforms.inspect}"
+  
   social_platforms.each do |platform|
     username = params["#{platform}_username"]
+    puts "DEBUG - Platform: #{platform}, Username: #{username}"
     social_usernames[platform] = username if username && !username.empty?
   end
+  
+  puts "DEBUG - Final social_usernames: #{social_usernames.inspect}"
   
   booking_data = {
     name: name,
@@ -136,18 +164,6 @@ end
 
 def send_notification_email(booking_data)
   begin
-    Mail.configure do |config|
-      config.delivery_method = :smtp, {
-        address: 'smtp.gmail.com',
-        port: 587,
-        domain: 'gmail.com',
-        user_name: ENV['GMAIL_USERNAME'] || 'your-email@gmail.com',
-        password: ENV['GMAIL_PASSWORD'] || 'your-app-password',
-        authentication: 'plain',
-        enable_starttls_auto: true
-      }
-    end
-    
     # Format social media info
     social_info = ""
     if booking_data[:social_platforms] && !booking_data[:social_platforms].empty?
@@ -166,7 +182,7 @@ def send_notification_email(booking_data)
     end
     
     mail = Mail.new do
-      from     ENV['GMAIL_USERNAME'] || 'your-email@gmail.com'
+      from     ENV['GMAIL_USERNAME']
       to       'bscemarslan@gmail.com'
       subject  'Yeni Rezervasyon - Virtualite'
       body     <<~EMAIL
@@ -186,6 +202,8 @@ def send_notification_email(booking_data)
     true
   rescue => e
     puts "Email error: #{e.message}"
+    puts "ENV['GMAIL_USERNAME']: #{ENV['GMAIL_USERNAME']}"
+    puts "ENV['GMAIL_PASSWORD']: #{ENV['GMAIL_PASSWORD'] ? '[SET]' : '[NOT SET]'}"
     false
   end
 end
