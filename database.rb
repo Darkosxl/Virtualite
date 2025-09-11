@@ -1,5 +1,7 @@
 require 'pg'
 require 'json'
+require 'dotenv/load'
+
 
 class Database
   def initialize
@@ -51,6 +53,17 @@ class Database
     result.map { |row| format_booking(row) }
   rescue PG::Error => e
     puts "Database fetch error: #{e.message}"
+    []
+  end
+
+  def get_bookings_for_date(date)
+    result = @connection.exec_params(
+      'SELECT * FROM bookings WHERE selected_date = $1',
+      [date]
+    )
+    result.map { |row| format_booking(row) }
+  rescue PG::Error => e
+    puts "Database fetch error for date #{date}: #{e.message}"
     []
   end
 

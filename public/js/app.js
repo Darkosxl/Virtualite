@@ -33,61 +33,197 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// Helper function to get date without time component
+function getDateOnly(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+// Helper function to get tomorrow's date
+function getTomorrowDate() {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    return getDateOnly(tomorrow);
+}
+
 // Calendar functionality
 function generateCalendar() {
     const calendar = document.getElementById('calendar');
     const today = new Date();
+    const todayDateOnly = getDateOnly(today);
+    const tomorrowDate = getTomorrowDate();
     const currentMonth = today.getMonth();
     const currentYear = today.getFullYear();
     
     // Clear existing calendar
     calendar.innerHTML = '';
     
-    // Get days in month
+    // Get days in current month
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
     
-    // Create calendar days
+    // Get first week of next month
+    const nextMonth = currentMonth + 1;
+    const nextYear = nextMonth > 11 ? currentYear + 1 : currentYear;
+    const nextMonthAdjusted = nextMonth > 11 ? 0 : nextMonth;
+    
+    // Create calendar days for current month
     for (let i = 0; i < firstDayOfMonth; i++) {
         const emptyDay = document.createElement('div');
         emptyDay.className = 'calendar-day';
         calendar.appendChild(emptyDay);
     }
     
+    // Add current month days
     for (let day = 1; day <= daysInMonth; day++) {
         const dayElement = document.createElement('div');
         dayElement.className = 'calendar-day';
         dayElement.textContent = day;
         
-        // Only allow future dates
-        const dayDate = new Date(currentYear, currentMonth, day);
-        if (dayDate >= today || day === today.getDate()) {
+        const dayDate = getDateOnly(new Date(currentYear, currentMonth, day));
+        // Only allow booking from tomorrow onwards (not today)
+        if (dayDate >= tomorrowDate) {
             dayElement.addEventListener('click', () => {
-                // Remove previous selection
                 document.querySelectorAll('.calendar-day.selected').forEach(d => {
                     d.classList.remove('selected');
                 });
                 dayElement.classList.add('selected');
                 
-                // Update hidden input
                 const selectedDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const dateInput = document.getElementById('selected-date');
                 if (dateInput) {
                     dateInput.value = selectedDate;
                 }
                 
+                // Update time slots for selected date
+                updateTimeSlots(selectedDate);
+                
                 checkSelectionComplete();
             });
         } else {
             dayElement.style.opacity = '0.3';
             dayElement.style.cursor = 'not-allowed';
+            dayElement.style.pointerEvents = 'none';
+        }
+        
+        calendar.appendChild(dayElement);
+    }
+    
+    // Calculate how many slots are remaining (max 42 for 6 weeks grid)
+    const totalSlotsUsed = firstDayOfMonth + daysInMonth;
+    const remainingSlots = 42 - totalSlotsUsed;
+    
+    // Add first week of next month (max 7 days)
+    const daysToAddFromNextMonth = Math.min(7, remainingSlots);
+    
+    for (let day = 1; day <= daysToAddFromNextMonth; day++) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        dayElement.textContent = day;
+        dayElement.style.opacity = '0.7'; // Slightly dimmed for next month
+        
+        const dayDate = getDateOnly(new Date(nextYear, nextMonthAdjusted, day));
+        const tomorrowDate = getTomorrowDate();
+        // Check if this next month date is tomorrow or later
+        if (dayDate >= tomorrowDate) {
+            dayElement.addEventListener('click', () => {
+                document.querySelectorAll('.calendar-day.selected').forEach(d => {
+                    d.classList.remove('selected');
+                });
+                dayElement.classList.add('selected');
+                
+                const selectedDate = `${nextYear}-${String(nextMonthAdjusted + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dateInput = document.getElementById('selected-date');
+                if (dateInput) {
+                    dateInput.value = selectedDate;
+                }
+                
+                // Update time slots for selected date
+                updateTimeSlots(selectedDate);
+                
+                checkSelectionComplete();
+            });
+        } else {
+            // Next month dates that are somehow still in the past (shouldn't happen normally)
+            dayElement.style.opacity = '0.3';
+            dayElement.style.cursor = 'not-allowed';
+            dayElement.style.pointerEvents = 'none';
         }
         
         calendar.appendChild(dayElement);
     }
 }
 
-// Time slot selection
+// Function to update time slots based on selected date
+async function updateTimeSlots(selectedDate) {
+    try {
+        const response = await fetch(`/api/available-slots/${selectedDate}`);
+        const data = await response.json();
+        
+        const timeSlots = document.querySelectorAll('.time-slot');
+        
+        timeSlots.forEach(slot => {
+            const timeText = slot.textContent;
+            
+            if (data.booked_slots.includes(timeText)) {
+                // Slot is booked - disable it
+                slot.classList.add('booked');
+                slot.style.opacity = '0.3';
+                slot.style.cursor = 'not-allowed';
+                slot.style.pointerEvents = 'none';
+                slot.style.background = 'rgba(255, 0, 0, 0.2)';
+                
+                // Remove any existing click listeners by cloning
+                const newSlot = slot.cloneNode(true);
+                slot.parentNode.replaceChild(newSlot, slot);
+            } else {
+                // Slot is available - enable it
+                slot.classList.remove('booked');
+                slot.style.opacity = '1';
+                slot.style.cursor = 'pointer';
+                slot.style.pointerEvents = 'auto';
+                slot.style.background = '';
+                
+                // Add click listener for available slots
+                slot.addEventListener('click', () => {
+                    // Remove previous selection
+                    document.querySelectorAll('.time-slot.selected').forEach(s => {
+                        s.classList.remove('selected');
+                    });
+                    slot.classList.add('selected');
+                    
+                    // Update hidden input
+                    const timeInput = document.getElementById('selected-time');
+                    if (timeInput) {
+                        timeInput.value = slot.textContent;
+                    }
+                    
+                    checkSelectionComplete();
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching available slots:', error);
+        // If API fails, keep all slots available
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.addEventListener('click', () => {
+                document.querySelectorAll('.time-slot.selected').forEach(s => {
+                    s.classList.remove('selected');
+                });
+                slot.classList.add('selected');
+                
+                const timeInput = document.getElementById('selected-time');
+                if (timeInput) {
+                    timeInput.value = slot.textContent;
+                }
+                
+                checkSelectionComplete();
+            });
+        });
+    }
+}
+
+// Initialize time slot selection (will be updated when date is selected)
 document.querySelectorAll('.time-slot').forEach(slot => {
     slot.addEventListener('click', () => {
         // Remove previous selection
@@ -352,6 +488,7 @@ function checkSelectionComplete() {
         proceedButton.classList.add('opacity-50', 'cursor-not-allowed');
     }
 }
+
 
 // Start animation immediately even if models haven't loaded yet
 animate();

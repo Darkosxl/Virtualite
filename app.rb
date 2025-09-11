@@ -48,6 +48,35 @@ get '/pictures/*' do |filename|
   send_file "pictures/#{filename}"
 end
 
+# Check available time slots for a specific date
+get '/api/available-slots/:date' do
+  content_type :json
+  
+  date = params[:date]
+  
+  # Get existing bookings for this date
+  existing_bookings = $db.get_bookings_for_date(date)
+  
+  # All possible time slots
+  all_slots = [
+    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30',
+    '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
+    '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30'
+  ]
+  
+  # Get booked time slots
+  booked_slots = existing_bookings.map { |booking| booking[:selected_time] }
+  
+  # Return available slots
+  available_slots = all_slots - booked_slots
+  
+  {
+    date: date,
+    available_slots: available_slots,
+    booked_slots: booked_slots
+  }.to_json
+end
+
 # Booking form step 1 - Contact details
 get '/booking-form' do
   selected_date = params['selected_date']

@@ -50,59 +50,6 @@
             background-color: rgba(78, 205, 196, 0.2);
         }
 
-        /* Navigation */
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 1rem 2rem;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
-
-        nav.scrolled {
-            background: rgba(0, 0, 0, 0.95);
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .nav-links a:hover {
-            background: rgba(255, 107, 107, 0.2);
-            transform: translateY(-2px);
-        }
 
         /* Hero section with animated gradient */
         .hero {
@@ -451,10 +398,6 @@
 
         /* Responsive design */
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
             .hero h1 {
                 font-size: 4rem;
             }
@@ -574,7 +517,7 @@
     <section class="contact-section" id="contact">
         <div class="container">
             <h2 class="contact-title">Tanışalım mı?</h2>
-            <p class="contact-subtitle">Görüşme ayarlayalım!</p>
+            <p class="contact-subtitle">Ne zaman görüşelim?</p>
             
             <div class="booking-container">
                 <!-- Step 1: Date and Time Selection -->
@@ -586,6 +529,18 @@
                     </div>
                     
                     <div class="time-slots mb-6" id="timeSlots">
+                        <div class="time-slot">09:00</div>
+                        <div class="time-slot">09:30</div>
+                        <div class="time-slot">10:00</div>
+                        <div class="time-slot">10:30</div>
+                        <div class="time-slot">11:00</div>
+                        <div class="time-slot">11:30</div>
+                        <div class="time-slot">12:00</div>
+                        <div class="time-slot">12:30</div>
+                        <div class="time-slot">13:00</div>
+                        <div class="time-slot">13:30</div>
+                        <div class="time-slot">14:00</div>
+                        <div class="time-slot">14:30</div>
                         <div class="time-slot">15:00</div>
                         <div class="time-slot">15:30</div>
                         <div class="time-slot">16:00</div>
@@ -593,6 +548,11 @@
                         <div class="time-slot">17:00</div>
                         <div class="time-slot">17:30</div>
                         <div class="time-slot">18:00</div>
+                        <div class="time-slot">18:30</div>
+                        <div class="time-slot">19:00</div>
+                        <div class="time-slot">19:30</div>
+                        <div class="time-slot">20:00</div>
+                        <div class="time-slot">20:30</div>
                     </div>
 
                     <button id="proceed-to-form" 

@@ -1,5 +1,6 @@
-<!-- Step 2: Contact Information Form -->
-<div class="max-w-2xl mx-auto bg-white bg-opacity-10 backdrop-blur-lg rounded-3xl p-8 mt-6 border border-white border-opacity-20">
+<!-- Step 2: Contact Information Form - Overlay Style -->
+<div class="fixed inset-0 flex items-center justify-center z-50 p-4">
+    <div class="max-w-2xl w-full border border-white border-opacity-20 rounded-3xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); backdrop-filter: blur(10px);">
     
     <!-- Progress indicator -->
     <div class="flex justify-center mb-8">
@@ -64,7 +65,7 @@
                                class="w-full pl-4 pr-12 py-3 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
                                placeholder="TikTok kullanıcı adınız">
                         <div class="absolute right-3 top-3 w-6 h-6 rounded flex items-center justify-center">
-                            <img src="/pictures/tiktoklogo.jpeg" alt="TikTok" class="w-full h-full object-cover rounded">
+                            <img src="/pictures/tiktok.png" alt="TikTok" class="w-full h-full object-cover rounded">
                         </div>
                     </div>
                 </div>
@@ -88,7 +89,7 @@
                                class="w-full pl-4 pr-12 py-3 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
                                placeholder="Instagram kullanıcı adınız">
                         <div class="absolute right-3 top-3 w-6 h-6 rounded flex items-center justify-center">
-                            <img src="/pictures/instagramlogo.jpg" alt="Instagram" class="w-full h-full object-cover rounded">
+                            <img src="/pictures/insta.png" alt="Instagram" class="w-full h-full object-cover rounded">
                         </div>
                     </div>
                 </div>
@@ -122,11 +123,13 @@
 
         <!-- Submit button -->
         <button type="submit" 
-                class="w-full bg-gradient-to-r from-red-400 to-teal-400 text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:opacity-50">
+                id="submit-booking-btn"
+                disabled
+                class="w-full bg-gradient-to-r from-red-400 to-teal-400 text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
             <span class="htmx-indicator" id="loading">
                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
             </span>
             Rezervasyonu Tamamla
@@ -134,11 +137,12 @@
     </form>
 
     <!-- Back button -->
-    <button onclick="document.getElementById('datetime-selection').style.display='block'; document.getElementById('booking-steps').innerHTML=''" 
+    <button onclick="document.getElementById('booking-steps').innerHTML = ''" 
             class="w-full mt-4 text-white text-center py-2 opacity-70 hover:opacity-100 transition-opacity">
         ← Tarih seçimine geri dön
     </button>
-
+    
+    </div>
 </div>
 
 
@@ -168,8 +172,7 @@
 </style>
 
 <script>
-// Hide the datetime selection when form loads
-document.getElementById('datetime-selection').style.display = 'none';
+// No need to modify datetime section since form is now an overlay
 
 // Handle social platform checkbox selection
 document.querySelectorAll('.social-checkbox').forEach(checkbox => {
@@ -185,6 +188,43 @@ document.querySelectorAll('.social-checkbox').forEach(checkbox => {
             const usernameInput = usernameDiv.querySelector('input');
             if (usernameInput) usernameInput.value = '';
         }
+        
+        // Check form validation
+        validateForm();
     });
 });
+
+// Handle username input changes
+document.querySelectorAll('input[name$="_username"]').forEach(input => {
+    input.addEventListener('input', validateForm);
+});
+
+// Form validation function
+function validateForm() {
+    const checkboxes = document.querySelectorAll('.social-checkbox');
+    const submitBtn = document.getElementById('submit-booking-btn');
+    
+    let hasValidSelection = false;
+    
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+            const platform = checkbox.getAttribute('data-platform');
+            const usernameInput = document.querySelector(`input[name="${platform}_username"]`);
+            if (usernameInput && usernameInput.value.trim() !== '') {
+                hasValidSelection = true;
+            }
+        }
+    });
+    
+    if (hasValidSelection) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+}
+
+// Initial validation check
+validateForm();
 </script>
