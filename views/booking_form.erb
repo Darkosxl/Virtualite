@@ -7,8 +7,6 @@
             <div class="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">✓</div>
             <div class="w-12 h-1 bg-green-400 mx-2"></div>
             <div class="w-8 h-8 bg-gradient-to-r from-red-400 to-teal-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">2</div>
-            <div class="w-12 h-1 bg-gray-300 mx-2"></div>
-            <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-semibold text-sm">3</div>
         </div>
     </div>
 
@@ -18,7 +16,7 @@
         Seçtiğiniz tarih: <strong><%= selected_date %></strong> - <strong><%= selected_time %></strong>
     </p>
 
-    <form id="contact-form" hx-post="/verify-phone" hx-target="#verification-step" hx-indicator="#loading">
+    <form id="contact-form" hx-post="/submit-booking" hx-target="#booking-steps" hx-indicator="#loading">
         <input type="hidden" name="selected_date" value="<%= selected_date %>">
         <input type="hidden" name="selected_time" value="<%= selected_time %>">
 
@@ -43,43 +41,84 @@
                    placeholder="+90 555 123 45 67">
         </div>
 
-        <!-- Content experience -->
+        <!-- Social media platforms selection -->
         <div class="mb-6">
-            <label class="block text-white font-semibold mb-3">Daha önce içerik ürettiniz mi? *</label>
-            <div class="space-y-3">
+            <label class="block text-white font-semibold mb-3">Hangi sosyal medya platformlarında içerik üretiyorsun'?'</label>
+            <div class="space-y-4">
+                <!-- TikTok -->
                 <label class="flex items-center cursor-pointer">
-                    <input type="radio" 
-                           name="has_content" 
-                           value="false" 
-                           required
-                           class="sr-only"
-                           hx-trigger="change"
-                           hx-target="#social-fields"
-                           hx-get="/social-fields?has_content=false">
-                    <div class="w-5 h-5 border-2 border-white rounded-full mr-3 flex items-center justify-center">
-                        <div class="w-2 h-2 bg-white rounded-full hidden radio-dot"></div>
+                    <input type="checkbox" 
+                           name="social_platforms[]" 
+                           value="tiktok" 
+                           class="sr-only social-checkbox"
+                           data-platform="tiktok">
+                    <div class="w-5 h-5 border-2 border-white rounded mr-3 flex items-center justify-center">
+                        <div class="w-2 h-2 bg-white rounded hidden checkbox-dot"></div>
                     </div>
-                    <span class="text-white">Hayır, ilk defa içerik üretmeyi düşünüyorum</span>
+                    <span class="text-white">TikTok</span>
                 </label>
+                <div id="tiktok-username" class="ml-8 hidden">
+                    <div class="relative">
+                        <input type="text" 
+                               name="tiktok_username" 
+                               class="w-full pl-4 pr-12 py-3 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
+                               placeholder="TikTok kullanıcı adınız">
+                        <div class="absolute right-3 top-3 w-6 h-6 rounded flex items-center justify-center">
+                            <img src="/pictures/tiktoklogo.jpeg" alt="TikTok" class="w-full h-full object-cover rounded">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instagram -->
                 <label class="flex items-center cursor-pointer">
-                    <input type="radio" 
-                           name="has_content" 
-                           value="true" 
-                           required
-                           class="sr-only"
-                           hx-trigger="change"
-                           hx-target="#social-fields"
-                           hx-get="/social-fields?has_content=true">
-                    <div class="w-5 h-5 border-2 border-white rounded-full mr-3 flex items-center justify-center">
-                        <div class="w-2 h-2 bg-white rounded-full hidden radio-dot"></div>
+                    <input type="checkbox" 
+                           name="social_platforms[]" 
+                           value="instagram" 
+                           class="sr-only social-checkbox"
+                           data-platform="instagram">
+                    <div class="w-5 h-5 border-2 border-white rounded mr-3 flex items-center justify-center">
+                        <div class="w-2 h-2 bg-white rounded hidden checkbox-dot"></div>
                     </div>
-                    <span class="text-white">Evet, sosyal medyada içerik üretiyorum</span>
+                    <span class="text-white">Instagram</span>
                 </label>
+                <div id="instagram-username" class="ml-8 hidden">
+                    <div class="relative">
+                        <input type="text" 
+                               name="instagram_username" 
+                               class="w-full pl-4 pr-12 py-3 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
+                               placeholder="Instagram kullanıcı adınız">
+                        <div class="absolute right-3 top-3 w-6 h-6 rounded flex items-center justify-center">
+                            <img src="/pictures/instagramlogo.jpg" alt="Instagram" class="w-full h-full object-cover rounded">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- YouTube -->
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" 
+                           name="social_platforms[]" 
+                           value="youtube" 
+                           class="sr-only social-checkbox"
+                           data-platform="youtube">
+                    <div class="w-5 h-5 border-2 border-white rounded mr-3 flex items-center justify-center">
+                        <div class="w-2 h-2 bg-white rounded hidden checkbox-dot"></div>
+                    </div>
+                    <span class="text-white">YouTube</span>
+                </label>
+                <div id="youtube-username" class="ml-8 hidden">
+                    <div class="relative">
+                        <input type="text" 
+                               name="youtube_username" 
+                               class="w-full pl-4 pr-12 py-3 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
+                               placeholder="YouTube kanal adınız">
+                        <div class="absolute right-3 top-3 w-6 h-6 rounded flex items-center justify-center">
+                            <img src="/pictures/ytlogo.png" alt="YouTube" class="w-full h-full object-cover rounded">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Social media fields (populated by HTMX) -->
-        <div id="social-fields"></div>
 
         <!-- Submit button -->
         <button type="submit" 
@@ -90,7 +129,7 @@
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
             </span>
-            Devam Et
+            Rezervasyonu Tamamla
         </button>
     </form>
 
@@ -102,16 +141,14 @@
 
 </div>
 
-<!-- Verification step area -->
-<div id="verification-step"></div>
 
 <style>
-/* Custom radio button styling */
-input[type="radio"]:checked + div .radio-dot {
+/* Custom checkbox styling */
+.social-checkbox:checked + div .checkbox-dot {
     display: block !important;
 }
 
-input[type="radio"]:checked + div {
+.social-checkbox:checked + div {
     border-color: #4ecdc4;
     background-color: rgba(78, 205, 196, 0.1);
 }
@@ -133,4 +170,21 @@ input[type="radio"]:checked + div {
 <script>
 // Hide the datetime selection when form loads
 document.getElementById('datetime-selection').style.display = 'none';
+
+// Handle social platform checkbox selection
+document.querySelectorAll('.social-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const platform = this.getAttribute('data-platform');
+        const usernameDiv = document.getElementById(`${platform}-username`);
+        
+        if (this.checked) {
+            usernameDiv.classList.remove('hidden');
+        } else {
+            usernameDiv.classList.add('hidden');
+            // Clear the username input when unchecked
+            const usernameInput = usernameDiv.querySelector('input');
+            if (usernameInput) usernameInput.value = '';
+        }
+    });
+});
 </script>

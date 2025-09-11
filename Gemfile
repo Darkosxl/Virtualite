@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'sinatra'
 gem 'mail'        # Email sending
-gem 'httparty'    # HTTP requests for SMS API
+gem 'pg'          # PostgreSQL adapter for Supabase
 gem 'json'        # JSON parsing
 
 group :development do

@@ -1,10 +1,8 @@
 require 'sinatra'
 require 'sinatra/json'
 require 'json'
-require 'net/http'
-require 'uri'
 require 'mail'
-require 'securerandom'
+require_relative 'database'
 
 # Configuration
 set :public_folder, 'public'
@@ -12,8 +10,8 @@ set :port, 4567
 set :bind, '0.0.0.0'
 set :sessions, true
 
-# In-memory storage for verification codes (use Redis in production)
-$verification_codes = {}
+# Database initialization
+$db = Database.new
 
 # Routes
 get '/' do
@@ -45,6 +43,11 @@ get '/assets/*.gltf' do |filename|
   send_file "assets/#{filename}.gltf"
 end
 
+# Serve picture files
+get '/pictures/*' do |filename|
+  send_file "pictures/#{filename}"
+end
+
 # Booking form step 1 - Contact details
 get '/booking-form' do
   selected_date = params['selected_date']
@@ -56,102 +59,51 @@ get '/booking-form' do
   }
 end
 
-# Social media fields partial
+# Social media fields partial - no longer needed but keeping for compatibility
 get '/social-fields' do
-  has_content = params['has_content'] == 'true'
-  erb :social_fields, locals: { has_content: has_content }
+  # Return empty content since we now handle platforms directly in the form
+  ""
 end
 
-# Phone verification - generates and sends SMS code
-post '/verify-phone' do
-  content_type :json
-  
+# Submit booking directly - no verification needed
+post '/submit-booking' do
   phone_number = params['phone_number']
   name = params['name']
   selected_date = params['selected_date']
   selected_time = params['selected_time']
-  has_content = params['has_content'] == 'true'
-  social_platform = params['social_platform']
-  social_id = params['social_id']
   
-  # Generate 6-digit code
-  verification_code = sprintf('%06d', rand(1000000))
+  # Handle multiple social platforms
+  social_platforms = params['social_platforms[]'] || []
+  social_usernames = {}
+  social_platforms.each do |platform|
+    username = params["#{platform}_username"]
+    social_usernames[platform] = username if username && !username.empty?
+  end
   
-  # Store in session (in production, use Redis with expiry)
-  session[:verification_code] = verification_code
-  session[:phone_number] = phone_number
-  session[:booking_data] = {
+  booking_data = {
     name: name,
     phone_number: phone_number,
     selected_date: selected_date,
     selected_time: selected_time,
-    has_content: has_content,
-    social_platform: social_platform,
-    social_id: social_id
+    social_platforms: social_platforms,
+    social_usernames: social_usernames
   }
   
-  # Send SMS (mock for now - in production use Twilio/SMS API)
-  success = send_sms(phone_number, "doğrulama kodunuz: #{verification_code}")
-  
-  if success
-    # Return the verification form as HTML
-    erb :verification_form, locals: { phone_number: phone_number }
-  else
-    status 500
-    erb :error_message, locals: { message: "SMS gönderilemedi. Lütfen tekrar deneyin." }
-  end
-end
-
-# Submit booking after SMS verification
-post '/submit-booking' do
-  content_type :json
-  
-  user_code = params['verification_code']
-  stored_code = session[:verification_code]
-  
-  unless user_code == stored_code
-    status 400
-    return json({ success: false, message: "Doğrulama kodu hatalı!" })
-  end
-  
-  booking_data = session[:booking_data]
+  # Save to database
+  booking_id = $db.save_booking(booking_data)
   
   # Send notification email
-  success = send_notification_email(booking_data)
+  email_success = send_notification_email(booking_data)
   
-  # Clear session
-  session[:verification_code] = nil
-  session[:booking_data] = nil
-  
-  if success
+  if booking_id && email_success
     erb :success_message
   else
     status 500
-    erb :error_message, locals: { message: "Email gönderilemedi. Lütfen tekrar deneyin." }
+    erb :error_message, locals: { message: "Rezervasyon kaydedilemedi. Lütfen tekrar deneyin." }
   end
 end
 
 # Helper methods
-def send_sms(phone_number, message)
-  # Mock SMS sending - replace with real SMS API (Twilio, etc.)
-  puts "SMS sent to #{phone_number}: #{message}"
-  true
-  
-  # Example Twilio integration (uncomment and configure):
-  # begin
-  #   require 'twilio-ruby'
-  #   client = Twilio::REST::Client.new('your_account_sid', 'your_auth_token')
-  #   client.messages.create(
-  #     from: 'your_twilio_number',
-  #     to: phone_number,
-  #     body: message
-  #   )
-  #   true
-  # rescue => e
-  #   puts "SMS error: #{e.message}"
-  #   false
-  # end
-end
 
 def send_notification_email(booking_data)
   begin
@@ -167,9 +119,22 @@ def send_notification_email(booking_data)
       }
     end
     
-    social_info = booking_data[:has_content] ? 
-      "\nSosyal Medya: #{booking_data[:social_platform]} - @#{booking_data[:social_id]}" : 
-      "\nDaha önce içerik üretmemiş"
+    # Format social media info
+    social_info = ""
+    if booking_data[:social_platforms] && !booking_data[:social_platforms].empty?
+      social_info = "\n\nSeçilen Platformlar:"
+      booking_data[:social_platforms].each do |platform|
+        username = booking_data[:social_usernames][platform]
+        if username && !username.empty?
+          platform_name = platform.capitalize
+          social_info += "\n#{platform_name}: @#{username}"
+        else
+          social_info += "\n#{platform.capitalize}: Kullanıcı adı belirtilmemiş"
+        end
+      end
+    else
+      social_info = "\nHenüz platform seçimi yapılmamış"
+    end
     
     mail = Mail.new do
       from     ENV['GMAIL_USERNAME'] || 'your-email@gmail.com'

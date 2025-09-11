@@ -2,8 +2,6 @@ GEM
   remote: https://rubygems.org/
   specs:
     base64 (0.3.0)
-    bigdecimal (3.2.3)
-    csv (3.3.5)
     date (3.4.1)
     ffi (1.17.2)
     ffi (1.17.2-aarch64-linux-gnu)
@@ -16,10 +14,6 @@ GEM
     ffi (1.17.2-x86_64-darwin)
     ffi (1.17.2-x86_64-linux-gnu)
     ffi (1.17.2-x86_64-linux-musl)
-    httparty (0.23.1)
-      csv
-      mini_mime (>= 1.0.0)
-      multi_xml (>= 0.5.2)
     json (2.13.2)
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
@@ -31,8 +25,6 @@ GEM
       net-pop
       net-smtp
     mini_mime (1.1.5)
-    multi_xml (0.7.2)
-      bigdecimal (~> 3.1)
     mustermann (3.0.4)
       ruby2_keywords (~> 0.0.1)
     net-imap (0.5.10)
@@ -44,6 +36,13 @@ GEM
       timeout
     net-smtp (0.5.1)
       net-protocol
+    pg (1.6.2)
+    pg (1.6.2-aarch64-linux)
+    pg (1.6.2-aarch64-linux-musl)
+    pg (1.6.2-arm64-darwin)
+    pg (1.6.2-x86_64-darwin)
+    pg (1.6.2-x86_64-linux)
+    pg (1.6.2-x86_64-linux-musl)
     rack (3.2.1)
     rack-protection (4.1.1)
       base64 (>= 0.1.0)
@@ -82,9 +81,9 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  httparty
   json
   mail
+  pg
   rerun
   sinatra
 

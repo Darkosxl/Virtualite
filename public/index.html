@@ -18,6 +18,18 @@
             overflow-x: hidden;
             cursor: none;
         }
+        
+        /* Ensure cursor stays consistent */
+        *, *:before, *:after, *:hover, *:active, *:focus {
+            cursor: none !important;
+        }
+        
+        /* Override specific hover states */
+        .calendar-day:hover, .time-slot:hover, 
+        button:hover, input:hover, label:hover,
+        .content-card:hover, .cta-button:hover {
+            cursor: none !important;
+        }
 
         /* Custom cursor */
         .cursor {
@@ -33,8 +45,9 @@
         }
 
         .cursor.hover {
-            transform: scale(2);
+            transform: scale(1.5);
             border-color: #4ecdc4;
+            background-color: rgba(78, 205, 196, 0.2);
         }
 
         /* Navigation */
@@ -338,19 +351,22 @@
         }
 
         .booking-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
+            border-radius: 30px;
+            padding: 3rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
         }
 
         .calendar-section h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            margin-bottom: 2rem;
             color: white;
+            text-align: center;
+            font-weight: 700;
         }
 
         .calendar-grid {
@@ -366,19 +382,28 @@
             align-items: center;
             justify-content: center;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            font-weight: 600;
-            cursor: pointer;
+            border-radius: 12px;
+            font-weight: 800;
             transition: all 0.3s ease;
+            border: 2px solid transparent;
+            font-size: 1.3rem;
+            font-family: 'Inter', monospace;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .calendar-day:hover {
             background: rgba(255, 107, 107, 0.3);
-            transform: scale(1.1);
+            transform: translateY(-3px);
+            border-color: rgba(255, 107, 107, 0.5);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.2);
         }
 
         .calendar-day.selected {
             background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-color: #4ecdc4;
+            box-shadow: 0 15px 30px rgba(78, 205, 196, 0.3);
+            transform: translateY(-3px);
         }
 
         .time-slots {
@@ -388,22 +413,28 @@
         }
 
         .time-slot {
-            padding: 0.8rem 1rem;
+            padding: 1rem 1.2rem;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+            border-radius: 20px;
             text-align: center;
-            cursor: pointer;
             transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+            font-size: 1.1rem;
         }
 
         .time-slot:hover {
             background: rgba(255, 107, 107, 0.2);
-            transform: translateY(-2px);
+            transform: translateY(-5px);
+            border-color: rgba(255, 107, 107, 0.5);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.2);
         }
 
         .time-slot.selected {
             background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-color: #4ecdc4;
+            box-shadow: 0 15px 30px rgba(78, 205, 196, 0.3);
+            transform: translateY(-5px);
         }
 
         /* 3D Canvas for floating models */
@@ -460,23 +491,12 @@
     
     <canvas id="three-canvas"></canvas>
 
-    <nav id="navbar">
-        <div class="nav-container">
-            <div class="logo"></div>
-            <ul class="nav-links">
-                <li><a href="#home">HAKKIMIZDA</a></li>
-                <li><a href="#services">HİZMETLERİMİZ</a></li>
-                <li><a href="#portfolio">İŞLERİMİZ</a></li>
-                <li><a href="#contact">BİZE ULAŞ</a></li>
-            </ul>
-        </div>
-    </nav>
 
     <section class="hero" id="home">
         <div class="hero-content">
             <h1>Kaydırmayı Durduran İçerikler</h1>
             <p>Herkesin izlemekten zevk alacağı, kalbinde TikTok olan etkili ve viral potansiyeli içerikler üretiyoruz.</p>
-            <a href="#services" class="cta-button">Tanışalım mı?</a>
+            <a href="#contact" class="cta-button">Tanışalım mı?</a>
         </div>
         <div class="scroll-indicator">Keşfetmek için kaydır</div>
     </section>
@@ -554,7 +574,7 @@
     <section class="contact-section" id="contact">
         <div class="container">
             <h2 class="contact-title">Tanışalım mı?</h2>
-            <p class="contact-subtitle">Bir ücretsiz görüşme ayarlayalım!</p>
+            <p class="contact-subtitle">Görüşme ayarlayalım!</p>
             
             <div class="booking-container">
                 <!-- Step 1: Date and Time Selection -->
