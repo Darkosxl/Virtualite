@@ -52,7 +52,7 @@
         }
 
 
-        /* Hero section with animated gradient */
+        /* Hero section with animated gradient - GPU accelerated */
         .hero {
             height: 100vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -64,6 +64,9 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+            will-change: background-position;
+            transform: translateZ(0);
+            overflow: hidden;
         }
 
         @keyframes gradientShift {
@@ -102,6 +105,8 @@
             animation: textGlow 3s ease-in-out infinite alternate;
             line-height: 0.9;
             letter-spacing: -0.02em;
+            will-change: background-position;
+            transform: translateZ(0);
         }
 
         @keyframes textGlow {
@@ -156,7 +161,7 @@
 
         .scroll-indicator {
             position: absolute;
-            bottom: 2rem;
+            bottom: 4rem;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.1);
@@ -166,6 +171,8 @@
             font-size: 0.9rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
             animation: bounce 2s infinite;
+            will-change: transform;
+            backface-visibility: hidden;
         }
 
         @keyframes bounce {
@@ -174,21 +181,20 @@
             60% { transform: translateX(-50%) translateY(-5px); }
         }
 
-        /* Content showcase section */
-        .content-showcase {
-            padding: 5rem 2rem;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            position: relative;
+        @keyframes gentleGradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        .content-showcase::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.1);
+        /* Content showcase section - static gradient with more space */
+        .content-showcase {
+            padding: 5rem 2rem 5rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            border-radius: 3rem 3rem 0 0;
+            margin-top: -3rem;
+            margin-bottom: 0;
         }
 
         .container {
@@ -216,8 +222,20 @@
 
         .content-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 2rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .content-card {
@@ -225,8 +243,10 @@
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             color: #333;
+            will-change: transform;
+            backface-visibility: hidden;
         }
 
         .content-card:hover {
@@ -278,11 +298,14 @@
             color: #888;
         }
 
-        /* Contact section */
+        /* Contact section - static gradient */
         .contact-section {
             padding: 5rem 2rem;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             text-align: center;
+            margin-top: 0;
+            position: relative;
+            overflow: hidden;
         }
 
         .contact-title {
@@ -337,7 +360,7 @@
             font-size: 1.3rem;
             font-family: 'Inter', monospace;
             letter-spacing: 0.5px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 2px 4px rgba(255, 255, 255, 0.8);
         }
 
         .calendar-day:hover {
@@ -385,16 +408,28 @@
             transform: translateY(-5px);
         }
 
-        /* 3D Canvas for floating models */
+        /* 3D Canvas for floating models - constrained to hero section */
         #three-canvas {
-            position: fixed;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.6;
+        }
+
+        /* Sunglasses animation canvas for calendar section */
+        #sunglasses-canvas {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
             z-index: 1;
-            opacity: 0.6;
+            opacity: 0.8;
         }
 
         /* Responsive design */
@@ -430,11 +465,9 @@
 </head>
 <body>
     <div class="cursor"></div>
-    
-    <canvas id="three-canvas"></canvas>
-
 
     <section class="hero" id="home">
+        <canvas id="three-canvas"></canvas>
         <div class="hero-content">
             <h1>Kaydırmayı Durduran İçerikler</h1>
             <p>Herkesin izlemekten zevk alacağı, kalbinde TikTok olan etkili ve viral potansiyeli içerikler üretiyoruz.</p>
@@ -452,9 +485,9 @@
             <div class="content-grid">
                 <div class="content-card">
                     <div class="content-video">
-                        <video autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;">
-                            <source src="/videos/umut.mov" type="video/quicktime">
-                            <source src="/videos/umut.mov" type="video/mp4">
+                        <video muted loop playsinline data-src="/videos/umut.mov" class="lazy-video" style="width: 100%; height: 100%; object-fit: cover;">
+                            <source data-src="/videos/umut.mov" type="video/quicktime">
+                            <source data-src="/videos/umut.mov" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     </div>
@@ -471,9 +504,9 @@
 
                 <div class="content-card">
                     <div class="content-video">
-                        <video autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;">
-                            <source src="/videos/baran.mov" type="video/quicktime">
-                            <source src="/videos/baran.mov" type="video/mp4">
+                        <video muted loop playsinline data-src="/videos/baran.mov" class="lazy-video" style="width: 100%; height: 100%; object-fit: cover;">
+                            <source data-src="/videos/baran.mov" type="video/quicktime">
+                            <source data-src="/videos/baran.mov" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     </div>
@@ -490,9 +523,9 @@
 
                 <div class="content-card">
                     <div class="content-video">
-                        <video autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;">
-                            <source src="/videos/gülizar.mov" type="video/quicktime">
-                            <source src="/videos/gülizar.mov" type="video/mp4">
+                        <video muted loop playsinline data-src="/videos/gülizar.mov" class="lazy-video" style="width: 100%; height: 100%; object-fit: cover;">
+                            <source data-src="/videos/gülizar.mov" type="video/quicktime">
+                            <source data-src="/videos/gülizar.mov" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     </div>
@@ -509,9 +542,9 @@
 
                 <div class="content-card">
                     <div class="content-video">
-                        <video autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;">
-                            <source src="/videos/umut.mov" type="video/quicktime">
-                            <source src="/videos/umut.mov" type="video/mp4">
+                        <video muted loop playsinline data-src="/videos/umut.mov" class="lazy-video" style="width: 100%; height: 100%; object-fit: cover;">
+                            <source data-src="/videos/umut.mov" type="video/quicktime">
+                            <source data-src="/videos/umut.mov" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     </div>
@@ -530,6 +563,8 @@
     </section>
 
     <section class="contact-section" id="contact">
+        <!-- Sunglasses animation canvas -->
+        <canvas id="sunglasses-canvas"></canvas>
         <div class="container">
             <h2 class="contact-title">Tanışalım mı?</h2>
             <p class="contact-subtitle">Ne zaman görüşelim?</p>
@@ -543,7 +578,7 @@
                         <!-- Calendar will be populated by JavaScript -->
                     </div>
                     
-                    <div class="time-slots mb-6" id="timeSlots">
+                    <div class="time-slots" id="timeSlots" style="margin-bottom: 3rem;">
                         <div class="time-slot">09:00</div>
                         <div class="time-slot">09:30</div>
                         <div class="time-slot">10:00</div>

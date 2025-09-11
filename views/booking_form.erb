@@ -1,19 +1,19 @@
 <!-- Step 2: Contact Information Form - Overlay Style -->
-<div class="fixed inset-0 flex items-center justify-center z-50 p-4">
-    <div class="max-w-2xl w-full border border-white border-opacity-20 rounded-3xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); backdrop-filter: blur(10px);">
+<div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 50; padding: 1rem;">
+    <div style="max-width: 42rem; width: 100%; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 1.5rem; padding: 2rem; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25); max-height: 90vh; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); backdrop-filter: blur(10px);">
     
     <!-- Progress indicator -->
-    <div class="flex justify-center mb-8">
-        <div class="flex items-center">
-            <div class="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">✓</div>
-            <div class="w-12 h-1 bg-green-400 mx-2"></div>
-            <div class="w-8 h-8 bg-gradient-to-r from-red-400 to-teal-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">2</div>
+    <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center;">
+            <div style="width: 2rem; height: 2rem; background-color: #4ade80; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem;">✓</div>
+            <div style="width: 3rem; height: 0.25rem; background-color: #4ade80; margin: 0 0.5rem;"></div>
+            <div style="width: 2rem; height: 2rem; background: linear-gradient(to right, #f87171, #4db5bc); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem;">2</div>
         </div>
     </div>
 
-    <h3 class="text-white text-2xl font-bold text-center mb-6">Bilgilerinizi Girin</h3>
+    <h3 style="color: white; font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 1.5rem;">Bilgilerinizi Girin</h3>
     
-    <p class="text-white text-center mb-6 opacity-90">
+    <p style="color: white; text-align: center; margin-bottom: 1.5rem; opacity: 0.9;">
         Seçtiğiniz tarih: <strong><%= selected_date %></strong> - <strong><%= selected_time %></strong>
     </p>
 
@@ -22,114 +22,101 @@
         <input type="hidden" name="selected_time" value="<%= selected_time %>">
 
         <!-- Name input -->
-        <div class="mb-6">
-            <label class="block text-white font-semibold mb-2">Adınız Soyadınız *</label>
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; color: white; font-weight: 600; margin-bottom: 0.5rem;">Adınız Soyadınız *</label>
             <input type="text" 
                    name="name" 
                    required 
-                   class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
+                   style="width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; transition: all 0.3s;"
                    placeholder="Adınız ve soyadınızı girin">
         </div>
 
         <!-- Phone input -->
-        <div class="mb-6">
-            <label class="block text-white font-semibold mb-2">Telefon Numaranız *</label>
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; color: white; font-weight: 600; margin-bottom: 0.5rem;">Telefon Numaranız *</label>
             <input type="tel" 
                    name="phone_number" 
                    required 
                    pattern="[0-9\s\-\+\(\)]*"
-                   class="w-full px-4 py-3 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
+                   style="width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; transition: all 0.3s;"
                    placeholder="+90 555 123 45 67">
         </div>
 
         <!-- Social media platforms selection -->
-        <div class="mb-6">
-            <label class="block text-white font-semibold mb-3">Hangi sosyal medya platformlarında içerik üretiyorsun'?'</label>
-            <div class="space-y-4">
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; color: white; font-weight: 600; margin-bottom: 0.75rem;">Hangi sosyal medya platformlarında içerik üretiyorsun'?'</label>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
                 <!-- TikTok -->
-                <label class="flex items-center cursor-pointer">
+                <label style="display: flex; align-items: center; cursor: pointer;">
                     <input type="checkbox" 
                            name="social_platforms[]" 
                            value="tiktok" 
                            class="sr-only social-checkbox"
-                           data-platform="tiktok">
-                    <div class="w-5 h-5 border-2 border-white rounded mr-3 flex items-center justify-center">
-                        <div class="w-2 h-2 bg-white rounded hidden checkbox-dot"></div>
+                           data-platform="tiktok"
+                           style="position: absolute; left: -10000px;">
+                    <div style="width: 1.25rem; height: 1.25rem; border: 2px solid white; border-radius: 0.25rem; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center;">
+                        <div class="checkbox-dot" style="width: 0.5rem; height: 0.5rem; background-color: white; border-radius: 0.125rem; display: none;"></div>
                     </div>
-                    <span class="text-white">TikTok</span>
+                    <span style="color: white;">TikTok</span>
                 </label>
-                <div id="tiktok-username" class="ml-8 hidden">
-                    <div class="relative">
-                        <input type="text" 
-                               name="tiktok_username" 
-                               class="w-full pl-4 pr-12 py-3 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
-                               placeholder="TikTok kullanıcı adınız">
-                        <div class="absolute right-3 top-3 w-6 h-6 rounded flex items-center justify-center">
-                            <img src="/pictures/tiktok.png" alt="TikTok" class="w-full h-full object-cover rounded">
-                        </div>
-                    </div>
+                <div id="tiktok-username" style="margin-left: 2rem; display: none;">
+                    <input type="text" 
+                           name="tiktok_username" 
+                           style="width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;"
+                           placeholder="TikTok kullanıcı adınız">
                 </div>
 
                 <!-- Instagram -->
-                <label class="flex items-center cursor-pointer">
+                <label style="display: flex; align-items: center; cursor: pointer;">
                     <input type="checkbox" 
                            name="social_platforms[]" 
                            value="instagram" 
                            class="sr-only social-checkbox"
-                           data-platform="instagram">
-                    <div class="w-5 h-5 border-2 border-white rounded mr-3 flex items-center justify-center">
-                        <div class="w-2 h-2 bg-white rounded hidden checkbox-dot"></div>
+                           data-platform="instagram"
+                           style="position: absolute; left: -10000px;">
+                    <div style="width: 1.25rem; height: 1.25rem; border: 2px solid white; border-radius: 0.25rem; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center;">
+                        <div class="checkbox-dot" style="width: 0.5rem; height: 0.5rem; background-color: white; border-radius: 0.125rem; display: none;"></div>
                     </div>
-                    <span class="text-white">Instagram</span>
+                    <span style="color: white;">Instagram</span>
                 </label>
-                <div id="instagram-username" class="ml-8 hidden">
-                    <div class="relative">
-                        <input type="text" 
-                               name="instagram_username" 
-                               class="w-full pl-4 pr-12 py-3 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
-                               placeholder="Instagram kullanıcı adınız">
-                        <div class="absolute right-3 top-3 w-6 h-6 rounded flex items-center justify-center">
-                            <img src="/pictures/insta.png" alt="Instagram" class="w-full h-full object-cover rounded">
-                        </div>
-                    </div>
+                <div id="instagram-username" style="margin-left: 2rem; display: none;">
+                    <input type="text" 
+                           name="instagram_username" 
+                           style="width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;"
+                           placeholder="Instagram kullanıcı adınız">
                 </div>
 
                 <!-- YouTube -->
-                <label class="flex items-center cursor-pointer">
+                <label style="display: flex; align-items: center; cursor: pointer;">
                     <input type="checkbox" 
                            name="social_platforms[]" 
                            value="youtube" 
                            class="sr-only social-checkbox"
-                           data-platform="youtube">
-                    <div class="w-5 h-5 border-2 border-white rounded mr-3 flex items-center justify-center">
-                        <div class="w-2 h-2 bg-white rounded hidden checkbox-dot"></div>
+                           data-platform="youtube"
+                           style="position: absolute; left: -10000px;">
+                    <div style="width: 1.25rem; height: 1.25rem; border: 2px solid white; border-radius: 0.25rem; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center;">
+                        <div class="checkbox-dot" style="width: 0.5rem; height: 0.5rem; background-color: white; border-radius: 0.125rem; display: none;"></div>
                     </div>
-                    <span class="text-white">YouTube</span>
+                    <span style="color: white;">YouTube</span>
                 </label>
-                <div id="youtube-username" class="ml-8 hidden">
-                    <div class="relative">
-                        <input type="text" 
-                               name="youtube_username" 
-                               class="w-full pl-4 pr-12 py-3 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
-                               placeholder="YouTube kanal adınız">
-                        <div class="absolute right-3 top-3 w-6 h-6 rounded flex items-center justify-center">
-                            <img src="/pictures/ytlogo.png" alt="YouTube" class="w-full h-full object-cover rounded">
-                        </div>
-                    </div>
+                <div id="youtube-username" style="margin-left: 2rem; display: none;">
+                    <input type="text" 
+                           name="youtube_username" 
+                           style="width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;"
+                           placeholder="YouTube kanal adınız">
                 </div>
             </div>
         </div>
-
 
         <!-- Submit button -->
         <button type="submit" 
                 id="submit-booking-btn"
                 disabled
-                class="w-full bg-gradient-to-r from-red-400 to-teal-400 text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
-            <span class="htmx-indicator" id="loading">
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                style="width: 100%; background: linear-gradient(to right, #f87171, #4db5bc); color: white; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.125rem; transition: all 0.3s; border: none; cursor: pointer; opacity: 0.5;">
+            <span class="htmx-indicator" id="loading" style="display: none;">
+                <svg style="animation: spin 1s linear infinite; margin-left: -0.25rem; margin-right: 0.75rem; height: 1.25rem; width: 1.25rem; color: white; display: inline;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
             </span>
             Rezervasyonu Tamamla
@@ -138,13 +125,12 @@
 
     <!-- Back button -->
     <button onclick="document.getElementById('booking-steps').innerHTML = ''" 
-            class="w-full mt-4 text-white text-center py-2 opacity-70 hover:opacity-100 transition-opacity">
+            style="width: 100%; margin-top: 1rem; color: white; text-align: center; padding: 0.5rem; opacity: 0.7; transition: opacity 0.3s; background: none; border: none; cursor: pointer;">
         ← Tarih seçimine geri dön
     </button>
     
     </div>
 </div>
-
 
 <style>
 /* Custom checkbox styling */
@@ -153,27 +139,52 @@
 }
 
 .social-checkbox:checked + div {
-    border-color: #4ecdc4;
-    background-color: rgba(78, 205, 196, 0.1);
+    border-color: #4ecdc4 !important;
+    background-color: rgba(78, 205, 196, 0.1) !important;
 }
 
 .htmx-indicator {
-    display: none;
+    display: none !important;
 }
 
 .htmx-request .htmx-indicator {
-    display: inline;
+    display: inline !important;
 }
 
 .htmx-request button {
-    opacity: 0.7;
-    pointer-events: none;
+    opacity: 0.7 !important;
+    pointer-events: none !important;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Input focus styles */
+input:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 2px #4db5bc !important;
+    border-color: transparent !important;
+}
+
+/* Button hover effects */
+#submit-booking-btn:not(:disabled):hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+#submit-booking-btn:not(:disabled) {
+    opacity: 1 !important;
+    cursor: pointer !important;
+}
+
+button:last-child:hover {
+    opacity: 1 !important;
 }
 </style>
 
 <script>
-// No need to modify datetime section since form is now an overlay
-
 // Handle social platform checkbox selection
 document.querySelectorAll('.social-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
@@ -181,9 +192,9 @@ document.querySelectorAll('.social-checkbox').forEach(checkbox => {
         const usernameDiv = document.getElementById(`${platform}-username`);
         
         if (this.checked) {
-            usernameDiv.classList.remove('hidden');
+            usernameDiv.style.display = 'block';
         } else {
-            usernameDiv.classList.add('hidden');
+            usernameDiv.style.display = 'none';
             // Clear the username input when unchecked
             const usernameInput = usernameDiv.querySelector('input');
             if (usernameInput) usernameInput.value = '';
@@ -218,10 +229,12 @@ function validateForm() {
     
     if (hasValidSelection) {
         submitBtn.disabled = false;
-        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
     } else {
         submitBtn.disabled = true;
-        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
     }
 }
 

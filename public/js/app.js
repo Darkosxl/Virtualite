@@ -253,6 +253,10 @@ const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x000000, 0);
 
+// Performance optimization: Smart 3D scene control
+let is3DActive = false;
+let animationId = null;
+
 // Add lighting to show textures properly
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 scene.add(ambientLight);
@@ -418,12 +422,14 @@ camera.position.z = 15;
 
 // Animation loop
 function animate() {
-    requestAnimationFrame(animate);
+    if (!is3DActive) return; // Only animate when 3D scene is active
+    
+    animationId = requestAnimationFrame(animate);
     
     const time = Date.now() * 0.001;
     
     floatingModels.forEach((model, index) => {
-        // Gentle bobbing motion up and down
+        // Gentle bobbing motion up and down (60fps smooth)
         const bobOffset = Math.sin(time * model.userData.floatSpeed + index * 1.5) * 1.2;
         model.position.y = model.userData.originalY + bobOffset;
         
@@ -442,6 +448,23 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+// Start 3D animation
+function start3DAnimation() {
+    if (!is3DActive) {
+        is3DActive = true;
+        animate();
+    }
+}
+
+// Stop 3D animation  
+function stop3DAnimation() {
+    is3DActive = false;
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+}
+
 // Handle window resize - OPTIMIZED
 let resizeTimeout;
 window.addEventListener('resize', () => {
@@ -457,15 +480,305 @@ window.addEventListener('resize', () => {
 
 // Models stay in fixed positions
 
+// Intersection Observer for smart 3D loading
+function setupIntersectionObserver() {
+    const heroSection = document.querySelector('.hero');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Hero is visible - start 3D animations at 60fps
+                start3DAnimation();
+            } else {
+                // Hero not visible - pause 3D animations
+                stop3DAnimation();
+            }
+        });
+    }, {
+        threshold: 0.1, // Trigger when 10% of hero is visible
+        rootMargin: '100px' // Start loading slightly before entering viewport
+    });
+    
+    if (heroSection) {
+        observer.observe(heroSection);
+    }
+}
+
+// Hover-based video loading and playback with 60fps performance
+function setupVideoHoverControls() {
+    const lazyVideos = document.querySelectorAll('.lazy-video');
+    const contentCards = document.querySelectorAll('.content-card');
+    
+    contentCards.forEach((card, index) => {
+        const video = card.querySelector('.lazy-video');
+        
+        if (video) {
+            // Optimize video for 60fps performance
+            video.style.willChange = 'transform';
+            video.style.backfaceVisibility = 'hidden';
+            video.style.perspective = '1000px';
+            
+            // Load video sources immediately to show first frame
+            if (!video.src && video.dataset.src) {
+                const sources = video.querySelectorAll('source');
+                sources.forEach(source => {
+                    if (source.dataset.src) {
+                        source.src = source.dataset.src;
+                    }
+                });
+                video.src = video.dataset.src;
+                video.preload = 'metadata'; // Load enough to show first frame
+                video.load();
+            }
+            
+            // Play video on hover
+            card.addEventListener('mouseenter', () => {
+                // Pause all other videos
+                lazyVideos.forEach(otherVideo => {
+                    if (otherVideo !== video) {
+                        otherVideo.pause();
+                        otherVideo.currentTime = 0; // Reset to beginning
+                    }
+                });
+                
+                // Play current video from start
+                video.currentTime = 0;
+                video.play().catch(e => {
+                    console.log('Video play prevented:', e);
+                });
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                // Don't pause video on mouse leave - let it play until completion
+                // Video will continue playing until it ends naturally
+            });
+            
+            // When video ends, reset to beginning for next hover
+            video.addEventListener('ended', () => {
+                video.currentTime = 0;
+            });
+        }
+    });
+}
+
+// Smart animation pausing based on visibility
+function setupSmartAnimations() {
+    const animatedElements = document.querySelectorAll('.hero, .hero h1, .scroll-indicator');
+    
+    const animationObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const element = entry.target;
+            
+            if (entry.isIntersecting) {
+                // Element is visible - resume animations
+                element.style.animationPlayState = 'running';
+            } else {
+                // Element not visible - pause animations for performance
+                element.style.animationPlayState = 'paused';
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '50px'
+    });
+    
+    animatedElements.forEach(element => {
+        animationObserver.observe(element);
+    });
+    
+    // Handle prefers-reduced-motion for accessibility
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        animatedElements.forEach(element => {
+            element.style.animation = 'none';
+        });
+    }
+}
+
+// Performance monitoring and cleanup
+function setupPerformanceMonitoring() {
+    // Monitor FPS for debugging (remove in production)
+    let lastTime = performance.now();
+    let frames = 0;
+    
+    function measureFPS() {
+        frames++;
+        const currentTime = performance.now();
+        
+        if (currentTime - lastTime >= 1000) {
+            const fps = Math.round((frames * 1000) / (currentTime - lastTime));
+            if (fps < 30) {
+                console.warn('Low FPS detected:', fps);
+            }
+            frames = 0;
+            lastTime = currentTime;
+        }
+        
+        if (is3DActive) {
+            requestAnimationFrame(measureFPS);
+        }
+    }
+    
+    // Start FPS monitoring when 3D scene is active
+    if (is3DActive) {
+        requestAnimationFrame(measureFPS);
+    }
+    
+    // Memory cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        // Stop all animations
+        stop3DAnimation();
+        
+        // Clean up 3D resources
+        if (renderer) {
+            renderer.dispose();
+        }
+        
+        // Clean up video elements
+        document.querySelectorAll('.lazy-video').forEach(video => {
+            video.pause();
+            video.removeAttribute('src');
+            video.load();
+        });
+    });
+}
+
+// Sunglasses animation in calendar section
+function setupSunglassesAnimation() {
+    const canvas = document.getElementById('sunglasses-canvas');
+    if (!canvas) return;
+    
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+    
+    renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+    renderer.setClearColor(0x000000, 0);
+    
+    // Add lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+    
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(10, 10, 5);
+    scene.add(directionalLight);
+    
+    let sunglassesModel = null;
+    let isAnimating = false;
+    
+    // Load sunglasses model
+    const loader = new THREE.GLTFLoader();
+    loader.load('/assets/sunglasses.glb', (gltf) => {
+        sunglassesModel = gltf.scene;
+        sunglassesModel.scale.set(0.05, 0.05, 0.05); // Half the size - even tinier sunglasses
+        sunglassesModel.position.set(15, 0, 0); // Start off-screen RIGHT
+        sunglassesModel.visible = false; // Hidden by default
+        scene.add(sunglassesModel);
+        
+        console.log('Tiny sunglasses model loaded');
+    }, undefined, (error) => {
+        console.error('Error loading sunglasses model:', error);
+    });
+    
+    camera.position.z = 10;
+    
+    // Animation function
+    function animateSunglasses() {
+        if (!sunglassesModel || isAnimating) return;
+        
+        isAnimating = true;
+        sunglassesModel.visible = true;
+        sunglassesModel.position.x = 15; // Start from RIGHT (off-screen)
+        
+        const startTime = Date.now();
+        const duration = 4500; // 4.5 seconds flight time
+        
+        function flyAnimation() {
+            const elapsed = Date.now() - startTime;
+            const progress = elapsed / duration;
+            
+            if (progress < 1) {
+                // Simple RIGHT to LEFT movement - extended 20 units more left
+                sunglassesModel.position.x = 15 - (50 * progress); // +15 to -35 
+                sunglassesModel.rotation.y += 0.1; // Smooth rotation
+                
+                renderer.render(scene, camera);
+                requestAnimationFrame(flyAnimation);
+            } else {
+                // Simply hide it - no complex removal
+                sunglassesModel.visible = false;
+                sunglassesModel.position.x = 15; // Reset position for next time
+                isAnimating = false;
+            }
+        }
+        
+        flyAnimation();
+    }
+    
+    // Setup intersection observer to only animate when calendar is visible
+    let animationInterval = null;
+    
+    const calendarSection = document.querySelector('.contact-section');
+    const calendarObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Calendar is visible - start sunglasses animation
+                if (!animationInterval) {
+                    animationInterval = setInterval(animateSunglasses, 12000);
+                    // Start first animation immediately
+                    setTimeout(animateSunglasses, 1000);
+                }
+            } else {
+                // Calendar not visible - stop sunglasses animation
+                if (animationInterval) {
+                    clearInterval(animationInterval);
+                    animationInterval = null;
+                }
+            }
+        });
+    }, {
+        threshold: 0.3 // Trigger when 30% of calendar section is visible
+    });
+    
+    if (calendarSection) {
+        calendarObserver.observe(calendarSection);
+    }
+    
+    // Initial render
+    renderer.render(scene, camera);
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        if (canvas.offsetWidth > 0 && canvas.offsetHeight > 0) {
+            camera.aspect = canvas.offsetWidth / canvas.offsetHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+        }
+    });
+}
+
 // Initialize everything
 document.addEventListener('DOMContentLoaded', () => {
     // Generate calendar
     generateCalendar();
     
-    // Load and start 3D scene
+    // Setup performance monitoring
+    setupPerformanceMonitoring();
+    
+    // Setup smart animation controls
+    setupSmartAnimations();
+    
+    // Setup hover-based video controls for 60fps performance
+    setupVideoHoverControls();
+    
+    // Setup sunglasses animation in calendar section
+    setupSunglassesAnimation();
+    
+    // Load 3D models but don't start animation yet
     loadAvailableModels().then(() => {
-        console.log('All models loaded, starting animation');
-        animate();
+        console.log('All models loaded, setting up smart loading');
+        setupIntersectionObserver();
+        // Start immediately since hero is likely visible on load
+        start3DAnimation();
     });
     
 });
