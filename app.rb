@@ -5,14 +5,25 @@ require 'mail'
 require 'net/smtp'
 require 'net/http'
 require 'uri'
-require 'dotenv/load'
+require 'dotenv/load' if ENV['RACK_ENV'] != 'production'
 require_relative 'database'
 
 # Configuration
 set :public_folder, 'public'
-set :port, 4567
+set :port, ENV['PORT'] || 4567
 set :bind, '0.0.0.0'
 set :sessions, true
+
+# Production optimizations
+configure :production do
+  set :server, :puma
+  
+  # Enable gzip compression
+  use Rack::Deflater
+  
+  # Serve static files efficiently
+  set :static_cache_control, [:public, max_age: 31536000]
+end
 
 # Database initialization
 $db = Database.new
