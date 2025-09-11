@@ -1,19 +1,34 @@
 FROM ruby:3.2-slim
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app directory
 WORKDIR /app
 
-# Install dependencies
-RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
+# Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Copy Gemfile and install gems
+# Copy and install gems
 COPY Gemfile* ./
-RUN bundle install
+RUN bundle install --without development
 
-# Copy application files
+# Copy application code
 COPY . .
+
+# Create necessary directories and set permissions
+RUN mkdir -p public assets && \
+    chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
 
 # Expose port
 EXPOSE 4567
 
-# Start the server with rackup (production-ready)
-CMD ["bundle", "exec", "rackup", "--host", "0.0.0.0", "--port", "4567"]
+# Use Puma for production
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
