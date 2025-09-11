@@ -3,8 +3,9 @@ const cursor = document.querySelector('.cursor');
 const links = document.querySelectorAll('a, button, .content-card, .time-slot, .calendar-day');
 
 document.addEventListener('mousemove', (e) => {
-    cursor.style.left = e.clientX - 10 + 'px';
-    cursor.style.top = e.clientY - 10 + 'px';
+    requestAnimationFrame(() => {
+        cursor.style.transform = `translate3d(${e.clientX - 10}px, ${e.clientY - 10}px, 0)`;
+    });
 });
 
 links.forEach(link => {

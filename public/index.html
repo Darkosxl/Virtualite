@@ -41,7 +41,8 @@
             pointer-events: none;
             z-index: 9999;
             mix-blend-mode: difference;
-            transition: all 0.1s ease;
+            transition: transform 0.05s ease;
+            will-change: transform;
         }
 
         .cursor.hover {
@@ -235,7 +236,7 @@
 
         .content-video {
             width: 100%;
-            height: 250px;
+            aspect-ratio: 9/16;
             background: #000;
             position: relative;
             overflow: hidden;
@@ -419,15 +420,13 @@
             }
         }
     </style>
-    <!-- TailwindCSS for easier styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- HTMX for reactive forms -->
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <!-- HTMX for reactive forms (local) -->
+    <script src="/js/htmx.min.js"></script>
     
-    <!-- Three.js for 3D -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- Three.js for 3D (local) -->
+    <script src="/js/three.min.js"></script>
+    <script src="/js/GLTFLoader.js"></script>
 </head>
 <body>
     <div class="cursor"></div>
@@ -453,11 +452,15 @@
             <div class="content-grid">
                 <div class="content-card">
                     <div class="content-video">
-                        <div class="video-placeholder">📱</div>
+                        <video autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;">
+                            <source src="/videos/umut.mov" type="video/quicktime">
+                            <source src="/videos/umut.mov" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
                     </div>
                     <div class="content-info">
-                        <div class="content-brand">Domino's</div>
-                        <div class="content-title">Sipariş & Teslimat</div>
+                        <div class="content-brand">Umut</div>
+                        <div class="content-title">Kreatif İçerik Üretimi</div>
                         <div class="content-stats">
                             <span>2.1M görüntülenme</span>
                             <span>•</span>
@@ -468,11 +471,15 @@
 
                 <div class="content-card">
                     <div class="content-video">
-                        <div class="video-placeholder">🎨</div>
+                        <video autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;">
+                            <source src="/videos/baran.mov" type="video/quicktime">
+                            <source src="/videos/baran.mov" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
                     </div>
                     <div class="content-info">
-                        <div class="content-brand">Reflect Studio</div>
-                        <div class="content-title">Kreatif İçerik</div>
+                        <div class="content-brand">Baran</div>
+                        <div class="content-title">Video İçerik Stratejisi</div>
                         <div class="content-stats">
                             <span>1.8M görüntülenme</span>
                             <span>•</span>
@@ -483,11 +490,15 @@
 
                 <div class="content-card">
                     <div class="content-video">
-                        <div class="video-placeholder">🎵</div>
+                        <video autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;">
+                            <source src="/videos/gülizar.mov" type="video/quicktime">
+                            <source src="/videos/gülizar.mov" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
                     </div>
                     <div class="content-info">
-                        <div class="content-brand">Duolingo</div>
-                        <div class="content-title">Önce bayramı aşayım, sonra peşinize düşerim 😊</div>
+                        <div class="content-brand">Gülizar</div>
+                        <div class="content-title">Viral İçerik Geliştirme</div>
                         <div class="content-stats">
                             <span>3.2M görüntülenme</span>
                             <span>•</span>
@@ -498,11 +509,15 @@
 
                 <div class="content-card">
                     <div class="content-video">
-                        <div class="video-placeholder">🎭</div>
+                        <video autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;">
+                            <source src="/videos/umut.mov" type="video/quicktime">
+                            <source src="/videos/umut.mov" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
                     </div>
                     <div class="content-info">
-                        <div class="content-brand">QNB</div>
-                        <div class="content-title">Charlie'nin Çikolatası</div>
+                        <div class="content-brand">Virtualite</div>
+                        <div class="content-title">Etkileşim Odaklı İçerikler</div>
                         <div class="content-stats">
                             <span>1.5M görüntülenme</span>
                             <span>•</span>
@@ -522,7 +537,7 @@
             <div class="booking-container">
                 <!-- Step 1: Date and Time Selection -->
                 <div class="calendar-section" id="datetime-selection">
-                    <h3 class="text-white text-xl font-semibold mb-4">Tarih ve Saat Seçin</h3>
+                    <h3 style="color: white; font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">Tarih ve Saat Seçin</h3>
                     
                     <div class="calendar-grid" id="calendar">
                         <!-- Calendar will be populated by JavaScript -->
@@ -556,7 +571,7 @@
                     </div>
 
                     <button id="proceed-to-form" 
-                            class="w-full bg-gradient-to-r from-red-400 to-teal-400 text-white py-3 px-6 rounded-full font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                            style="width: 100%; background: linear-gradient(to right, #f87171, #4db5bc); color: white; padding: 0.75rem 1.5rem; border-radius: 9999px; font-weight: 600; transition: all 0.3s; border: none; cursor: none;"
                             disabled
                             hx-get="/booking-form" 
                             hx-target="#booking-steps"
