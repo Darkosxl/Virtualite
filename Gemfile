@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'sinatra'
+gem 'sinatra-contrib' # Provides sinatra/json extension
 gem 'mail'        # Email sending
 gem 'pg'          # PostgreSQL adapter for Supabase
 gem 'json'        # JSON parsing
