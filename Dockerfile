@@ -29,4 +29,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 EXPOSE 4567
 
-CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
+CMD ["ruby", "app.rb"]
