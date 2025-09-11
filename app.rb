@@ -3,6 +3,8 @@ require 'sinatra/json'
 require 'json'
 require 'mail'
 require 'net/smtp'
+require 'net/http'
+require 'uri'
 require 'dotenv/load'
 require_relative 'database'
 
@@ -114,8 +116,43 @@ get '/social-fields' do
   ""
 end
 
-# Submit booking directly - no verification needed
+# Submit booking with bot protection
 post '/submit-booking' do
+  # Bot protection checks
+  honeypot_value = params['user_nickname']
+  load_time = params['load_time']
+  
+  # 1. Check the Honeypot
+  if honeypot_value && !honeypot_value.empty?
+    # It's a bot. Block this IP for 20 minutes.
+    puts "BOT DETECTED: Honeypot filled by IP #{request.ip}"
+    status 429
+    halt "Bot detected"
+  end
+  
+  # 2. Check the Time (must be at least 4 seconds)
+  if load_time && !load_time.empty?
+    submission_time = Time.now.to_f * 1000  # Convert to milliseconds
+    time_difference = submission_time - load_time.to_f
+    
+    if time_difference < 4000  # Less than 4 seconds
+      puts "BOT DETECTED: Too fast submission (#{time_difference}ms) by IP #{request.ip}"
+      status 429
+      halt "Submission too fast"
+    end
+  end
+  
+  # 3. Check reCAPTCHA (if token is present)
+  recaptcha_token = params['g-recaptcha-response']
+  if recaptcha_token && !recaptcha_token.empty?
+    recaptcha_score = verify_recaptcha(recaptcha_token)
+    if recaptcha_score && recaptcha_score < 0.5
+      puts "BOT DETECTED: Low reCAPTCHA score (#{recaptcha_score}) by IP #{request.ip}"
+      status 429
+      halt "reCAPTCHA verification failed"
+    end
+  end
+  
   phone_number = params['phone_number']
   name = params['name']
   selected_date = params['selected_date']
@@ -205,5 +242,38 @@ def send_notification_email(booking_data)
     puts "ENV['GMAIL_USERNAME']: #{ENV['GMAIL_USERNAME']}"
     puts "ENV['GMAIL_PASSWORD']: #{ENV['GMAIL_PASSWORD'] ? '[SET]' : '[NOT SET]'}"
     false
+  end
+end
+
+# reCAPTCHA verification helper
+def verify_recaptcha(token)
+  begin
+    secret_key = ENV['RECAPTCHA_SECRET_KEY']
+    return nil unless secret_key
+    
+    uri = URI.parse('https://www.google.com/recaptcha/api/siteverify')
+    request = Net::HTTP::Post.new(uri)
+    request.set_form_data(
+      'secret' => secret_key,
+      'response' => token
+    )
+    
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request)
+    end
+    
+    result = JSON.parse(response.body)
+    
+    if result['success']
+      score = result['score']
+      puts "reCAPTCHA verification successful. Score: #{score}"
+      return score
+    else
+      puts "reCAPTCHA verification failed: #{result['error-codes']}"
+      return 0.0
+    end
+  rescue => e
+    puts "reCAPTCHA verification error: #{e.message}"
+    return nil
   end
 end

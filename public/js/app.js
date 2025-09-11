@@ -1,3 +1,11 @@
+// Set page load time for bot protection
+document.addEventListener('DOMContentLoaded', function() {
+    const loadTimeInput = document.getElementById('loadTime');
+    if (loadTimeInput) {
+        loadTimeInput.value = new Date().getTime();
+    }
+});
+
 // Custom cursor
 const cursor = document.querySelector('.cursor');
 const links = document.querySelectorAll('a, button, .content-card, .time-slot, .calendar-day, .nav-link');
@@ -172,7 +180,7 @@ async function updateTimeSlots(selectedDate) {
                 slot.style.opacity = '0.3';
                 slot.style.cursor = 'not-allowed';
                 slot.style.pointerEvents = 'none';
-                slot.style.background = 'rgba(255, 0, 0, 0.2)';
+                slot.style.background = 'rgba(115, 2, 2, 0.2)';
                 
                 // Remove any existing click listeners by cloning
                 const newSlot = slot.cloneNode(true);

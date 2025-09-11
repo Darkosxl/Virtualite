@@ -1,13 +1,13 @@
 <!-- Step 2: Contact Information Form - Overlay Style -->
 <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 50; padding: 1rem;">
-    <div style="max-width: 42rem; width: 100%; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 1.5rem; padding: 2rem; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25); max-height: 90vh; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); backdrop-filter: blur(10px);">
+    <div style="max-width: 42rem; width: 100%; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 1.5rem; padding: 2rem; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25); max-height: 90vh; overflow-y: auto; background: linear-gradient(135deg, #730202 0%, #F2522E 100%); backdrop-filter: blur(10px);">
     
     <!-- Progress indicator -->
     <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
         <div style="display: flex; align-items: center;">
-            <div style="width: 2rem; height: 2rem; background-color: #4ade80; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem;">✓</div>
-            <div style="width: 3rem; height: 0.25rem; background-color: #4ade80; margin: 0 0.5rem;"></div>
-            <div style="width: 2rem; height: 2rem; background: linear-gradient(to right, #f87171, #4db5bc); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem;">2</div>
+            <div style="width: 2rem; height: 2rem; background-color: #F2D194; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #262626; font-weight: 600; font-size: 0.875rem;">✓</div>
+            <div style="width: 3rem; height: 0.25rem; background-color: #F2D194; margin: 0 0.5rem;"></div>
+            <div style="width: 2rem; height: 2rem; background: linear-gradient(to right, #F2522E, #F24535); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem;">2</div>
         </div>
     </div>
 
@@ -17,9 +17,16 @@
         Seçtiğiniz tarih: <strong><%= selected_date %></strong> - <strong><%= selected_time %></strong>
     </p>
 
-    <form id="contact-form" hx-post="/submit-booking" hx-target="#booking-steps" hx-indicator="#loading">
+    <form id="contact-form" action="/submit-booking" method="post">
         <input type="hidden" name="selected_date" value="<%= selected_date %>">
         <input type="hidden" name="selected_time" value="<%= selected_time %>">
+        <input type="hidden" name="load_time" value="<%= params['load_time'] %>">
+        <input type="hidden" name="g-recaptcha-response" id="recaptchaResponse">
+        
+        <!-- Honeypot trap - hidden field only bots will fill -->
+        <div style="position: absolute; left: -5000px;" aria-hidden="true">
+          <input type="text" name="user_nickname" tabindex="-1" value="">
+        </div>
 
         <!-- Name input -->
         <div style="margin-bottom: 1.5rem;">
@@ -112,7 +119,7 @@
         <button type="submit" 
                 id="submit-booking-btn"
                 disabled
-                style="width: 100%; background: linear-gradient(to right, #f87171, #4db5bc); color: white; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.125rem; transition: all 0.3s; border: none; cursor: pointer; opacity: 0.5;">
+                style="width: 100%; background: linear-gradient(to right, #F2522E, #F24535); color: white; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.125rem; transition: all 0.3s; border: none; cursor: pointer; opacity: 0.5;">
             <span class="htmx-indicator" id="loading" style="display: none;">
                 <svg style="animation: spin 1s linear infinite; margin-left: -0.25rem; margin-right: 0.75rem; height: 1.25rem; width: 1.25rem; color: white; display: inline;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -139,8 +146,8 @@
 }
 
 .social-checkbox:checked + div {
-    border-color: #4ecdc4 !important;
-    background-color: rgba(78, 205, 196, 0.1) !important;
+    border-color: #F24535 !important;
+    background-color: rgba(242, 69, 53, 0.1) !important;
 }
 
 .htmx-indicator {
@@ -164,7 +171,7 @@
 /* Input focus styles */
 input:focus {
     outline: none !important;
-    box-shadow: 0 0 0 2px #4db5bc !important;
+    box-shadow: 0 0 0 2px #F24535 !important;
     border-color: transparent !important;
 }
 
@@ -246,4 +253,33 @@ function validateForm() {
 
 // Initial validation check
 validateForm();
+
+// Handle form submission with reCAPTCHA
+document.getElementById('contact-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Only execute reCAPTCHA if the form is valid
+    const submitBtn = document.getElementById('submit-booking-btn');
+    if (submitBtn.disabled) {
+        return;
+    }
+    
+    const form = this;
+    
+    // Check if reCAPTCHA is available
+    if (typeof grecaptcha !== 'undefined') {
+        grecaptcha.ready(function() {
+            grecaptcha.execute('6LfyocYrAAAAAAO2wxWMTCTxNWrbS-qVSU_woJjU', {action: 'submit'}).then(function(token) {
+                // Add the token to the form
+                document.getElementById('recaptchaResponse').value = token;
+                
+                // Now submit the form normally
+                form.submit();
+            });
+        });
+    } else {
+        // If reCAPTCHA is not available, submit anyway (fallback)
+        form.submit();
+    }
+});
 </script>
