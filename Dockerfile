@@ -15,5 +15,5 @@ COPY . .
 # Expose port
 EXPOSE 4567
 
-# Start the server
-CMD ["ruby", "app.rb"]
+# Start the server with rackup (production-ready)
+CMD ["bundle", "exec", "rackup", "--host", "0.0.0.0", "--port", "4567"]
