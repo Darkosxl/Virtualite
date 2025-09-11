@@ -51,28 +51,65 @@
             background-color: rgba(78, 205, 196, 0.2);
         }
 
+        /* Navbar styles */
+        .navbar {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            width: auto;
+            max-width: fit-content;
+        }
 
-        /* Hero section with animated gradient - GPU accelerated */
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.6rem 1.5rem;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            transition: all 0.3s ease;
+            cursor: none;
+            backdrop-filter: blur(5px);
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.3);
+        }
+
+
+        /* Hero section with static gradient - performance optimized */
         .hero {
             height: 100vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            will-change: background-position;
-            transform: translateZ(0);
             overflow: hidden;
-        }
-
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            padding-top: 5rem;
         }
 
         .hero::before {
@@ -98,20 +135,11 @@
             font-weight: 900;
             margin-bottom: 2rem;
             background: linear-gradient(45deg, #fff, #ff6b6b, #4ecdc4);
-            background-size: 200% 200%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: textGlow 3s ease-in-out infinite alternate;
             line-height: 0.9;
             letter-spacing: -0.02em;
-            will-change: background-position;
-            transform: translateZ(0);
-        }
-
-        @keyframes textGlow {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
         }
 
         .hero p {
@@ -171,8 +199,6 @@
             font-size: 0.9rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
             animation: bounce 2s infinite;
-            will-change: transform;
-            backface-visibility: hidden;
         }
 
         @keyframes bounce {
@@ -181,11 +207,6 @@
             60% { transform: translateX(-50%) translateY(-5px); }
         }
 
-        @keyframes gentleGradientFlow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
 
         /* Content showcase section - static gradient with more space */
         .content-showcase {
@@ -245,8 +266,6 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             color: #333;
-            will-change: transform;
-            backface-visibility: hidden;
         }
 
         .content-card:hover {
@@ -465,6 +484,14 @@
 </head>
 <body>
     <div class="cursor"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#home" class="nav-link">Ana Sayfa</a>
+            <a href="#services" class="nav-link">Portfolyo</a>
+            <a href="#contact" class="nav-link">Bize Ulaş</a>
+        </div>
+    </nav>
 
     <section class="hero" id="home">
         <canvas id="three-canvas"></canvas>

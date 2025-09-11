@@ -1,6 +1,6 @@
 // Custom cursor
 const cursor = document.querySelector('.cursor');
-const links = document.querySelectorAll('a, button, .content-card, .time-slot, .calendar-day');
+const links = document.querySelectorAll('a, button, .content-card, .time-slot, .calendar-day, .nav-link');
 
 document.addEventListener('mousemove', (e) => {
     requestAnimationFrame(() => {
