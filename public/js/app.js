@@ -678,7 +678,7 @@ function setupSunglassesAnimation() {
     loader.load('/assets/sunglasses.glb', (gltf) => {
         sunglassesModel = gltf.scene;
         sunglassesModel.scale.set(0.05, 0.05, 0.05); // Half the size - even tinier sunglasses
-        sunglassesModel.position.set(15, 0, 0); // Start off-screen RIGHT
+        sunglassesModel.position.set(35, 0, 0); // Start wayyy more to the right
         sunglassesModel.visible = false; // Hidden by default
         scene.add(sunglassesModel);
         

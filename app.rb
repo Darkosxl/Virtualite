@@ -5,6 +5,7 @@ require 'mail'
 require 'net/smtp'
 require 'net/http'
 require 'uri'
+require 'digest'
 require 'dotenv/load' if ENV['RACK_ENV'] != 'production'
 require_relative 'database'
 
@@ -204,10 +205,74 @@ post '/submit-booking' do
   email_success = send_notification_email(booking_data)
   
   if booking_id && email_success
-    erb :success_message
+    erb :success_message, locals: { 
+      booking_id: booking_id,
+      email: booking_data[:phone_number], # We'll use phone as identifier since we don't collect email
+      phone: booking_data[:phone_number]
+    }
   else
     status 500
     erb :error_message, locals: { message: "Rezervasyon kaydedilemedi. Lütfen tekrar deneyin." }
+  end
+end
+
+# Meta Conversions API endpoint
+post '/meta/schedule' do
+  content_type :json
+  
+  PIXEL_ID = ENV['META_PIXEL_ID'] 
+  ACCESS_TOKEN = ENV['META_ACCESS_TOKEN']
+  
+  unless ACCESS_TOKEN
+    status 400
+    return { error: 'Meta access token not configured' }.to_json
+  end
+  
+  begin
+    request_body = JSON.parse(request.body.read)
+    
+    # Hash user data for privacy
+    email_hash = request_body['email'] ? Digest::SHA256.hexdigest(request_body['email'].to_s.strip.downcase) : nil
+    phone_hash = request_body['phone'] ? Digest::SHA256.hexdigest(request_body['phone'].gsub(/\D/,'')) : nil
+    
+    payload = {
+      data: [{
+        event_name: 'Schedule',
+        event_time: Time.now.to_i,
+        event_id: request_body['event_id'],
+        action_source: 'website',
+        event_source_url: request.referrer || request.url,
+        user_data: {
+          em: email_hash ? [email_hash] : nil,
+          ph: phone_hash ? [phone_hash] : nil,
+          client_user_agent: request.user_agent,
+          fbc: request_body['fbc'],
+          fbp: request_body['fbp']
+        }.compact,
+        custom_data: {
+          booking_id: request_body['booking_id'],
+          value: 0.00, 
+          currency: 'EUR',
+          content_name: 'Editing consultation booking'
+        }
+      }]
+    }
+    
+    uri = URI("https://graph.facebook.com/v18.0/#{PIXEL_ID}/events?access_token=#{ACCESS_TOKEN}")
+    res = Net::HTTP.post(uri, payload.to_json, { 'Content-Type' => 'application/json' })
+    
+    puts "Meta Conversions API response: #{res.code} - #{res.body}"
+    
+    status res.code.to_i
+    res.body
+    
+  rescue JSON::ParserError => e
+    status 400
+    { error: 'Invalid JSON' }.to_json
+  rescue => e
+    puts "Meta Conversions API error: #{e.message}"
+    status 500
+    { error: 'Server error' }.to_json
   end
 end
 

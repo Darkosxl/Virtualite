@@ -25,4 +25,48 @@
 if (document.getElementById('datetime-selection')) {
     document.getElementById('datetime-selection').style.display = 'none';
 }
+
+// Meta Pixel Schedule event tracking
+const eventId = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now());
+window.bookingEventId = eventId;
+
+// Get Facebook click ID and browser ID from cookies if available
+function getCookie(name) {
+    const value = "; " + document.cookie;
+    const parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return null;
+}
+
+const fbc = getCookie('_fbc') || (new URLSearchParams(window.location.search).get('fbclid') ? 'fb.1.' + Date.now() + '.' + new URLSearchParams(window.location.search).get('fbclid') : null);
+const fbp = getCookie('_fbp');
+
+// Fire the Schedule event to Meta Pixel
+fbq('track', 'Schedule', {
+    event_id: eventId,
+    value: 0.00,
+    currency: 'EUR',
+    booking_id: '<%= booking_id || "unknown" %>',
+    content_name: 'Editing consultation booking'
+});
+
+// Send the same event to our server for Conversions API (server-side tracking)
+<% if defined?(booking_id) && booking_id %>
+fetch('/meta/schedule', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        event_id: eventId,
+        booking_id: '<%= booking_id %>',
+        email: '<%= defined?(email) ? email : "" %>',
+        phone: '<%= defined?(phone) ? phone : "" %>',
+        fbc: fbc,
+        fbp: fbp
+    })
+}).catch(error => {
+    console.log('Conversions API tracking failed:', error);
+});
+<% end %>
 </script>
