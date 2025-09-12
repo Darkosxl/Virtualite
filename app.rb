@@ -10,7 +10,7 @@ require_relative 'database'
 
 # Configuration
 set :public_folder, 'public'
-set :port, ENV['PORT'] || 4567
+set :port, ENV['PORT'] || 4568
 set :bind, '0.0.0.0'
 set :sessions, true
 

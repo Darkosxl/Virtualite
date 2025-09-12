@@ -25,8 +25,8 @@ USER appuser
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-4567}/ || exit 1
+  CMD curl -f http://localhost:${PORT:-4568}/ || exit 1
 
-EXPOSE 4567
+EXPOSE 4568
 
 CMD ["ruby", "app.rb"]
