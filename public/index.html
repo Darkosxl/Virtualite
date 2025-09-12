@@ -51,6 +51,22 @@
             background-color: rgba(242, 69, 53, 0.2);
         }
 
+        /* Logo styles */
+        .logo {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            width: 60px;
+            height: 60px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
         /* Navbar styles */
         .navbar {
             position: fixed;
@@ -207,6 +223,77 @@
             60% { transform: translateX(-50%) translateY(-5px); }
         }
 
+        /* Stats section */
+        .stats-section {
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, #F2522E 0%, #730202 100%);
+            text-align: center;
+            position: relative;
+        }
+
+        .stats-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .stats-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            color: white;
+            font-style: italic;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .stats-title {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 1.8rem;
+            }
+        }
 
         /* Content showcase section - static gradient with more space */
         .content-showcase {
@@ -488,6 +575,10 @@
 <body>
     <div class="cursor"></div>
 
+    <div class="logo">
+        <img src="/pictures/amoreditlogo.svg" alt="Amoredit Logo">
+    </div>
+
     <nav class="navbar">
         <div class="nav-container">
             <a href="#home" class="nav-link">Ana Sayfa</a>
@@ -504,6 +595,35 @@
             <a href="#contact" class="cta-button">Tanışalım mı?</a>
         </div>
         <div class="scroll-indicator">Keşfetmek için kaydır</div>
+    </section>
+
+    <section class="stats-section">
+        <div class="container">
+            <h2 class="stats-title">Sayılarla Amoredit!</h2>
+            <p class="stats-subtitle">Aşk ve edit bir araya gelirse ne mi olur?</p>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">200+</div>
+                    <div class="stat-label">Video</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number">15+</div>
+                    <div class="stat-label">Milyon izlenme</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number">20+</div>
+                    <div class="stat-label">İçerik üretici</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Milyon TL kazandırıldı</div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <section class="content-showcase" id="services">
