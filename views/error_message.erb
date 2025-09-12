@@ -1,15 +1,59 @@
-<div class="max-w-lg mx-auto bg-red-500 bg-opacity-20 backdrop-blur-lg rounded-3xl p-6 mt-6 border border-red-400 border-opacity-30">
-    <div class="text-center">
-        <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-        </div>
-        <h3 class="text-white text-xl font-bold mb-3">Hata</h3>
-        <p class="text-red-200 mb-4"><%= message %></p>
-        <button onclick="location.reload()" 
-                class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-xl font-semibold transition-colors">
-            Tekrar Dene
+<!-- Error Message - matches success_message.erb style -->
+<div style="text-align: center; padding: 2rem; max-width: 600px; margin: 2rem auto;">
+    
+    <h2 style="color: white; font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">Bir Sorun Oluştu!</h2>
+    
+    <p style="color: white; font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9;"><%= message %></p>
+    
+    <!-- Error icon -->
+    <div style="margin: 2rem 0;">
+        <svg style="width: 3rem; height: 3rem; margin: 0 auto; color: #ef4444;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.502 0L4.232 18.5c-.77.833.192 2.5 1.732 2.5z"></path>
+        </svg>
+    </div>
+
+    <!-- Action buttons -->
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <button onclick="window.history.back()" 
+                style="background: linear-gradient(to right, #ef4444, #dc2626); color: white; padding: 0.75rem 2rem; border-radius: 9999px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s;">
+            Geri Dön
+        </button>
+        
+        <button onclick="window.location.href='/'" 
+                style="background: linear-gradient(to right, #f87171, #4db5bc); color: white; padding: 0.75rem 2rem; border-radius: 9999px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s;">
+            Ana Sayfaya Dön
         </button>
     </div>
+
 </div>
+
+<script>
+// Hide all previous steps when error occurs
+if (document.getElementById('datetime-selection')) {
+    document.getElementById('datetime-selection').style.display = 'none';
+}
+
+// Show the booking form again after a delay to allow user to try again
+setTimeout(function() {
+    if (document.getElementById('booking-steps')) {
+        document.getElementById('booking-steps').innerHTML = '';
+    }
+    if (document.getElementById('datetime-selection')) {
+        document.getElementById('datetime-selection').style.display = 'block';
+    }
+    
+    // Reset form selections
+    const selectedInputs = document.querySelectorAll('#selected-date, #selected-time');
+    selectedInputs.forEach(input => input.value = '');
+    
+    // Remove selected classes
+    const selectedElements = document.querySelectorAll('.calendar-day.selected, .time-slot.selected');
+    selectedElements.forEach(el => el.classList.remove('selected'));
+    
+    // Disable proceed button
+    const proceedBtn = document.getElementById('proceed-to-form');
+    if (proceedBtn) {
+        proceedBtn.disabled = true;
+    }
+}, 3000); // Show form again after 3 seconds
+</script>

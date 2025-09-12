@@ -161,10 +161,16 @@ post '/submit-booking' do
   recaptcha_token = params['g-recaptcha-response']
   if recaptcha_token && !recaptcha_token.empty?
     recaptcha_score = verify_recaptcha(recaptcha_token)
-    if recaptcha_score && recaptcha_score < 0.5
+    
+    # Only block if we got a valid score that's too low
+    # Don't block if verification failed due to technical issues (nil return)
+    if recaptcha_score && recaptcha_score.is_a?(Numeric) && recaptcha_score < 0.5
       puts "BOT DETECTED: Low reCAPTCHA score (#{recaptcha_score}) by IP #{request.ip}"
       status 429
       halt "reCAPTCHA verification failed"
+    elsif recaptcha_score.nil?
+      # reCAPTCHA verification failed due to technical issues - allow booking to proceed
+      puts "reCAPTCHA verification failed (technical issue) - allowing booking to proceed for IP #{request.ip}"
     end
   end
   
