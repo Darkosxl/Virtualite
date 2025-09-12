@@ -1,9 +1,20 @@
-<!-- Error Message - matches success_message.erb style -->
-<div style="text-align: center; padding: 2rem; max-width: 600px; margin: 2rem auto;">
+<!-- Error Message - matches success_message.erb style with site background -->
+<style>
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #F2D194 0%, #730202 50%, #262626 100%);
+        color: white;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+<div style="text-align: center; padding: 2rem; max-width: 600px; margin: 2rem auto; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
     
-    <h2 style="color: white; font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">Bir Sorun Oluştu!</h2>
+    <h2 style="color: white; font-size: 2rem; font-weight: 700; margin-bottom: 1rem; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">Rezervasyon tamamlanamadı :(</h2>
     
-    <p style="color: white; font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9;"><%= message %></p>
+    <p style="color: white; font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">Lütfen tekrar deneyin veya emailimize yazın</p>
     
     <!-- Error icon -->
     <div style="margin: 2rem 0;">

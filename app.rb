@@ -305,7 +305,7 @@ def send_notification_email(booking_data)
     
     mail = Mail.new do
       from     ENV['GMAIL_USERNAME']
-      to       'bscemarslan@gmail.com', 'onur5celik8@gmail.com'
+      to       ['bscemarslan@gmail.com', 'onur5celik8@gmail.com']
       subject  'Yeni Rezervasyon - Virtualite'
       body     <<~EMAIL
         Yeni bir rezervasyon alındı!

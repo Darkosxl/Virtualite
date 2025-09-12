@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com https://connect.facebook.net; object-src 'none';">
     <link rel="icon" type="image/x-icon" href="/pictures/amoreditlogo.png">
     <title>Amoredit - Kaydırmayı Durduran İçerikler</title>
     <style>
@@ -452,8 +453,8 @@
         .iphone-frame {
             width: 562px; /* 9:16 aspect from 1000px height: 1000/16*9 */
             height: 1000px; /* Use full height */
-            max-width: min(25vw, 280px); /* Then scale down to fit screen */
-            max-height: min(50vh, 560px);
+            max-width: min(30vw, 400px); /* Make much larger */
+            max-height: min(80vh, 800px); /* Much taller */
             position: relative;
             display: flex;
             align-items: center;
@@ -499,8 +500,8 @@
         .macbook-frame {
             width: 1000px; /* Use full width */
             height: 562px; /* 16:9 aspect from 1000px width: 1000/16*9 */
-            max-width: min(70vw, 800px); /* Then scale down to fit screen */
-            max-height: min(60vh, 450px);
+            max-width: min(90vw, 1200px); /* Make much larger */
+            max-height: min(70vh, 700px); /* Much taller */
             position: relative;
             display: flex;
             align-items: center;
@@ -548,8 +549,8 @@
             }
             
             .iphone-frame {
-                max-width: min(28vw, 140px);
-                min-width: min(25vw, 120px);
+                max-width: min(45vw, 300px);
+                max-height: min(70vh, 600px);
             }
             
             .iphone-frame .video-container {
@@ -559,8 +560,8 @@
             }
             
             .macbook-frame {
-                max-width: min(85vw, 600px);
-                min-width: min(80vw, 400px);
+                max-width: min(95vw, 1000px);
+                max-height: min(60vh, 600px);
             }
             
             .macbook-frame .video-container {
@@ -573,13 +574,13 @@
         /* Even smaller screens - ensure readability */
         @media (max-width: 480px) {
             .iphone-frame {
-                max-width: min(30vw, 120px);
-                min-width: min(28vw, 110px);
+                max-width: min(42vw, 200px);
+                max-height: min(65vh, 400px);
             }
             
             .macbook-frame {
-                max-width: min(90vw, 500px);
-                min-width: min(85vw, 350px);
+                max-width: min(92vw, 800px);
+                max-height: min(50vh, 450px);
             }
         }
 
