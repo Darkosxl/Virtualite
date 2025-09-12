@@ -515,10 +515,10 @@ function setupIntersectionObserver() {
 // Hover-based video loading and playback with 60fps performance
 function setupVideoHoverControls() {
     const lazyVideos = document.querySelectorAll('.lazy-video');
-    const contentCards = document.querySelectorAll('.content-card');
+    const deviceFrames = document.querySelectorAll('.iphone-frame, .macbook-frame, .content-card');
     
-    contentCards.forEach((card, index) => {
-        const video = card.querySelector('.lazy-video');
+    deviceFrames.forEach((frame, index) => {
+        const video = frame.querySelector('.lazy-video');
         
         if (video) {
             // Optimize video for 60fps performance
@@ -540,7 +540,7 @@ function setupVideoHoverControls() {
             }
             
             // Play video on hover
-            card.addEventListener('mouseenter', () => {
+            frame.addEventListener('mouseenter', () => {
                 // Pause all other videos
                 lazyVideos.forEach(otherVideo => {
                     if (otherVideo !== video) {
@@ -556,7 +556,7 @@ function setupVideoHoverControls() {
                 });
             });
             
-            card.addEventListener('mouseleave', () => {
+            frame.addEventListener('mouseleave', () => {
                 // Don't pause video on mouse leave - let it play until completion
                 // Video will continue playing until it ends naturally
             });
