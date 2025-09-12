@@ -450,14 +450,15 @@
 
         /* iPhone frame styling */
         .iphone-frame {
-            width: 100%;
-            max-width: min(25vw, 280px);
-            min-width: min(18vw, 180px);
-            aspect-ratio: 1/2.1;
+            width: 562px; /* 9:16 aspect from 1000px height: 1000/16*9 */
+            height: 1000px; /* Use full height */
+            max-width: min(25vw, 280px); /* Then scale down to fit screen */
+            max-height: min(50vh, 560px);
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden; /* Crop excess SVG width */
         }
 
         .iphone-frame .video-container {
@@ -496,14 +497,15 @@
 
         /* MacBook frame styling */
         .macbook-frame {
-            width: 100%;
-            max-width: min(70vw, 800px);
-            min-width: min(50vw, 500px);
-            aspect-ratio: 16/10;
+            width: 1000px; /* Use full width */
+            height: 562px; /* 16:9 aspect from 1000px width: 1000/16*9 */
+            max-width: min(70vw, 800px); /* Then scale down to fit screen */
+            max-height: min(60vh, 450px);
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden; /* Crop excess SVG height */
         }
 
         .macbook-frame .video-container {
