@@ -13,21 +13,24 @@ set :public_folder, 'public'
 set :port, ENV['PORT'] || 4568
 set :bind, '0.0.0.0'
 set :sessions, true
-
+set :host_authorization, { permitted_hosts: [] }
 # Production optimizations
 configure :production do
   set :server, :puma
   
+
   # Enable gzip compression
   use Rack::Deflater
-  
+  set :host_authorization, { permitted_hosts: ["amoredit.com"] }
   # Serve static files efficiently
   set :static_cache_control, [:public, max_age: 31536000]
 end
 
 # Database initialization
 $db = Database.new
-
+configure :development do
+  set :host_authorization, { permitted_hosts: [] }
+end
 # Mail configuration - configure once at startup
 begin
   Mail.defaults do
