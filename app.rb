@@ -8,6 +8,7 @@ require 'uri'
 require 'digest'
 require 'dotenv/load' if ENV['RACK_ENV'] != 'production'
 require_relative 'database'
+require_relative 'facebook'
 
 # Configuration
 set :public_folder, 'public'
@@ -27,8 +28,9 @@ configure :production do
   set :static_cache_control, [:public, max_age: 31536000]
 end
 
-# Database initialization
+# Initialize components
 $db = Database.new
+$fb_tracker = FacebookTracker.new
 configure :development do
   set :host_authorization, { permitted_hosts: [] }
 end
@@ -222,61 +224,42 @@ post '/submit-booking' do
   end
 end
 
-# Meta Conversions API endpoint
-post '/meta/schedule' do
+# Facebook tracking endpoint - receives data from client, sends to Facebook
+post '/track-facebook' do
   content_type :json
   
-  PIXEL_ID = ENV['META_PIXEL_ID'] 
-  ACCESS_TOKEN = ENV['META_ACCESS_TOKEN']
-  
-  unless ACCESS_TOKEN
-    status 400
-    return { error: 'Meta access token not configured' }.to_json
-  end
-  
   begin
-    request_body = JSON.parse(request.body.read)
+    data = JSON.parse(request.body.read)
     
-    # Hash user data for privacy
-    email_hash = request_body['email'] ? Digest::SHA256.hexdigest(request_body['email'].to_s.strip.downcase) : nil
-    phone_hash = request_body['phone'] ? Digest::SHA256.hexdigest(request_body['phone'].gsub(/\D/,'')) : nil
-    
-    payload = {
-      data: [{
-        event_name: 'Schedule',
-        event_time: Time.now.to_i,
-        event_id: request_body['event_id'],
-        action_source: 'website',
-        event_source_url: request.referrer || request.url,
-        user_data: {
-          em: email_hash ? [email_hash] : nil,
-          ph: phone_hash ? [phone_hash] : nil,
-          client_user_agent: request.user_agent,
-          fbc: request_body['fbc'],
-          fbp: request_body['fbp']
-        }.compact,
-        custom_data: {
-          booking_id: request_body['booking_id'],
-          value: 0.00, 
-          currency: 'EUR',
-          content_name: 'Editing consultation booking'
-        }
-      }]
+    # Prepare event data for Facebook tracker
+    event_data = {
+      event_name: data['event_name'],
+      event_id: data['event_id'],
+      email: data['email'],
+      phone: data['phone'],
+      source_url: data['source_url'] || request.referrer,
+      user_agent: data['user_agent'] || request.user_agent,
+      fbc: data['fbc'],
+      fbp: data['fbp'],
+      custom_data: data['custom_data'] || {}
     }
     
-    uri = URI("https://graph.facebook.com/v18.0/#{PIXEL_ID}/events?access_token=#{ACCESS_TOKEN}")
-    res = Net::HTTP.post(uri, payload.to_json, { 'Content-Type' => 'application/json' })
+    # Send to Facebook via our dedicated tracker
+    result = $fb_tracker.track_event(event_data)
     
-    puts "Meta Conversions API response: #{res.code} - #{res.body}"
-    
-    status res.code.to_i
-    res.body
+    if result[:error]
+      status 500
+      { error: result[:error] }.to_json
+    else
+      status result[:status]
+      result[:body].to_json
+    end
     
   rescue JSON::ParserError => e
     status 400
     { error: 'Invalid JSON' }.to_json
   rescue => e
-    puts "Meta Conversions API error: #{e.message}"
+    puts "Facebook tracking error: #{e.message}"
     status 500
     { error: 'Server error' }.to_json
   end

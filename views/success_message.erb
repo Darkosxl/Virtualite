@@ -1,24 +1,73 @@
-<!-- Simple Success Message -->
-<div style="text-align: center; padding: 2rem; max-width: 600px; margin: 2rem auto;">
+<!-- Enhanced Success Message with gradient background -->
+<style>
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #F2D194 0%, #730202 50%, #262626 100%);
+        color: white;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<div style="text-align: center; padding: 3rem 2rem; max-width: 700px; margin: 0 auto; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);">
     
-    <h2 style="color: white; font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">Rezervasyon Tamamlandı!</h2>
+    <h1 style="color: white; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; margin-bottom: 1rem; background: linear-gradient(45deg, #fff, #F2522E, #F24535); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.1;">
+        Rezervasyon Tamamlandı!
+    </h1>
     
-    <p style="color: white; font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9;">Ekimibiz seninle telefonda iletişime geçecek</p>
+    <h2 style="color: white; font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; margin-bottom: 2rem; opacity: 0.95; line-height: 1.3;">
+        Seninle tanışmak için sabırsızlanıyoruz!
+    </h2>
     
-    <!-- Small colorful tick mark -->
-    <div style="margin: 2rem 0;">
-        <svg style="width: 3rem; height: 3rem; margin: 0 auto; color: #4ade80;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-        </svg>
+    <p style="color: white; font-size: clamp(1.1rem, 2vw, 1.4rem); margin-bottom: 3rem; opacity: 0.9; line-height: 1.6; font-weight: 300;">
+        Ekibimiz seninle telefonda iletişime geçecek ve harika projeler üzerinde çalışacağız!
+    </p>
+    
+    <!-- Large animated checkmark -->
+    <div style="margin: 2rem 0; animation: checkmark-pop 0.6s ease-out;">
+        <div style="width: 100px; height: 100px; background: linear-gradient(45deg, #4ade80, #22c55e); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);">
+            <svg style="width: 3.5rem; height: 3.5rem; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
     </div>
 
-    <!-- Return to homepage -->
+    <!-- Enhanced button -->
     <button onclick="window.location.href='/'" 
-            style="background: linear-gradient(to right, #f87171, #4db5bc); color: white; padding: 0.75rem 2rem; border-radius: 9999px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s;">
+            style="background: linear-gradient(45deg, #F2522E, #F24535); color: white; padding: 1rem 3rem; border-radius: 50px; font-weight: 700; border: none; cursor: none; transition: all 0.3s ease; font-size: clamp(1rem, 2vw, 1.2rem); box-shadow: 0 10px 25px rgba(242, 82, 46, 0.3); position: relative; overflow: hidden;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 15px 35px rgba(242, 82, 46, 0.4)'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(242, 82, 46, 0.3)'">
         Ana Sayfaya Dön
     </button>
 
 </div>
+
+<style>
+@keyframes checkmark-pop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+}
+</style>
 
 <script>
 // Hide all previous steps
@@ -41,32 +90,44 @@ function getCookie(name) {
 const fbc = getCookie('_fbc') || (new URLSearchParams(window.location.search).get('fbclid') ? 'fb.1.' + Date.now() + '.' + new URLSearchParams(window.location.search).get('fbclid') : null);
 const fbp = getCookie('_fbp');
 
-// Fire the Schedule event to Meta Pixel
-fbq('track', 'Schedule', {
-    event_id: eventId,
-    value: 0.00,
-    currency: 'EUR',
-    booking_id: '<%= booking_id || "unknown" %>',
-    content_name: 'Editing consultation booking'
-});
+// Fire the Schedule event to Meta Pixel (with error handling for ad blockers)
+if (typeof fbq !== 'undefined') {
+    fbq('track', 'Schedule', {
+        event_id: eventId,
+        value: 0.00,
+        currency: 'EUR',
+        booking_id: '<%= booking_id || "unknown" %>',
+        content_name: 'Editing consultation booking'
+    });
+} else {
+    console.log('Facebook Pixel blocked by ad blocker - tracking via server-side only');
+}
 
-// Send the same event to our server for Conversions API (server-side tracking)
+// Send event to our server, which forwards to Facebook (bypasses ad blockers)
 <% if defined?(booking_id) && booking_id %>
-fetch('/meta/schedule', {
+fetch('/track-facebook', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
     },
     body: JSON.stringify({
+        event_name: 'Schedule',
         event_id: eventId,
-        booking_id: '<%= booking_id %>',
         email: '<%= defined?(email) ? email : "" %>',
         phone: '<%= defined?(phone) ? phone : "" %>',
+        source_url: window.location.href,
+        user_agent: navigator.userAgent,
         fbc: fbc,
-        fbp: fbp
+        fbp: fbp,
+        custom_data: {
+            booking_id: '<%= booking_id %>',
+            value: 0.00,
+            currency: 'EUR',
+            content_name: 'Editing consultation booking'
+        }
     })
 }).catch(error => {
-    console.log('Conversions API tracking failed:', error);
+    console.log('Facebook tracking failed:', error);
 });
 <% end %>
 </script>
