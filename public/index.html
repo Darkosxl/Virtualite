@@ -466,31 +466,18 @@
             object-fit: cover;
         }
 
-        /* Mobile: Carousel */
-        .short-videos-carousel {
-            position: relative;
+        /* Mobile: Vertical stack */
+        .short-videos-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 2vh;
             max-width: 90%;
             margin: 0 auto;
         }
 
-        .carousel-container {
-            display: flex;
-            transition: transform 0.3s ease;
-            overflow: hidden;
-            border-radius: 20px;
-        }
-
-        .video-slide {
-            min-width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .video-slide .short-video {
-            width: auto;
+        .short-videos-stack .short-video {
+            width: 100%;
             height: clamp(300px, 60vh, 500px);
-            max-width: 100%;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             object-fit: cover;
@@ -511,72 +498,6 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        /* Carousel navigation */
-        .carousel-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .carousel-btn {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border: none;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: none;
-            transition: all 0.3s ease;
-            pointer-events: all;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .carousel-btn:hover {
-            background: rgba(242, 82, 46, 0.8);
-            transform: scale(1.1);
-        }
-
-        .carousel-btn.prev {
-            margin-left: -25px;
-        }
-
-        .carousel-btn.next {
-            margin-right: -25px;
-        }
-
-        /* Carousel dots */
-        .carousel-dots {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-            cursor: none;
-            transition: all 0.3s ease;
-        }
-
-        .dot.active {
-            background: #F2522E;
-            transform: scale(1.2);
-        }
-
-        .dot:hover {
-            background: rgba(242, 82, 46, 0.8);
-        }
 
         /* Mobile responsive */
         @media (max-width: 768px) {
@@ -593,19 +514,6 @@
                 max-width: 95%;
             }
             
-            .carousel-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-            }
-            
-            .carousel-btn.prev {
-                margin-left: -20px;
-            }
-            
-            .carousel-btn.next {
-                margin-right: -20px;
-            }
             
             /* Reduce grid gaps on smaller tablets */
             .short-videos-grid {
@@ -1034,37 +942,20 @@
                     </video>
                 </div>
                 
-                <!-- Mobile: Carousel -->
-                <div class="short-videos-carousel mobile-only">
-                    <div class="carousel-container">
-                        <div class="video-slide active" data-video="/videos/umut.mov">
-                            <video muted loop playsinline class="short-video lazy-video" data-src="/videos/umut.mov">
-                                <source data-src="/videos/umut.mov" type="video/quicktime">
-                                <source data-src="/videos/umut.mov" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="video-slide" data-video="/videos/baran.mov">
-                            <video muted loop playsinline class="short-video lazy-video" data-src="/videos/baran.mov">
-                                <source data-src="/videos/baran.mov" type="video/quicktime">
-                                <source data-src="/videos/baran.mov" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="video-slide" data-video="/videos/gulizar.mov">
-                            <video muted loop playsinline class="short-video lazy-video" data-src="/videos/gulizar.mov">
-                                <source data-src="/videos/gulizar.mov" type="video/quicktime">
-                                <source data-src="/videos/gulizar.mov" type="video/mp4">
-                            </video>
-                        </div>
-                    </div>
-                    <div class="carousel-nav">
-                        <button class="carousel-btn prev">‹</button>
-                        <button class="carousel-btn next">›</button>
-                    </div>
-                    <div class="carousel-dots">
-                        <span class="dot active" data-slide="0"></span>
-                        <span class="dot" data-slide="1"></span>
-                        <span class="dot" data-slide="2"></span>
-                    </div>
+                <!-- Mobile: Vertical stack -->
+                <div class="short-videos-stack mobile-only">
+                    <video muted loop playsinline class="short-video lazy-video" data-src="/videos/umut.mov">
+                        <source data-src="/videos/umut.mov" type="video/quicktime">
+                        <source data-src="/videos/umut.mov" type="video/mp4">
+                    </video>
+                    <video muted loop playsinline class="short-video lazy-video" data-src="/videos/baran.mov">
+                        <source data-src="/videos/baran.mov" type="video/quicktime">
+                        <source data-src="/videos/baran.mov" type="video/mp4">
+                    </video>
+                    <video muted loop playsinline class="short-video lazy-video" data-src="/videos/gulizar.mov">
+                        <source data-src="/videos/gulizar.mov" type="video/quicktime">
+                        <source data-src="/videos/gulizar.mov" type="video/mp4">
+                    </video>
                 </div>
             </div>
 

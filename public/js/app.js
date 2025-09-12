@@ -815,92 +815,11 @@ function checkSelectionComplete() {
 // Start animation immediately even if models haven't loaded yet
 animate();
 
-// Carousel functionality for mobile short videos
+// Viewport-based video loading for mobile short videos
 document.addEventListener('DOMContentLoaded', function() {
-    initializeCarousel();
     initializeViewportVideoLoading();
 });
 
-function initializeCarousel() {
-    const container = document.querySelector('.carousel-container');
-    const slides = document.querySelectorAll('.video-slide');
-    const dots = document.querySelectorAll('.dot');
-    const prevBtn = document.querySelector('.carousel-btn.prev');
-    const nextBtn = document.querySelector('.carousel-btn.next');
-    
-    if (!container || slides.length === 0) return;
-    
-    let currentSlide = 0;
-    
-    function updateCarousel() {
-        // Move container
-        container.style.transform = `translateX(-${currentSlide * 100}%)`;
-        
-        // Update active states
-        slides.forEach((slide, index) => {
-            slide.classList.toggle('active', index === currentSlide);
-        });
-        
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === currentSlide);
-        });
-        
-        // Load video for current slide only
-        loadVideoForSlide(currentSlide);
-    }
-    
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % slides.length;
-        updateCarousel();
-    }
-    
-    function prevSlide() {
-        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-        updateCarousel();
-    }
-    
-    // Event listeners
-    nextBtn?.addEventListener('click', nextSlide);
-    prevBtn?.addEventListener('click', prevSlide);
-    
-    dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
-            currentSlide = index;
-            updateCarousel();
-        });
-    });
-    
-    // Initialize first slide
-    updateCarousel();
-}
-
-// Load video only for specific slide
-function loadVideoForSlide(slideIndex) {
-    const slides = document.querySelectorAll('.video-slide');
-    const slide = slides[slideIndex];
-    if (!slide) return;
-    
-    const video = slide.querySelector('video');
-    if (video && video.dataset.src) {
-        // Load the video
-        const sources = video.querySelectorAll('source');
-        sources.forEach(source => {
-            if (source.dataset.src) {
-                source.src = source.dataset.src;
-            }
-        });
-        
-        // Set video src directly as fallback
-        if (video.dataset.src) {
-            video.src = video.dataset.src;
-            video.load();
-        }
-        
-        // Remove data-src to prevent reloading
-        video.removeAttribute('data-src');
-        sources.forEach(source => source.removeAttribute('data-src'));
-    }
-}
 
 // Viewport-based video loading for all videos
 function initializeViewportVideoLoading() {
