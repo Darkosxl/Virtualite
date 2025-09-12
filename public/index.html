@@ -454,8 +454,6 @@
             max-width: min(25vw, 280px);
             min-width: min(18vw, 180px);
             aspect-ratio: 1/2.1;
-            background: url('/pictures/iphonefixed.png') no-repeat center;
-            background-size: contain;
             position: relative;
             display: flex;
             align-items: center;
@@ -463,12 +461,25 @@
         }
 
         .iphone-frame .video-container {
-            width: 86%;
-            height: 85%;
-            border-radius: min(3vw, 25px);
+            width: 87%;
+            height: 87%;
+            border-radius: min(4vw, 30px);
             overflow: hidden;
             position: relative;
-            top: 2%;
+            z-index: 1;
+        }
+
+        .iphone-frame::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('/pictures/iphonefixed.svg') no-repeat center;
+            background-size: contain;
+            z-index: 2;
+            pointer-events: none;
         }
 
         .iphone-frame video {
@@ -489,8 +500,6 @@
             max-width: min(70vw, 800px);
             min-width: min(50vw, 500px);
             aspect-ratio: 16/10;
-            background: url('/pictures/macbook.png') no-repeat center;
-            background-size: contain;
             position: relative;
             display: flex;
             align-items: center;
@@ -504,6 +513,20 @@
             overflow: hidden;
             position: relative;
             top: -8%;
+            z-index: 1;
+        }
+
+        .macbook-frame::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('/pictures/macbook.svg') no-repeat center;
+            background-size: contain;
+            z-index: 2;
+            pointer-events: none;
         }
 
         .macbook-frame video {
