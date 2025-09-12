@@ -103,8 +103,12 @@ get '/api/available-slots/:date' do
     '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30'
   ]
   
-  # Get booked time slots
-  booked_slots = existing_bookings.map { |booking| booking[:selected_time] }
+  # Get booked time slots (remove seconds for consistency with frontend)
+  booked_slots = existing_bookings.map { |booking| 
+    time = booking[:selected_time]
+    # Convert "HH:MM:SS" to "HH:MM" format
+    time.is_a?(String) ? time[0, 5] : time.strftime("%H:%M")
+  }
   
   # Return available slots
   available_slots = all_slots - booked_slots
