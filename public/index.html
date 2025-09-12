@@ -431,6 +431,129 @@
             overflow: hidden;
         }
 
+        /* Device showcase layout */
+        .device-showcase {
+            display: flex;
+            flex-direction: column;
+            gap: min(6vh, 4rem);
+            max-width: 95%;
+            margin: 0 auto;
+        }
+
+        /* iPhone row - 3 devices in a row */
+        .iphone-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: min(3vw, 2rem);
+            justify-items: center;
+        }
+
+        /* iPhone frame styling */
+        .iphone-frame {
+            width: 100%;
+            max-width: min(25vw, 280px);
+            min-width: min(18vw, 180px);
+            aspect-ratio: 1/2.1;
+            background: url('/pictures/iphonefixed.png') no-repeat center;
+            background-size: contain;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .iphone-frame .video-container {
+            width: 86%;
+            height: 85%;
+            border-radius: min(3vw, 25px);
+            overflow: hidden;
+            position: relative;
+            top: 2%;
+        }
+
+        .iphone-frame video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* MacBook row - single device centered */
+        .macbook-row {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* MacBook frame styling */
+        .macbook-frame {
+            width: 100%;
+            max-width: min(70vw, 800px);
+            min-width: min(50vw, 500px);
+            aspect-ratio: 16/10;
+            background: url('/pictures/macbook.png') no-repeat center;
+            background-size: contain;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .macbook-frame .video-container {
+            width: 75%;
+            height: 65%;
+            border-radius: min(1vw, 8px);
+            overflow: hidden;
+            position: relative;
+            top: -8%;
+        }
+
+        .macbook-frame video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .device-showcase {
+                gap: min(4vh, 3rem);
+            }
+            
+            .iphone-row {
+                gap: min(4vw, 1.5rem);
+            }
+            
+            .iphone-frame {
+                max-width: min(28vw, 140px);
+                min-width: min(25vw, 120px);
+            }
+            
+            .iphone-frame .video-container {
+                border-radius: min(4vw, 20px);
+            }
+            
+            .macbook-frame {
+                max-width: min(85vw, 600px);
+                min-width: min(80vw, 400px);
+            }
+            
+            .macbook-frame .video-container {
+                border-radius: min(2vw, 6px);
+            }
+        }
+
+        /* Even smaller screens - ensure readability */
+        @media (max-width: 480px) {
+            .iphone-frame {
+                max-width: min(30vw, 120px);
+                min-width: min(28vw, 110px);
+            }
+            
+            .macbook-frame {
+                max-width: min(90vw, 500px);
+                min-width: min(85vw, 350px);
+            }
+        }
+
         .video-placeholder {
             width: 100%;
             height: 100%;
@@ -758,44 +881,50 @@
             <h2 class="section-title">Takipçilerini görsel şölene hazırla</h2>
             <p class="section-subtitle">Sana bir sır verelim mi? Bir ekip arkadaşımızın tek görevi “nasıl bu kadar hızlı yaptınız?”, “yapay zeka falan mı kullanıyorsunuz?” gibi soruları cevaplamak.</p>
             
-            <div class="content-grid">
-                <div class="content-card">
-                    <div class="content-video">
-                        <video muted loop playsinline data-src="/videos/umut.mov" class="lazy-video" style="width: 100%; height: 100%; object-fit: cover;">
-                            <source data-src="/videos/umut.mov" type="video/quicktime">
-                            <source data-src="/videos/umut.mov" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
+            <div class="device-showcase">
+                <!-- Row of 3 iPhones for short form videos -->
+                <div class="iphone-row">
+                    <div class="iphone-frame">
+                        <div class="video-container">
+                            <video muted loop playsinline data-src="/videos/umut.mov" class="lazy-video">
+                                <source data-src="/videos/umut.mov" type="video/quicktime">
+                                <source data-src="/videos/umut.mov" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
+
+                    <div class="iphone-frame">
+                        <div class="video-container">
+                            <video muted loop playsinline data-src="/videos/baran.mov" class="lazy-video">
+                                <source data-src="/videos/baran.mov" type="video/quicktime">
+                                <source data-src="/videos/baran.mov" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
+
+                    <div class="iphone-frame">
+                        <div class="video-container">
+                            <video muted loop playsinline data-src="/videos/gulizar.mov" class="lazy-video">
+                                <source data-src="/videos/gulizar.mov" type="video/quicktime">
+                                <source data-src="/videos/gulizar.mov" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
                     </div>
                 </div>
 
-                <div class="content-card">
-                    <div class="content-video">
-                        <video muted loop playsinline data-src="/videos/baran.mov" class="lazy-video" style="width: 100%; height: 100%; object-fit: cover;">
-                            <source data-src="/videos/baran.mov" type="video/quicktime">
-                            <source data-src="/videos/baran.mov" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                </div>
-
-                <div class="content-card">
-                    <div class="content-video">
-                        <video muted loop playsinline data-src="/videos/gulizar.mov" class="lazy-video" style="width: 100%; height: 100%; object-fit: cover;">
-                            <source data-src="/videos/gulizar.mov" type="video/quicktime">
-                            <source data-src="/videos/gulizar.mov" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                </div>
-
-                <div class="content-card">
-                    <div class="content-video">
-                        <video muted loop playsinline data-src="/videos/umut.mov" class="lazy-video" style="width: 100%; height: 100%; object-fit: cover;">
-                            <source data-src="/videos/umut.mov" type="video/quicktime">
-                            <source data-src="/videos/umut.mov" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
+                <!-- MacBook for long form video -->
+                <div class="macbook-row">
+                    <div class="macbook-frame">
+                        <div class="video-container">
+                            <video muted loop playsinline data-src="/videos/ceyda.mov" class="lazy-video">
+                                <source data-src="/videos/ceyda.mov" type="video/quicktime">
+                                <source data-src="/videos/ceyda.mov" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -877,7 +1006,7 @@
         function setupMobileVideoAutoplay() {
             // Only run on mobile devices
             if (window.innerWidth <= 900) {
-                const videos = document.querySelectorAll('.content-video video');
+                const videos = document.querySelectorAll('.video-container video, .content-video video');
                 
                 // Create intersection observer
                 const observer = new IntersectionObserver((entries) => {
