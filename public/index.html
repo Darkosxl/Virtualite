@@ -163,7 +163,7 @@
         }
 
         .hero h1 {
-            font-size: clamp(4rem, 12vw, 12rem);
+            font-size: clamp(3rem, 8vw, 8rem);
             font-weight: 900;
             margin-bottom: 2rem;
             background: linear-gradient(45deg, #fff, #F2522E, #F24535);
@@ -196,7 +196,7 @@
             cursor: none;
             position: relative;
             overflow: hidden;
-            margin-bottom: 2vh;
+            margin-bottom: 4vh;
         }
 
         .cta-button::before {
@@ -221,7 +221,7 @@
 
         .scroll-indicator {
             position: absolute;
-            bottom: 4vh;
+            bottom: 2vh;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.1);
@@ -270,8 +270,8 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 2vw;
-            max-width: 80%;
+            gap: 1.5vw;
+            max-width: 85%;
             margin: 0 auto 5vh auto;
         }
 
@@ -279,10 +279,14 @@
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 0.9375vw;
-            padding: 1.5vh 1vw;
+            padding: 1.5vh 0.8vw;
             border: 0.0625vw solid rgba(255, 255, 255, 0.2);
             transition: transform 0.3s ease;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
         }
 
         .stat-item:hover {
@@ -290,16 +294,22 @@
         }
 
         .stat-number {
-            font-size: clamp(1.8rem, 2.2vw, 2.6rem);
+            font-size: clamp(1.5rem, 1.8vw, 2.2rem);
             font-weight: 900;
             color: white;
             margin-bottom: 0.5vh;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .stat-label {
-            font-size: clamp(0.9rem, 1vw, 1.2rem);
+            font-size: clamp(0.8rem, 0.9vw, 1.1rem);
             color: rgba(255, 255, 255, 0.8);
             font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .container {
@@ -658,8 +668,9 @@
     <section class="hero" id="home">
         <canvas id="three-canvas"></canvas>
         <div class="hero-content">
-            <h1>Kaydırmayı Durduran İçerikler</h1>
-            <p>Herkesin izlemekten zevk alacağı, kalbinde TikTok olan etkili ve viral potansiyeli içerikler üretiyoruz.</p>
+            <h1>Edit: ayda 40 saatini alan o baş belası!</h1>
+            <p>Bu süreyi iş birliklerini artırmaya ayırmak harika olmaz mı? Veya daha çok içerik üretmeye! Veya takipçilerini artırmaya!</p>
+            <p>Videonu çek, bize gönder, ışık hızında editleyelim, paylaş. Tekrar et!</p>
             <a href="#contact" class="cta-button">Tanışalım mı?</a>
         </div>
         <div class="scroll-indicator">Keşfetmek için kaydır</div>
@@ -677,7 +688,7 @@
                 </div>
                 
                 <div class="stat-item">
-                    <div class="stat-number">15 Milyon+</div>
+                    <div class="stat-number">15 Milyon</div>
                     <div class="stat-label">izlenme</div>
                 </div>
                 
