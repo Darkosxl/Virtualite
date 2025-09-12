@@ -67,7 +67,7 @@
             position: fixed;
             top: 1vh;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-50%) scale(0.94);
             z-index: 1000;
             background: linear-gradient(135deg, #730202 0%, #F2522E 100%);
             backdrop-filter: blur(10px);
@@ -163,7 +163,7 @@
         }
 
         .hero h1 {
-            font-size: clamp(3rem, 8vw, 8rem);
+            font-size: clamp(1.8rem, 4vw, 4rem);
             font-weight: 900;
             margin-bottom: 2rem;
             background: linear-gradient(45deg, #fff, #F2522E, #F24535);
@@ -175,7 +175,7 @@
         }
 
         .hero p {
-            font-size: clamp(1.2rem, 1.8vw, 2rem);
+            font-size: clamp(0.7rem, 1vw, 1.2rem);
             margin-bottom: 3vh;
             opacity: 0.95;
             font-weight: 300;
@@ -358,8 +358,8 @@
         
         @media (max-width: 900px) {
             .content-grid {
-                grid-template-columns: 1fr;
-                gap: 4vw;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 3vw;
             }
             
             .stats-grid {
@@ -606,6 +606,7 @@
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 3vw;
+                transform: scale(0.9);
             }
             
             .booking-container {
