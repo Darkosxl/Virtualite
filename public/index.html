@@ -163,7 +163,7 @@
         }
 
         .hero h1 {
-            font-size: clamp(1.8rem, 4vw, 4rem);
+            font-size: clamp(2.34rem, 5.2vw, 5.2rem);
             font-weight: 900;
             margin-bottom: 2rem;
             background: linear-gradient(45deg, #fff, #F2522E, #F24535);
@@ -175,7 +175,7 @@
         }
 
         .hero p {
-            font-size: clamp(0.7rem, 1vw, 1.2rem);
+            font-size: clamp(0.91rem, 1.3vw, 1.56rem);
             margin-bottom: 3vh;
             opacity: 0.95;
             font-weight: 300;
@@ -221,7 +221,7 @@
 
         .scroll-indicator {
             position: absolute;
-            bottom: 2vh;
+            bottom: 6vh;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.1);
@@ -288,6 +288,14 @@
             justify-content: center;
             min-width: 0;
         }
+        
+        @media (max-width: 768px) {
+            .stat-item {
+                padding: 2vh 2vw;
+                border-radius: 3vw;
+                min-height: 12vh;
+            }
+        }
 
         .stat-item:hover {
             transform: translateY(-0.31vw);
@@ -302,6 +310,16 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+        
+        @media (max-width: 768px) {
+            .stat-number {
+                font-size: clamp(1.2rem, 4vw, 1.8rem);
+                white-space: normal;
+                overflow: visible;
+                text-overflow: unset;
+                line-height: 1.1;
+            }
+        }
 
         .stat-label {
             font-size: clamp(0.8rem, 0.9vw, 1.1rem);
@@ -310,6 +328,16 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+        
+        @media (max-width: 768px) {
+            .stat-label {
+                font-size: clamp(0.9rem, 3vw, 1.2rem);
+                white-space: normal;
+                overflow: visible;
+                text-overflow: unset;
+                line-height: 1.2;
+            }
         }
 
         .container {
@@ -599,14 +627,15 @@
             }
             
             .content-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
                 gap: 4vw;
             }
             
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 3vw;
-                transform: scale(0.9);
+                gap: 4vw;
+                max-width: 100%;
+                transform: none;
             }
             
             .booking-container {
