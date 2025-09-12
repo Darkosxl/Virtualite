@@ -51,22 +51,6 @@
             background-color: rgba(242, 69, 53, 0.2);
         }
 
-        /* Logo styles */
-        .logo {
-            position: fixed;
-            top: 1rem;
-            left: 37.5%;
-            z-index: 1001;
-            width: 60px;
-            height: 60px;
-        }
-
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
         /* Navbar styles */
         .navbar {
             position: fixed;
@@ -89,6 +73,34 @@
             justify-content: center;
             gap: 2rem;
             align-items: center;
+        }
+
+        .nav-logo {
+            width: 40px;
+            height: 40px;
+            padding: 0.6rem;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            transition: all 0.3s ease;
+            cursor: none;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-logo:hover {
+            background: linear-gradient(45deg, #F2522E, #F24535);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(242, 69, 53, 0.3);
+        }
+
+        .nav-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .nav-link {
@@ -577,12 +589,11 @@
 <body>
     <div class="cursor"></div>
 
-    <div class="logo">
-        <img src="/pictures/amoreditlogo.png" alt="Amoredit Logo">
-    </div>
-
     <nav class="navbar">
         <div class="nav-container">
+            <a href="#home" class="nav-logo">
+                <img src="/pictures/amoreditlogo.png" alt="Amoredit Logo">
+            </a>
             <a href="#home" class="nav-link">Ana Sayfa</a>
             <a href="#services" class="nav-link">Portfolyo</a>
             <a href="#contact" class="nav-link">Bize Ulaş</a>
