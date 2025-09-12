@@ -31,11 +31,15 @@
             cursor: none !important;
         }
 
-        /* Custom cursor */
+        /* Custom cursor - hidden on mobile */
         .cursor {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #F2522E;
+            width: 1.25vw;
+            height: 1.25vw;
+            min-width: 15px;
+            min-height: 15px;
+            max-width: 25px;
+            max-height: 25px;
+            border: 0.125vw solid #F2522E;
             border-radius: 50%;
             position: fixed;
             pointer-events: none;
@@ -43,6 +47,13 @@
             mix-blend-mode: difference;
             transition: transform 0.05s ease;
             will-change: transform;
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .cursor {
+                display: none;
+            }
         }
 
         .cursor.hover {
@@ -54,29 +65,31 @@
         /* Navbar styles */
         .navbar {
             position: fixed;
-            top: 1rem;
+            top: 1vh;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
             background: linear-gradient(135deg, #730202 0%, #F2522E 100%);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50px;
-            padding: 0.8rem 1.5rem;
-            box-shadow: 0 10px 30px rgba(115, 2, 2, 0.3);
+            border: 0.0625vw solid rgba(255, 255, 255, 0.2);
+            border-radius: 3.125vw;
+            padding: 0.8vh 1.5vw;
+            box-shadow: 0 0.625vw 1.875vw rgba(115, 2, 2, 0.3);
             width: auto;
-            max-width: fit-content;
+            max-width: 90%;
         }
 
         .nav-container {
             display: flex;
             justify-content: center;
-            gap: 2rem;
+            gap: 2vw;
             align-items: center;
         }
 
         .nav-logo {
-            height: 50px;
+            height: 3.125vw;
+            min-height: 35px;
+            max-height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -85,7 +98,7 @@
         }
 
         .nav-logo:hover {
-            transform: translateY(-2px);
+            transform: translateY(-0.125vw);
         }
 
         .nav-logo img {
@@ -98,11 +111,11 @@
             color: white;
             text-decoration: none;
             font-weight: 600;
-            font-size: 1rem;
-            padding: 0.6rem 1.5rem;
-            border-radius: 25px;
+            font-size: clamp(0.8rem, 1vw, 1.2rem);
+            padding: 0.6vh 1.5vw;
+            border-radius: 1.56vw;
             background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            border: 0.0625vw solid rgba(255, 255, 255, 0.25);
             transition: all 0.3s ease;
             cursor: none;
             backdrop-filter: blur(5px);
@@ -112,8 +125,8 @@
         .nav-link:hover {
             background: linear-gradient(45deg, #F2522E, #F24535);
             border-color: rgba(255, 255, 255, 0.4);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(242, 69, 53, 0.3);
+            transform: translateY(-0.125vw);
+            box-shadow: 0 0.5vw 1.25vw rgba(242, 69, 53, 0.3);
         }
 
 
@@ -128,7 +141,7 @@
             justify-content: center;
             text-align: center;
             overflow: hidden;
-            padding-top: 5rem;
+            padding-top: 5vh;
         }
 
         .hero::before {
@@ -145,8 +158,8 @@
         .hero-content {
             position: relative;
             z-index: 2;
-            max-width: 900px;
-            padding: 2rem;
+            max-width: 70%;
+            padding: 2vh 2vw;
         }
 
         .hero h1 {
@@ -162,8 +175,8 @@
         }
 
         .hero p {
-            font-size: 1.8rem;
-            margin-bottom: 3rem;
+            font-size: clamp(1.2rem, 1.8vw, 2rem);
+            margin-bottom: 3vh;
             opacity: 0.95;
             font-weight: 300;
             line-height: 1.4;
@@ -171,19 +184,19 @@
 
         .cta-button {
             display: inline-block;
-            padding: 1.2rem 3.5rem;
+            padding: 1.2vh 3.5vw;
             background: linear-gradient(45deg, #F2522E, #F24535);
             color: white;
             text-decoration: none;
-            border-radius: 50px;
+            border-radius: 3.125vw;
             font-weight: 600;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 1.2vw, 1.4rem);
             transition: all 0.3s ease;
             border: none;
             cursor: none;
             position: relative;
             overflow: hidden;
-            margin-bottom: 2rem;
+            margin-bottom: 2vh;
         }
 
         .cta-button::before {
@@ -202,52 +215,52 @@
         }
 
         .cta-button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(242, 82, 46, 0.3);
+            transform: translateY(-0.31vw);
+            box-shadow: 0 1.25vw 2.5vw rgba(242, 82, 46, 0.3);
         }
 
         .scroll-indicator {
             position: absolute;
-            bottom: 4rem;
+            bottom: 4vh;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            padding: 0.8rem 1.5rem;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.8vh 1.5vw;
+            border-radius: 1.875vw;
+            font-size: clamp(0.8rem, 0.9vw, 1rem);
+            border: 0.0625vw solid rgba(255, 255, 255, 0.2);
             animation: bounce 2s infinite;
         }
 
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
-            40% { transform: translateX(-50%) translateY(-10px); }
-            60% { transform: translateX(-50%) translateY(-5px); }
+            40% { transform: translateX(-50%) translateY(-0.625vw); }
+            60% { transform: translateX(-50%) translateY(-0.3125vw); }
         }
 
         /* Content showcase section - static gradient with more space */
         .content-showcase {
-            padding: 3rem 2rem 5rem 2rem;
+            padding: 3vh 2vw 5vh 2vw;
             background: linear-gradient(135deg, #F2522E 0%, #730202 100%);
             position: relative;
-            border-radius: 3rem 3rem 0 0;
-            margin-top: -3rem;
+            border-radius: 3vh 3vh 0 0;
+            margin-top: -3vh;
             margin-bottom: 0;
         }
 
         /* Stats styles within content showcase */
         .stats-title {
-            font-size: 2.5rem;
+            font-size: clamp(2rem, 2.5vw, 3rem);
             font-weight: 800;
-            margin-bottom: 1rem;
+            margin-bottom: 1vh;
             color: white;
             text-align: center;
         }
 
         .stats-subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 3rem;
+            font-size: clamp(1rem, 1.2vw, 1.4rem);
+            margin-bottom: 3vh;
             opacity: 0.9;
             color: white;
             font-style: italic;
@@ -257,40 +270,40 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            max-width: 1000px;
-            margin: 0 auto 5rem auto;
+            gap: 2vw;
+            max-width: 80%;
+            margin: 0 auto 5vh auto;
         }
 
         .stat-item {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.9375vw;
+            padding: 1.5vh 1vw;
+            border: 0.0625vw solid rgba(255, 255, 255, 0.2);
             transition: transform 0.3s ease;
             text-align: center;
         }
 
         .stat-item:hover {
-            transform: translateY(-5px);
+            transform: translateY(-0.31vw);
         }
 
         .stat-number {
-            font-size: 2.2rem;
+            font-size: clamp(1.8rem, 2.2vw, 2.6rem);
             font-weight: 900;
             color: white;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.5vh;
         }
 
         .stat-label {
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 1vw, 1.2rem);
             color: rgba(255, 255, 255, 0.8);
             font-weight: 500;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 90%;
             margin: 0 auto;
             position: relative;
             z-index: 2;
@@ -298,16 +311,16 @@
 
         .section-title {
             text-align: center;
-            font-size: 3.5rem;
+            font-size: clamp(2.5rem, 3.5vw, 4rem);
             font-weight: 800;
-            margin-bottom: 1rem;
+            margin-bottom: 1vh;
             color: white;
         }
 
         .section-subtitle {
             text-align: center;
-            font-size: 1.4rem;
-            margin-bottom: 4rem;
+            font-size: clamp(1.2rem, 1.4vw, 1.6rem);
+            margin-bottom: 4vh;
             opacity: 0.9;
             font-weight: 300;
         }
@@ -315,33 +328,47 @@
         .content-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
+            gap: 2vw;
         }
         
         @media (max-width: 1200px) {
             .content-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 3vw;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .booking-container {
+                max-width: 85%;
             }
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             .content-grid {
                 grid-template-columns: 1fr;
+                gap: 4vw;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
         .content-card {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
+            border-radius: 1.25vw;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1.25vw 2.5vw rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             color: #333;
         }
 
         .content-card:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+            transform: translateY(-0.9375vw);
+            box-shadow: 0 1.875vw 3.75vw rgba(0, 0, 0, 0.2);
         }
 
         .content-video {
@@ -359,38 +386,38 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: clamp(2rem, 3vw, 4rem);
             color: white;
         }
 
         .content-info {
-            padding: 1.5rem;
+            padding: 1.5vh 1vw;
         }
 
         .content-brand {
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 1.1vw, 1.3rem);
             font-weight: 600;
             color: #666;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.5vh;
         }
 
         .content-title {
-            font-size: 1.3rem;
+            font-size: clamp(1.1rem, 1.3vw, 1.5rem);
             font-weight: 700;
             color: #333;
-            margin-bottom: 1rem;
+            margin-bottom: 1vh;
         }
 
         .content-stats {
             display: flex;
-            gap: 1rem;
-            font-size: 0.9rem;
+            gap: 1vw;
+            font-size: clamp(0.8rem, 0.9vw, 1rem);
             color: #888;
         }
 
         /* Contact section - static gradient */
         .contact-section {
-            padding: 5rem 2rem;
+            padding: 5vh 2vw;
             background: linear-gradient(135deg, #730202 0%, #F2522E 100%);
             text-align: center;
             margin-top: 0;
@@ -399,32 +426,32 @@
         }
 
         .contact-title {
-            font-size: 4rem;
+            font-size: clamp(2.5rem, 4vw, 5rem);
             font-weight: 800;
-            margin-bottom: 2rem;
+            margin-bottom: 2vh;
             color: white;
         }
 
         .contact-subtitle {
-            font-size: 1.4rem;
-            margin-bottom: 3rem;
+            font-size: clamp(1.2rem, 1.4vw, 1.6rem);
+            margin-bottom: 3vh;
             opacity: 0.9;
         }
 
         .booking-container {
-            max-width: 900px;
+            max-width: 70%;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 3rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            border-radius: 1.875vw;
+            padding: 3vh 2vw;
+            border: 0.0625vw solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 1.5625vw 3.125vw rgba(0, 0, 0, 0.1);
         }
 
         .calendar-section h3 {
-            font-size: 2rem;
-            margin-bottom: 2rem;
+            font-size: clamp(1.5rem, 2vw, 2.5rem);
+            margin-bottom: 2vh;
             color: white;
             text-align: center;
             font-weight: 700;
@@ -433,8 +460,8 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 2rem;
+            gap: 0.5vw;
+            margin-bottom: 2vh;
         }
 
         .calendar-day {
@@ -443,59 +470,59 @@
             align-items: center;
             justify-content: center;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            border-radius: 0.75vw;
             font-weight: 800;
             transition: all 0.3s ease;
-            border: 2px solid transparent;
-            font-size: 1.3rem;
+            border: 0.125vw solid transparent;
+            font-size: clamp(1rem, 1.3vw, 1.6rem);
             font-family: 'Inter', monospace;
-            letter-spacing: 0.5px;
-            text-shadow: 0 2px 4px rgba(255, 255, 255, 0.8);
+            letter-spacing: 0.03125vw;
+            text-shadow: 0 0.125vw 0.25vw rgba(255, 255, 255, 0.8);
         }
 
         .calendar-day:hover {
             background: rgba(242, 82, 46, 0.3);
-            transform: translateY(-3px);
+            transform: translateY(-0.1875vw);
             border-color: rgba(242, 82, 46, 0.5);
-            box-shadow: 0 10px 25px rgba(242, 82, 46, 0.2);
+            box-shadow: 0 0.625vw 1.5625vw rgba(242, 82, 46, 0.2);
         }
 
         .calendar-day.selected {
             background: linear-gradient(45deg, #F2522E, #F24535);
             border-color: #F24535;
-            box-shadow: 0 15px 30px rgba(242, 69, 53, 0.3);
-            transform: translateY(-3px);
+            box-shadow: 0 0.9375vw 1.875vw rgba(242, 69, 53, 0.3);
+            transform: translateY(-0.1875vw);
         }
 
         .time-slots {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(6.25vw, 1fr));
+            gap: 1vw;
         }
 
         .time-slot {
-            padding: 1rem 1.2rem;
+            padding: 1vh 1.2vw;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            border-radius: 1.25vw;
             text-align: center;
             transition: all 0.3s ease;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 0.125vw solid rgba(255, 255, 255, 0.2);
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 1.1vw, 1.3rem);
         }
 
         .time-slot:hover {
             background: rgba(242, 82, 46, 0.2);
-            transform: translateY(-5px);
+            transform: translateY(-0.3125vw);
             border-color: rgba(242, 82, 46, 0.5);
-            box-shadow: 0 10px 25px rgba(242, 82, 46, 0.2);
+            box-shadow: 0 0.625vw 1.5625vw rgba(242, 82, 46, 0.2);
         }
 
         .time-slot.selected {
             background: linear-gradient(45deg, #F2522E, #F24535);
             border-color: #F24535;
-            box-shadow: 0 15px 30px rgba(242, 69, 53, 0.3);
-            transform: translateY(-5px);
+            box-shadow: 0 0.9375vw 1.875vw rgba(242, 69, 53, 0.3);
+            transform: translateY(-0.3125vw);
         }
 
         /* 3D Canvas for floating models - constrained to hero section */
@@ -524,37 +551,70 @@
 
         /* Responsive design */
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 4rem;
+            .cursor {
+                display: none;
             }
             
-            .hero p {
-                font-size: 1.3rem;
+            .navbar {
+                padding: 1vh 2vw;
+                border-radius: 5vw;
+                max-width: 95%;
             }
             
-            .section-title {
-                font-size: 2.5rem;
+            .nav-container {
+                gap: 3vw;
             }
             
-            .contact-title {
-                font-size: 2.8rem;
+            .nav-logo {
+                height: 8vw;
+                min-height: 30px;
+            }
+            
+            .nav-link {
+                padding: 1vh 3vw;
+                font-size: clamp(0.7rem, 2.5vw, 1rem);
+                border-radius: 4vw;
+            }
+            
+            .hero-content {
+                max-width: 95%;
+                padding: 2vh 4vw;
             }
             
             .content-grid {
                 grid-template-columns: 1fr;
-            }
-            
-            .stats-title {
-                font-size: 2rem;
+                gap: 4vw;
             }
             
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
+                gap: 3vw;
             }
             
-            .stat-number {
-                font-size: 1.8rem;
+            .booking-container {
+                max-width: 95%;
+                padding: 4vh 4vw;
+                border-radius: 4vw;
+            }
+            
+            .calendar-grid {
+                gap: 1vw;
+            }
+            
+            .calendar-day {
+                border-radius: 2vw;
+                font-size: clamp(0.8rem, 3vw, 1.2rem);
+            }
+            
+            .time-slots {
+                grid-template-columns: repeat(auto-fit, minmax(20vw, 1fr));
+                gap: 2vw;
+            }
+            
+            .time-slot {
+                padding: 2vh 2vw;
+                border-radius: 3vw;
+                font-size: clamp(0.8rem, 2.5vw, 1.1rem);
             }
         }
     </style>
@@ -720,7 +780,7 @@
                         <!-- Calendar will be populated by JavaScript -->
                     </div>
                     
-                    <div class="time-slots" id="timeSlots" style="margin-bottom: 3rem;">
+                    <div class="time-slots" id="timeSlots" style="margin-bottom: 3vh;">
                         <div class="time-slot">09:00</div>
                         <div class="time-slot">09:30</div>
                         <div class="time-slot">10:00</div>
@@ -748,7 +808,7 @@
                     </div>
 
                     <button id="proceed-to-form" 
-                            style="width: 100%; background: linear-gradient(to right, #F2522E, #F24535); color: white; padding: 0.75rem 1.5rem; border-radius: 9999px; font-weight: 600; transition: all 0.3s; border: none; cursor: none;"
+                            style="width: 100%; background: linear-gradient(to right, #F2522E, #F24535); color: white; padding: 0.75vh 1.5vw; border-radius: 62.4375vw; font-weight: 600; transition: all 0.3s; border: none; cursor: none; font-size: clamp(0.9rem, 1vw, 1.2rem);"
                             disabled
                             hx-get="/booking-form" 
                             hx-target="#booking-steps"
