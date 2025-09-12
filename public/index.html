@@ -169,7 +169,12 @@
             position: relative;
             z-index: 2;
             max-width: 42%;
-            padding: 2vh 2vw;
+            padding: 3vh 2vw 4vh 2vw;
+            min-height: 35vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .hero h1 {
@@ -180,16 +185,16 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            line-height: 0.9;
+            line-height: 1.1;
             letter-spacing: -0.02em;
         }
 
         .hero p {
             font-size: clamp(0.91rem, 1.3vw, 1.56rem);
-            margin-bottom: 3vh;
+            margin-bottom: 2.5vh;
             opacity: 0.95;
             font-weight: 300;
-            line-height: 1.4;
+            line-height: 1.6;
         }
 
         .cta-button {
@@ -641,7 +646,8 @@
             
             .hero-content {
                 max-width: 57%;
-                padding: 2vh 4vw;
+                padding: 4vh 4vw 5vh 4vw;
+                min-height: 40vh;
             }
             
             .content-grid {
@@ -663,8 +669,8 @@
             }
             
             .calendar-time-container {
-                grid-template-columns: 1fr;
-                gap: 4vw;
+                grid-template-columns: 1fr 1.2fr;
+                gap: 2vw;
             }
             
             .calendar-grid {
@@ -677,8 +683,8 @@
             }
             
             .time-slots {
-                grid-template-columns: repeat(auto-fit, minmax(20vw, 1fr));
-                gap: 2vw;
+                grid-template-columns: repeat(auto-fit, minmax(15vw, 1fr));
+                gap: 1vw;
             }
             
             .time-slot {
