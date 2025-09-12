@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com https://connect.facebook.net; object-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' blob: https://www.google.com https://www.gstatic.com https://connect.facebook.net; object-src 'none';">
     <link rel="icon" type="image/x-icon" href="/pictures/amoreditlogo.png">
     <title>Amoredit - Kaydırmayı Durduran İçerikler</title>
     <style>
@@ -867,7 +867,42 @@
     s.parentNode.insertBefore(t,s)}(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '787530457230374');
-    fbq('track', 'PageView');
+    
+    // Generate unique event ID for deduplication
+    const pageViewEventId = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now() + Math.random());
+    
+    // Track PageView with event_id for deduplication
+    fbq('track', 'PageView', { event_id: pageViewEventId });
+    
+    // Add server-side PageView tracking (bypasses ad blockers)
+    function getCookie(name) {
+        const value = "; " + document.cookie;
+        const parts = value.split("; " + name + "=");
+        if (parts.length === 2) return parts.pop().split(";").shift();
+        return null;
+    }
+    
+    // Always track PageView via server-side (bypasses ad blockers)
+    const fbc = getCookie('_fbc') || (new URLSearchParams(window.location.search).get('fbclid') ? 'fb.1.' + Date.now() + '.' + new URLSearchParams(window.location.search).get('fbclid') : null);
+    const fbp = getCookie('_fbp');
+    
+    fetch('/track-facebook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            event_name: 'PageView',
+            event_id: pageViewEventId,
+            source_url: window.location.href,
+            user_agent: navigator.userAgent,
+            fbc: fbc,
+            fbp: fbp,
+            custom_data: {
+                content_name: 'Landing Page View'
+            }
+        })
+    }).catch(error => {
+        console.log('Server-side PageView tracking failed:', error);
+    });
     </script>
     <noscript><img height="1" width="1" style="display:none"
     src="https://www.facebook.com/tr?id=787530457230374&ev=PageView&noscript=1"
