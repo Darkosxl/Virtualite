@@ -433,7 +433,14 @@
         }
 
         /* Video showcase sections */
-        .short-videos-section,
+        .short-videos-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3vw;
+            width: 100%;
+        }
+
         .long-video-section {
             margin: 4vh 0;
             display: flex;
@@ -460,7 +467,7 @@
         }
 
         .short-videos-grid .short-video {
-            width: auto;
+            width: 30%;
             height: clamp(400px, 65vh, 700px);
             max-width: 100%;
             border-radius: 15px;
