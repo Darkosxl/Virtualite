@@ -440,11 +440,11 @@
 
         /* Desktop/Mobile visibility toggles */
         .mobile-only {
-            display: none;
+            display: none !important;
         }
         
         .desktop-only {
-            display: block;
+            display: block !important;
         }
 
         /* Desktop: Grid layout for short videos */
@@ -507,7 +507,8 @@
             }
             
             .mobile-only {
-                display: block !important;
+                display: flex !important;
+                flex-direction: column;
             }
             
             .long-video-container {
@@ -1042,47 +1043,48 @@
 
     <script src="/js/app.js"></script>
     
-    <!-- Auto-play videos on mobile when in view -->
+    <!-- Auto-play videos when in viewport with lazy loading -->
     <script>
-        function setupMobileVideoAutoplay() {
-            // Only run on mobile devices
-            if (window.innerWidth <= 900) {
-                const videos = document.querySelectorAll('.video-container video, .content-video video');
-                
-                // Create intersection observer
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        const video = entry.target;
-                        if (entry.isIntersecting) {
-                            // Video is in view, play it
-                            video.play().catch(() => {
-                                // Autoplay failed, user interaction required
-                            });
-                        } else {
-                            // Video is out of view, pause it
-                            video.pause();
-                        }
-                    });
-                }, {
-                    threshold: 0.5, // Play when 50% of video is visible
-                    rootMargin: '0px 0px -100px 0px' // Start playing a bit before fully in view
+        function setupVideoAutoplay() {
+            const videos = document.querySelectorAll('.short-video, .long-video');
+            
+            // Lazy load videos first
+            videos.forEach(video => {
+                const dataSrc = video.getAttribute('data-src');
+                if (dataSrc) {
+                    // Set the src attribute to start loading the video
+                    video.src = dataSrc;
+                    video.load();
+                }
+            });
+            
+            // Create intersection observer for autoplay
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const video = entry.target;
+                    if (entry.isIntersecting) {
+                        // Video is in view, play it
+                        video.play().catch(() => {
+                            // Autoplay failed, user interaction required
+                        });
+                    } else {
+                        // Video is out of view, pause it
+                        video.pause();
+                    }
                 });
-                
-                // Observe all videos
-                videos.forEach(video => {
-                    observer.observe(video);
-                });
-            }
+            }, {
+                threshold: 0.3, // Play when 30% of video is visible
+                rootMargin: '50px 0px -50px 0px' // Start playing a bit before fully in view
+            });
+            
+            // Observe all videos
+            videos.forEach(video => {
+                observer.observe(video);
+            });
         }
         
         // Run on page load
-        document.addEventListener('DOMContentLoaded', setupMobileVideoAutoplay);
-        
-        // Re-run on window resize in case user rotates device
-        window.addEventListener('resize', () => {
-            // Small delay to avoid too many calls
-            setTimeout(setupMobileVideoAutoplay, 100);
-        });
+        document.addEventListener('DOMContentLoaded', setupVideoAutoplay);
     </script>
 </body>
 </html>
