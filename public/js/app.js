@@ -806,18 +806,22 @@ function checkSelectionComplete() {
     const dateInput = document.getElementById('selected-date');
     const timeInput = document.getElementById('selected-time');
     const proceedButton = document.getElementById('proceed-to-form');
-    
+
     if (!dateInput || !timeInput || !proceedButton) return;
-    
+
     const hasDate = dateInput.value;
     const hasTime = timeInput.value;
-    
+
     if (hasDate && hasTime) {
         proceedButton.disabled = false;
         proceedButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        proceedButton.title = ""; // Remove tooltip when enabled
+        console.log('Button enabled - Date:', hasDate, 'Time:', hasTime); // Debug log
     } else {
         proceedButton.disabled = true;
         proceedButton.classList.add('opacity-50', 'cursor-not-allowed');
+        proceedButton.title = "Lütfen zaman ve tarih seçin."; // Set tooltip when disabled
+        console.log('Button disabled - Date:', hasDate, 'Time:', hasTime); // Debug log
     }
 }
 
