@@ -90,29 +90,34 @@ function generateCalendar() {
         dayElement.textContent = day;
         
         const dayDate = getDateOnly(new Date(currentYear, currentMonth, day));
-        // Only allow booking from tomorrow onwards (not today)
-        if (dayDate >= tomorrowDate) {
+        const isSunday = dayDate.getDay() === 0; // Sunday is day 0
+
+        // Only allow booking from tomorrow onwards (not today) and not on Sundays
+        if (dayDate >= tomorrowDate && !isSunday) {
             dayElement.addEventListener('click', () => {
                 document.querySelectorAll('.calendar-day.selected').forEach(d => {
                     d.classList.remove('selected');
                 });
                 dayElement.classList.add('selected');
-                
+
                 const selectedDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const dateInput = document.getElementById('selected-date');
                 if (dateInput) {
                     dateInput.value = selectedDate;
                 }
-                
+
                 // Update time slots for selected date
                 updateTimeSlots(selectedDate);
-                
+
                 checkSelectionComplete();
             });
         } else {
             dayElement.style.opacity = '0.3';
             dayElement.style.cursor = 'not-allowed';
             dayElement.style.pointerEvents = 'none';
+            if (isSunday) {
+                dayElement.style.backgroundColor = 'rgba(115, 2, 2, 0.2)'; // Red tint for Sundays
+            }
         }
         
         calendar.appendChild(dayElement);
@@ -133,30 +138,35 @@ function generateCalendar() {
         
         const dayDate = getDateOnly(new Date(nextYear, nextMonthAdjusted, day));
         const tomorrowDate = getTomorrowDate();
-        // Check if this next month date is tomorrow or later
-        if (dayDate >= tomorrowDate) {
+        const isSunday = dayDate.getDay() === 0; // Sunday is day 0
+
+        // Check if this next month date is tomorrow or later and not Sunday
+        if (dayDate >= tomorrowDate && !isSunday) {
             dayElement.addEventListener('click', () => {
                 document.querySelectorAll('.calendar-day.selected').forEach(d => {
                     d.classList.remove('selected');
                 });
                 dayElement.classList.add('selected');
-                
+
                 const selectedDate = `${nextYear}-${String(nextMonthAdjusted + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const dateInput = document.getElementById('selected-date');
                 if (dateInput) {
                     dateInput.value = selectedDate;
                 }
-                
+
                 // Update time slots for selected date
                 updateTimeSlots(selectedDate);
-                
+
                 checkSelectionComplete();
             });
         } else {
-            // Next month dates that are somehow still in the past (shouldn't happen normally)
+            // Next month dates that are in the past or Sundays
             dayElement.style.opacity = '0.3';
             dayElement.style.cursor = 'not-allowed';
             dayElement.style.pointerEvents = 'none';
+            if (isSunday) {
+                dayElement.style.backgroundColor = 'rgba(115, 2, 2, 0.2)'; // Red tint for Sundays
+            }
         }
         
         calendar.appendChild(dayElement);
