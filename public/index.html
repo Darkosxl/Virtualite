@@ -553,6 +553,50 @@
             color: white;
         }
 
+        /* Simple video-lite system */
+        .video-lite {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding: 0;
+            background: transparent;
+            cursor: pointer;
+            border-radius: inherit;
+            overflow: hidden;
+        }
+
+        .video-lite img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: inherit;
+        }
+
+        .video-lite::after {
+            content: '▶';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .video-lite:hover::after {
+            background: rgba(255, 255, 255, 0.9);
+            color: black;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
         .content-info {
             padding: 1.5vh 1vw;
         }
@@ -940,45 +984,37 @@
                 
                 <!-- Desktop: Show all 3 videos side by side -->
                 <div class="short-videos-grid desktop-only">
-                    <video muted loop playsinline class="short-video" preload="auto">
-                        <source src="/videos/umut.mov" type="video/quicktime">
-                        <source src="/videos/umut.mov" type="video/mp4">
-                    </video>
-                    <video muted loop playsinline class="short-video" preload="auto">
-                        <source src="/videos/baran.mov" type="video/quicktime">
-                        <source src="/videos/baran.mov" type="video/mp4">
-                    </video>
-                    <video muted loop playsinline class="short-video" preload="auto">
-                        <source src="/videos/gulizar.mov" type="video/quicktime">
-                        <source src="/videos/gulizar.mov" type="video/mp4">
-                    </video>
+                    <button class="video-lite short-video" data-src="/videos/umut.mov" aria-label="Play Umut video">
+                        <img src="/pictures/umutthumbnail.png" alt="Umut video" loading="lazy">
+                    </button>
+                    <button class="video-lite short-video" data-src="/videos/baran.mov" aria-label="Play Baran video">
+                        <img src="/pictures/baranthumbnail.png" alt="Baran video" loading="lazy">
+                    </button>
+                    <button class="video-lite short-video" data-src="/videos/gulizar.mov" aria-label="Play Gulizar video">
+                        <img src="/pictures/gulizarthumbnail.png" alt="Gulizar video" loading="lazy">
+                    </button>
                 </div>
                 
                 <!-- Mobile: Vertical stack -->
                 <div class="short-videos-stack mobile-only">
-                    <video muted loop playsinline class="short-video" preload="auto">
-                        <source src="/videos/umut.mov" type="video/quicktime">
-                        <source src="/videos/umut.mov" type="video/mp4">
-                    </video>
-                    <video muted loop playsinline class="short-video" preload="auto">
-                        <source src="/videos/baran.mov" type="video/quicktime">
-                        <source src="/videos/baran.mov" type="video/mp4">
-                    </video>
-                    <video muted loop playsinline class="short-video" preload="auto">
-                        <source src="/videos/gulizar.mov" type="video/quicktime">
-                        <source src="/videos/gulizar.mov" type="video/mp4">
-                    </video>
+                    <button class="video-lite short-video" data-src="/videos/umut.mov" aria-label="Play Umut video">
+                        <img src="/pictures/umutthumbnail.png" alt="Umut video" loading="lazy">
+                    </button>
+                    <button class="video-lite short-video" data-src="/videos/baran.mov" aria-label="Play Baran video">
+                        <img src="/pictures/baranthumbnail.png" alt="Baran video" loading="lazy">
+                    </button>
+                    <button class="video-lite short-video" data-src="/videos/gulizar.mov" aria-label="Play Gulizar video">
+                        <img src="/pictures/gulizarthumbnail.png" alt="Gulizar video" loading="lazy">
+                    </button>
                 </div>
             </div>
 
             <!-- Long form video -->
             <div class="long-video-section">
                 <div class="long-video-container">
-                    <video muted loop playsinline class="long-video" preload="auto">
-                        <source src="/videos/ceyda.mov" type="video/quicktime">
-                        <source src="/videos/ceyda.mov" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
+                    <button class="video-lite long-video" data-src="/videos/ceyda.mov" aria-label="Play Ceyda video">
+                        <img src="/pictures/ceydathumbnail.png" alt="Ceyda video" loading="lazy">
+                    </button>
                 </div>
             </div>
         </div>
@@ -1054,48 +1090,29 @@
 
     <script src="/js/app.js"></script>
     
-    <!-- Auto-play videos when in viewport with lazy loading -->
+    <!-- Simple video-lite loading system -->
     <script>
-        function setupVideoAutoplay() {
-            const videos = document.querySelectorAll('.short-video, .long-video');
-            
-            // Lazy load videos first
-            videos.forEach(video => {
-                const dataSrc = video.getAttribute('data-src');
-                if (dataSrc) {
-                    // Set the src attribute to start loading the video
-                    video.src = dataSrc;
-                    video.load();
-                }
-            });
-            
-            // Create intersection observer for autoplay
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    const video = entry.target;
-                    if (entry.isIntersecting) {
-                        // Video is in view, play it
-                        video.play().catch(() => {
-                            // Autoplay failed, user interaction required
-                        });
-                    } else {
-                        // Video is out of view, pause it
-                        video.pause();
-                    }
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.video-lite').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const src = btn.dataset.src;
+                    const video = document.createElement('video');
+                    video.src = src;
+                    video.controls = true;
+                    video.muted = true;
+                    video.loop = true;
+                    video.playsInline = true;
+                    video.preload = 'metadata';
+                    video.className = btn.className.replace('video-lite', '');
+                    video.style.width = '100%';
+                    video.style.height = '100%';
+                    video.style.objectFit = 'cover';
+                    video.style.borderRadius = 'inherit';
+                    btn.replaceWith(video);
+                    video.play();
                 });
-            }, {
-                threshold: 0.3, // Play when 30% of video is visible
-                rootMargin: '50px 0px -50px 0px' // Start playing a bit before fully in view
             });
-            
-            // Observe all videos
-            videos.forEach(video => {
-                observer.observe(video);
-            });
-        }
-        
-        // Run on page load
-        document.addEventListener('DOMContentLoaded', setupVideoAutoplay);
+        });
     </script>
 </body>
 </html>
