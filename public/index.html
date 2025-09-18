@@ -602,9 +602,16 @@
             position: relative;
         }
 
-        /* Hide fullscreen and menu buttons */
+        /* Hide fullscreen and menu buttons - more comprehensive */
         video::-webkit-media-controls-fullscreen-button,
-        video::-webkit-media-controls-overflow-button {
+        video::-webkit-media-controls-overflow-button,
+        video::-webkit-media-controls-overflow-menu-button {
+            display: none !important;
+        }
+
+        /* For Firefox */
+        video::-moz-media-controls,
+        video::-moz-media-controls-fullscreen-button {
             display: none !important;
         }
 
@@ -615,15 +622,18 @@
             pointer-events: none;
         }
 
-        /* Tooltip for muted videos */
+        /* Tooltip for muted videos - positioned relative to video */
         .video-container {
             position: relative;
+            display: inline-block;
+            width: 100%;
+            height: 100%;
         }
 
         .mute-tooltip {
             position: absolute;
             bottom: 50px;
-            right: 10px;
+            right: 50px;
             background: rgba(0, 0, 0, 0.8);
             color: white;
             padding: 8px 12px;
@@ -1154,12 +1164,18 @@
                 btn.addEventListener('click', () => {
                     const src = btn.dataset.src;
 
-                    // Create video container
+                    // Get button's computed styles to maintain exact dimensions
+                    const btnStyles = window.getComputedStyle(btn);
+                    const btnRect = btn.getBoundingClientRect();
+
+                    // Create video container with exact same dimensions and positioning
                     const container = document.createElement('div');
                     container.className = 'video-container';
                     container.style.position = 'relative';
+                    container.style.display = btnStyles.display;
                     container.style.width = '100%';
                     container.style.height = '100%';
+                    container.style.borderRadius = btnStyles.borderRadius;
 
                     // Create video element
                     const video = document.createElement('video');
@@ -1174,6 +1190,7 @@
                     video.style.height = '100%';
                     video.style.objectFit = 'cover';
                     video.style.borderRadius = 'inherit';
+                    video.controlsList = 'nodownload nofullscreen noremoteplayback';
 
                     // Create tooltip
                     const tooltip = document.createElement('div');
