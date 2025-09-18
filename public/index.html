@@ -597,6 +597,63 @@
             transform: translate(-50%, -50%) scale(1.1);
         }
 
+        /* Custom video controls styling */
+        video {
+            position: relative;
+        }
+
+        /* Hide fullscreen and menu buttons */
+        video::-webkit-media-controls-fullscreen-button,
+        video::-webkit-media-controls-overflow-button {
+            display: none !important;
+        }
+
+        /* Style mute button and add tooltip */
+        video::-webkit-media-controls-mute-button {
+            opacity: 0.7;
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
+
+        /* Tooltip for muted videos */
+        .video-container {
+            position: relative;
+        }
+
+        .mute-tooltip {
+            position: absolute;
+            bottom: 50px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .mute-tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mute-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid rgba(0, 0, 0, 0.8);
+        }
+
         .content-info {
             padding: 1.5vh 1vw;
         }
@@ -1096,6 +1153,15 @@
             document.querySelectorAll('.video-lite').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const src = btn.dataset.src;
+
+                    // Create video container
+                    const container = document.createElement('div');
+                    container.className = 'video-container';
+                    container.style.position = 'relative';
+                    container.style.width = '100%';
+                    container.style.height = '100%';
+
+                    // Create video element
                     const video = document.createElement('video');
                     video.src = src;
                     video.controls = true;
@@ -1108,7 +1174,43 @@
                     video.style.height = '100%';
                     video.style.objectFit = 'cover';
                     video.style.borderRadius = 'inherit';
-                    btn.replaceWith(video);
+
+                    // Create tooltip
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'mute-tooltip';
+                    tooltip.textContent = 'Bu videonun sesi yoktur';
+
+                    // Add elements to container
+                    container.appendChild(video);
+                    container.appendChild(tooltip);
+
+                    // Replace button with container
+                    btn.replaceWith(container);
+
+                    // Force video to stay muted and prevent unmuting
+                    video.addEventListener('volumechange', () => {
+                        if (!video.muted) {
+                            video.muted = true;
+                        }
+                    });
+
+                    // Show tooltip on hover over video controls area
+                    video.addEventListener('mouseenter', () => {
+                        tooltip.classList.add('show');
+                    });
+
+                    video.addEventListener('mouseleave', () => {
+                        tooltip.classList.remove('show');
+                    });
+
+                    // Show tooltip briefly when video starts
+                    video.addEventListener('play', () => {
+                        tooltip.classList.add('show');
+                        setTimeout(() => {
+                            tooltip.classList.remove('show');
+                        }, 2000);
+                    });
+
                     video.play();
                 });
             });
