@@ -32,17 +32,18 @@ class Database
 
   def save_booking(booking_data)
     social_accounts = booking_data[:social_usernames] || {}
-    
-    @connection.exec_params(
+
+    result = @connection.exec_params(
       'INSERT INTO bookings (name, phone_number, selected_date, selected_time, social_accounts) VALUES ($1, $2, $3, $4, $5) RETURNING id',
       [
         booking_data[:name],
-        booking_data[:phone_number], 
+        booking_data[:phone_number],
         booking_data[:selected_date],
         booking_data[:selected_time],
         social_accounts.to_json
       ]
     )
+    result[0]['id'].to_i
   rescue PG::Error => e
     puts "Database save error: #{e.message}"
     nil
