@@ -778,6 +778,11 @@ function setupSunglassesAnimation() {
 document.addEventListener('DOMContentLoaded', () => {
     // Generate calendar
     generateCalendar();
+
+    // Load time slots for tomorrow (default booking date) to show blocked slots immediately
+    const tomorrow = getTomorrowDate();
+    const tomorrowString = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+    updateTimeSlots(tomorrowString);
     
     // Setup performance monitoring
     setupPerformanceMonitoring();
