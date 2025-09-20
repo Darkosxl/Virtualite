@@ -175,67 +175,113 @@ function generateCalendar() {
 
 // Function to update time slots based on selected date
 async function updateTimeSlots(selectedDate) {
+    console.log('Updating time slots for date:', selectedDate);
+
     try {
         const response = await fetch(`/api/available-slots/${selectedDate}`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
         const data = await response.json();
-        
+        console.log('Received booking data:', data);
+
         const timeSlots = document.querySelectorAll('.time-slot');
-        
+        console.log('Found time slots:', timeSlots.length);
+
+        // Clear all existing event listeners and styles first
         timeSlots.forEach(slot => {
-            const timeText = slot.textContent;
-            
-            if (data.booked_slots.includes(timeText)) {
+            // Reset to default state
+            slot.classList.remove('booked', 'selected');
+            slot.style.opacity = '1';
+            slot.style.cursor = 'pointer';
+            slot.style.pointerEvents = 'auto';
+            slot.style.background = '';
+
+            // Remove all existing event listeners by cloning
+            const newSlot = slot.cloneNode(true);
+            slot.parentNode.replaceChild(newSlot, slot);
+        });
+
+        // Re-query slots after cloning to get fresh references
+        const freshTimeSlots = document.querySelectorAll('.time-slot');
+
+        freshTimeSlots.forEach(slot => {
+            const timeText = slot.textContent.trim();
+
+            if (data.booked_slots && data.booked_slots.includes(timeText)) {
                 // Slot is booked - disable it
+                console.log('Blocking slot:', timeText);
                 slot.classList.add('booked');
-                slot.style.opacity = '0.3';
-                slot.style.cursor = 'not-allowed';
-                slot.style.pointerEvents = 'none';
-                slot.style.background = 'rgba(115, 2, 2, 0.2)';
-                
-                // Remove any existing click listeners by cloning
-                const newSlot = slot.cloneNode(true);
-                slot.parentNode.replaceChild(newSlot, slot);
+                slot.style.opacity = '0.3 !important';
+                slot.style.cursor = 'not-allowed !important';
+                slot.style.pointerEvents = 'none !important';
+                slot.style.background = 'rgba(115, 2, 2, 0.2) !important';
+                slot.title = 'Bu saat dolu';
             } else {
                 // Slot is available - enable it
+                console.log('Available slot:', timeText);
                 slot.classList.remove('booked');
                 slot.style.opacity = '1';
                 slot.style.cursor = 'pointer';
                 slot.style.pointerEvents = 'auto';
                 slot.style.background = '';
-                
+                slot.title = '';
+
                 // Add click listener for available slots
-                slot.addEventListener('click', () => {
+                slot.addEventListener('click', function() {
+                    console.log('Time slot clicked:', timeText);
+
                     // Remove previous selection
                     document.querySelectorAll('.time-slot.selected').forEach(s => {
                         s.classList.remove('selected');
                     });
+
+                    // Select this slot
                     slot.classList.add('selected');
-                    
+
                     // Update hidden input
                     const timeInput = document.getElementById('selected-time');
                     if (timeInput) {
-                        timeInput.value = slot.textContent;
+                        timeInput.value = timeText;
+                        console.log('Selected time set to:', timeText);
                     }
-                    
+
                     checkSelectionComplete();
                 });
             }
         });
+
     } catch (error) {
         console.error('Error fetching available slots:', error);
-        // If API fails, keep all slots available
-        document.querySelectorAll('.time-slot').forEach(slot => {
-            slot.addEventListener('click', () => {
+        console.log('Falling back to default slot behavior');
+
+        // If API fails, ensure all slots are clickable
+        const timeSlots = document.querySelectorAll('.time-slot');
+        timeSlots.forEach(slot => {
+            // Reset to available state
+            slot.classList.remove('booked');
+            slot.style.opacity = '1';
+            slot.style.cursor = 'pointer';
+            slot.style.pointerEvents = 'auto';
+            slot.style.background = '';
+
+            // Add fallback click listener
+            slot.addEventListener('click', function() {
+                const timeText = slot.textContent.trim();
+                console.log('Fallback: Time slot clicked:', timeText);
+
                 document.querySelectorAll('.time-slot.selected').forEach(s => {
                     s.classList.remove('selected');
                 });
                 slot.classList.add('selected');
-                
+
                 const timeInput = document.getElementById('selected-time');
                 if (timeInput) {
-                    timeInput.value = slot.textContent;
+                    timeInput.value = timeText;
                 }
-                
+
                 checkSelectionComplete();
             });
         });
