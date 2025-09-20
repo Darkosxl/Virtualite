@@ -1,24 +1,25 @@
 require 'google_drive'
 require 'json'
 require 'stringio'
+require 'base64'
 
 class GoogleSheetsIntegration
   def initialize
     @spreadsheet_id = ENV['GOOGLE_SHEETS_ID']
-    @service_account_json = ENV['GOOGLE_SERVICE_ACCOUNT_JSON']
+    @service_account_b64 = ENV['GOOGLE_SERVICE_ACCOUNT_JSON_B64']
   end
 
   # APPEND-ONLY: This method ONLY adds new rows, never reads or modifies existing data
   def add_booking_to_sheet(booking_data)
     return { success: false, error: "Google Sheets ID not configured" } unless @spreadsheet_id
-    return { success: false, error: "Google Service Account JSON not configured" } unless @service_account_json
+    return { success: false, error: "Google Service Account B64 not configured" } unless @service_account_b64
 
     begin
-      # Parse JSON from environment variable and create StringIO object
-      service_account_data = JSON.parse(@service_account_json)
-      json_io = StringIO.new(@service_account_json)
+      # Decode Base64 and create StringIO object
+      service_account_json = Base64.decode64(@service_account_b64)
+      json_io = StringIO.new(service_account_json)
 
-      # Create session using SERVICE ACCOUNT from environment variable
+      # Create session using SERVICE ACCOUNT from Base64-decoded JSON
       session = GoogleDrive::Session.from_service_account_key(json_io)
 
       # Get the spreadsheet - READ ONLY to find append position
