@@ -27,7 +27,7 @@ class GoogleSheetsIntegration
       ws = spreadsheet.worksheets[0]
 
       # Extract primary social username
-      social_username = extract_primary_social_username(booking_data[:social_accounts])
+      social_username = extract_primary_social_username(booking_data[:social_usernames])
 
       # Prepare row data (matching your CRM columns)
       row_data = [
@@ -71,7 +71,15 @@ class GoogleSheetsIntegration
     # For other platforms, add platform name in parentheses
     social_accounts.each do |platform, username|
       next if username.nil? || username.empty?
-      return "@#{username} (#{platform.capitalize})"
+      platform_name = case platform.downcase
+                      when 'tiktok'
+                        'Tik Tok'
+                      when 'youtube'
+                        'YouTube'
+                      else
+                        platform.capitalize
+                      end
+      return "@#{username} (#{platform_name})"
     end
 
     ''
