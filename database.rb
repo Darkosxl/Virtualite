@@ -5,8 +5,31 @@ require 'dotenv/load'
 
 class Database
   def initialize
-    @connection = PG.connect(ENV['POSTGRES_URL'])
+    connect
     setup_table
+  end
+
+  def connect
+    @connection = PG.connect(ENV['POSTGRES_URL'])
+  end
+
+  def reconnect
+    begin
+      @connection.close if @connection && !@connection.finished?
+    rescue => e
+      puts "Error closing existing connection: #{e.message}"
+    end
+    connect
+    puts "Database reconnected successfully"
+  end
+
+  def ensure_connection
+    begin
+      @connection.exec('SELECT 1')
+    rescue PG::Error => e
+      puts "Connection test failed: #{e.message}, reconnecting..."
+      reconnect
+    end
   end
 
   private
@@ -41,6 +64,7 @@ class Database
   public
 
   def save_booking(booking_data)
+    ensure_connection
     social_accounts = booking_data[:social_usernames] || {}
 
     result = @connection.exec_params(
@@ -60,6 +84,7 @@ class Database
   end
 
   def get_all_bookings
+    ensure_connection
     result = @connection.exec('SELECT * FROM bookings ORDER BY created_at DESC')
     result.map { |row| format_booking(row) }
   rescue PG::Error => e
@@ -68,6 +93,7 @@ class Database
   end
 
   def get_bookings_for_date(date)
+    ensure_connection
     result = @connection.exec_params(
       'SELECT * FROM bookings WHERE selected_date = $1',
       [date]
