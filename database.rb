@@ -20,10 +20,20 @@ class Database
         selected_date DATE NOT NULL,
         selected_time TIME NOT NULL,
         social_accounts JSONB DEFAULT '{}',
+        status VARCHAR(50) DEFAULT '',
+        special_note TEXT DEFAULT '',
         booking_confirmed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     SQL
+
+    # Add columns if they don't exist (for existing databases)
+    begin
+      @connection.exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT ''")
+      @connection.exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS special_note TEXT DEFAULT ''")
+    rescue PG::Error => e
+      puts "Column addition warning: #{e.message}"
+    end
   rescue PG::Error => e
     puts "Database setup error: #{e.message}"
   end
@@ -78,6 +88,8 @@ class Database
       selected_date: row['selected_date'],
       selected_time: row['selected_time'],
       social_accounts: JSON.parse(row['social_accounts'] || '{}'),
+      status: row['status'] || '',
+      special_note: row['special_note'] || '',
       booking_confirmed_at: row['booking_confirmed_at'],
       created_at: row['created_at']
     }

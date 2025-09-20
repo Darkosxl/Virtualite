@@ -9,6 +9,7 @@ require 'digest'
 require 'dotenv/load' if ENV['RACK_ENV'] != 'production'
 require_relative 'database'
 require_relative 'facebook'
+require_relative 'google_sheets'
 
 # Configuration
 set :public_folder, 'public'
@@ -31,6 +32,7 @@ end
 # Initialize components
 $db = Database.new
 $fb_tracker = FacebookTracker.new
+$google_sheets = GoogleSheetsIntegration.new
 configure :development do
   set :host_authorization, { permitted_hosts: [] }
 end
@@ -214,9 +216,15 @@ post '/submit-booking' do
   
   # Save to database
   booking_id = $db.save_booking(booking_data)
-  
+
   # Send notification email
   email_success = send_notification_email(booking_data)
+
+  # Add to Google Sheets
+  sheets_result = $google_sheets.add_booking_to_sheet(booking_data)
+  if !sheets_result[:success]
+    puts "Google Sheets sync failed: #{sheets_result[:error]}"
+  end
   
   if booking_id && email_success
     erb :success_message, locals: { 
