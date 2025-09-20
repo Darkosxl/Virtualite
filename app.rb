@@ -114,13 +114,21 @@ get '/api/available-slots/:date' do
     time.is_a?(String) ? time[0, 5] : time.strftime("%H:%M")
   }
 
+  # Get masked names for booked slots (secure approach)
+  booking_details = {}
+  booked_slots.each do |time_slot|
+    masked_name = $db.get_masked_name_for_time_slot(date, time_slot)
+    booking_details[time_slot] = masked_name if masked_name
+  end
+
   # Return available slots
   available_slots = all_slots - booked_slots
 
   {
     date: date,
     available_slots: available_slots,
-    booked_slots: booked_slots
+    booked_slots: booked_slots,
+    booking_details: booking_details
   }.to_json
 end
 

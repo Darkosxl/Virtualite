@@ -104,6 +104,25 @@ class Database
     []
   end
 
+  def get_masked_name_for_time_slot(date, time)
+    ensure_connection
+    result = @connection.exec_params(
+      'SELECT name FROM bookings WHERE selected_date = $1 AND selected_time = $2 LIMIT 1',
+      [date, time]
+    )
+
+    if result.ntuples > 0
+      name = result[0]['name']
+      # Mask the name (e.g., "Cem Arslan" becomes "*** ******")
+      name.split.map { |word| '*' * word.length }.join(' ')
+    else
+      nil
+    end
+  rescue PG::Error => e
+    puts "Database fetch error for masked name: #{e.message}"
+    nil
+  end
+
   private
 
   def format_booking(row)

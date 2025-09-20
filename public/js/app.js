@@ -212,7 +212,10 @@ async function updateTimeSlots(selectedDate) {
                 slot.style.cursor = 'not-allowed !important';
                 slot.style.pointerEvents = 'none !important';
                 slot.style.background = 'rgba(115, 2, 2, 0.2) !important';
-                slot.title = 'Bu saat dolu';
+
+                // Set tooltip with masked name if available
+                const maskedName = data.booking_details && data.booking_details[timeText];
+                slot.title = maskedName ? maskedName : 'Bu saat dolu';
             } else {
                 // Slot is available - enable it
                 slot.classList.remove('booked');
