@@ -206,16 +206,22 @@ async function updateTimeSlots(selectedDate) {
             const timeText = slot.textContent.trim();
 
             if (data.booked_slots && data.booked_slots.includes(timeText)) {
-                // Slot is booked - disable it
+                // Slot is booked - disable it but allow hover for tooltip
                 slot.classList.add('booked');
                 slot.style.opacity = '0.3 !important';
                 slot.style.cursor = 'not-allowed !important';
-                slot.style.pointerEvents = 'none !important';
                 slot.style.background = 'rgba(115, 2, 2, 0.2) !important';
 
                 // Set tooltip with masked name if available
                 const maskedName = data.booking_details && data.booking_details[timeText];
                 slot.title = maskedName ? maskedName : 'Bu saat dolu';
+
+                // Remove click functionality but keep hover for tooltip
+                slot.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                };
             } else {
                 // Slot is available - enable it
                 slot.classList.remove('booked');
