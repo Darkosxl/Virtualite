@@ -92,11 +92,9 @@ get '/api/available-slots/:date' do
   content_type :json
 
   date = params[:date]
-  puts "DEBUG: Checking available slots for date: #{date}"
 
   # Get existing bookings for this date
   existing_bookings = $db.get_bookings_for_date(date)
-  puts "DEBUG: Found #{existing_bookings.length} existing bookings: #{existing_bookings.inspect}"
 
   # All possible time slots
   # Time slots from 10:00 AM to 9:30 PM
@@ -110,26 +108,18 @@ get '/api/available-slots/:date' do
   # Get booked time slots (remove seconds for consistency with frontend)
   booked_slots = existing_bookings.map { |booking|
     time = booking[:selected_time]
-    puts "DEBUG: Processing booking time: #{time.inspect} (class: #{time.class})"
     # Convert "HH:MM:SS" to "HH:MM" format
-    formatted_time = time.is_a?(String) ? time[0, 5] : time.strftime("%H:%M")
-    puts "DEBUG: Formatted time: #{formatted_time}"
-    formatted_time
+    time.is_a?(String) ? time[0, 5] : time.strftime("%H:%M")
   }
-
-  puts "DEBUG: Final booked_slots: #{booked_slots.inspect}"
 
   # Return available slots
   available_slots = all_slots - booked_slots
 
-  result = {
+  {
     date: date,
     available_slots: available_slots,
     booked_slots: booked_slots
-  }
-
-  puts "DEBUG: Returning result: #{result.inspect}"
-  result.to_json
+  }.to_json
 end
 
 # Booking form step 1 - Contact details

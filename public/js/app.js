@@ -175,8 +175,6 @@ function generateCalendar() {
 
 // Function to update time slots based on selected date
 async function updateTimeSlots(selectedDate) {
-    console.log('Updating time slots for date:', selectedDate);
-
     try {
         const response = await fetch(`/api/available-slots/${selectedDate}`);
 
@@ -185,10 +183,7 @@ async function updateTimeSlots(selectedDate) {
         }
 
         const data = await response.json();
-        console.log('Received booking data:', data);
-
         const timeSlots = document.querySelectorAll('.time-slot');
-        console.log('Found time slots:', timeSlots.length);
 
         // Clear all existing event listeners and styles first
         timeSlots.forEach(slot => {
@@ -212,7 +207,6 @@ async function updateTimeSlots(selectedDate) {
 
             if (data.booked_slots && data.booked_slots.includes(timeText)) {
                 // Slot is booked - disable it
-                console.log('Blocking slot:', timeText);
                 slot.classList.add('booked');
                 slot.style.opacity = '0.3 !important';
                 slot.style.cursor = 'not-allowed !important';
@@ -221,7 +215,6 @@ async function updateTimeSlots(selectedDate) {
                 slot.title = 'Bu saat dolu';
             } else {
                 // Slot is available - enable it
-                console.log('Available slot:', timeText);
                 slot.classList.remove('booked');
                 slot.style.opacity = '1';
                 slot.style.cursor = 'pointer';
@@ -231,8 +224,6 @@ async function updateTimeSlots(selectedDate) {
 
                 // Add click listener for available slots
                 slot.addEventListener('click', function() {
-                    console.log('Time slot clicked:', timeText);
-
                     // Remove previous selection
                     document.querySelectorAll('.time-slot.selected').forEach(s => {
                         s.classList.remove('selected');
@@ -245,7 +236,6 @@ async function updateTimeSlots(selectedDate) {
                     const timeInput = document.getElementById('selected-time');
                     if (timeInput) {
                         timeInput.value = timeText;
-                        console.log('Selected time set to:', timeText);
                     }
 
                     checkSelectionComplete();
@@ -255,7 +245,6 @@ async function updateTimeSlots(selectedDate) {
 
     } catch (error) {
         console.error('Error fetching available slots:', error);
-        console.log('Falling back to default slot behavior');
 
         // If API fails, ensure all slots are clickable
         const timeSlots = document.querySelectorAll('.time-slot');
@@ -270,7 +259,6 @@ async function updateTimeSlots(selectedDate) {
             // Add fallback click listener
             slot.addEventListener('click', function() {
                 const timeText = slot.textContent.trim();
-                console.log('Fallback: Time slot clicked:', timeText);
 
                 document.querySelectorAll('.time-slot.selected').forEach(s => {
                     s.classList.remove('selected');

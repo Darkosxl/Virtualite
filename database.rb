@@ -58,21 +58,11 @@ class Database
   end
 
   def get_bookings_for_date(date)
-    puts "DEBUG DB: Querying database for date: #{date} (class: #{date.class})"
-
     result = @connection.exec_params(
       'SELECT * FROM bookings WHERE selected_date = $1',
       [date]
     )
-
-    puts "DEBUG DB: Raw query result count: #{result.count}"
-    result.each do |row|
-      puts "DEBUG DB: Found booking - ID: #{row['id']}, Date: #{row['selected_date']}, Time: #{row['selected_time']}"
-    end
-
-    formatted_results = result.map { |row| format_booking(row) }
-    puts "DEBUG DB: Formatted results: #{formatted_results.inspect}"
-    formatted_results
+    result.map { |row| format_booking(row) }
   rescue PG::Error => e
     puts "Database fetch error for date #{date}: #{e.message}"
     []
