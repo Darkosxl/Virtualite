@@ -143,33 +143,30 @@
         }
 
         .language-select {
-            background: rgba(0, 0, 0, 0.8);
-            border: 0.0625vw solid rgba(255, 255, 255, 0.3);
-            border-radius: 0.5vw;
+            background: rgba(255, 255, 255, 0.15);
+            border: 0.0625vw solid rgba(255, 255, 255, 0.25);
+            border-radius: 1.56vw;
             color: white;
             padding: 0.6vh 2vw 0.6vh 1.5vw;
             font-size: clamp(0.8rem, 1vw, 1.2rem);
-            font-weight: 500;
+            font-weight: 600;
             cursor: none;
             appearance: none;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(5px);
             transition: all 0.3s ease;
             min-width: 140px;
-            box-shadow: 0 0.2vw 1vw rgba(0, 0, 0, 0.3);
         }
 
         .language-select:hover {
-            background: rgba(0, 0, 0, 0.9);
-            border-color: rgba(255, 255, 255, 0.5);
+            background: linear-gradient(45deg, #F2522E, #F24535);
+            border-color: rgba(255, 255, 255, 0.4);
             transform: translateY(-0.125vw);
-            box-shadow: 0 0.5vw 1.5vw rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0.5vw 1.25vw rgba(242, 69, 53, 0.3);
         }
 
         .language-select option {
-            background: #1a1a1a;
+            background: #262626;
             color: white;
-            padding: 0.5vh 1vw;
-            font-weight: 500;
         }
 
 
@@ -1045,7 +1042,7 @@
                 </div>
                 
                 <div class="stat-item">
-                    <div class="stat-number">15 Milyon</div>
+                    <div class="stat-number" data-tr="15 Milyon" data-en="15 Million" data-it="15 Milioni">15 Milyon</div>
                     <div class="stat-label" data-tr="izlenme" data-en="views" data-it="visualizzazioni">izlenme</div>
                 </div>
                 
@@ -1055,13 +1052,13 @@
                 </div>
                 
                 <div class="stat-item">
-                    <div class="stat-number">5 Milyon TL</div>
+                    <div class="stat-number" data-tr="5 Milyon TL" data-en="5 Million TL" data-it="5 Milioni TL">5 Milyon TL</div>
                     <div class="stat-label" data-tr="kazandırıldı" data-en="earned" data-it="guadagnati">kazandırıldı</div>
                 </div>
             </div>
 
             <h2 class="section-title" data-tr="Takipçilerini görsel şölene hazırla" data-en="Prepare your followers for a visual feast" data-it="Prepara i tuoi follower per una festa visiva">Takipçilerini görsel şölene hazırla</h2>
-            <p class="section-subtitle" data-tr="Sana bir sır verelim mi? Bir ekip arkadaşımızın tek görevi &quot;nasıl bu kadar hızlı yaptınız?&quot;, &quot;yapay zeka falan mı kullanıyorsunuz?&quot; gibi soruları cevaplamak." data-en="Can we tell you a secret? One of our team members' only job is to answer questions like &quot;how did you do it so fast?&quot;, &quot;are you using AI or something?&quot;" data-it="Possiamo dirti un segreto? Il compito di uno dei nostri membri del team è rispondere a domande come &quot;come avete fatto così velocemente?&quot;, &quot;usate l'intelligenza artificiale o qualcosa del genere?&quot;">Sana bir sır verelim mi? Bir ekip arkadaşımızın tek görevi "nasıl bu kadar hızlı yaptınız?", "yapay zeka falan mı kullanıyorsunuz?" gibi soruları cevaplamak.</p>
+            <p class="section-subtitle" data-tr="Sana bir sır verelim mi? Bir ekip arkadaşımızın tek görevi &quot;nasıl bu kadar hızlı yaptınız?&quot;, &quot;yapay zeka falan mı kullanıyorsunuz?&quot; gibi soruları cevaplamak." data-en="Wanna hear a secret? One of our team members' only job is to answer questions like &quot;how did you do it so fast?&quot;, &quot;are you using AI or something?&quot;" data-it="Possiamo dirti un segreto? Il compito di uno dei nostri membri del team è rispondere a domande come &quot;come avete fatto così velocemente?&quot;, &quot;usate l'intelligenza artificiale o qualcosa del genere?&quot;">Sana bir sır verelim mi? Bir ekip arkadaşımızın tek görevi "nasıl bu kadar hızlı yaptınız?", "yapay zeka falan mı kullanıyorsunuz?" gibi soruları cevaplamak.</p>
             <!-- Short form videos -->
             <div class="short-videos-section">
                 
@@ -1108,7 +1105,7 @@
         <canvas id="sunglasses-canvas"></canvas>
         <div class="container">
             <h2 class="contact-title" data-tr="Tanışalım mı?" data-en="Shall we meet?" data-it="Conosciamoci!">Tanışalım mı?</h2>
-            <p class="contact-subtitle" data-tr="sana uygun saati seç, seni arayalım!" data-en="pick a suitable time for you, let us call you!" data-it="scegli un orario adatto per te, ti chiamiamo noi!">sana uygun saati seç, seni arayalım!</p>
+            <p class="contact-subtitle" data-tr="sana uygun saati seç, seni arayalım!" data-en="pick a suitable time & let us call you!" data-it="scegli un orario adatto per te, ti chiamiamo noi!">sana uygun saati seç, seni arayalım!</p>
             
             <div class="booking-container">
                 <!-- Step 1: Date and Time Selection -->
@@ -1178,15 +1175,82 @@
 
     <!-- Language switching -->
     <script>
-        document.getElementById('languageSelect').addEventListener('change', function() {
-            const selectedLang = this.value;
+        function switchLanguage(selectedLang) {
             document.querySelectorAll('[data-tr]').forEach(element => {
                 const text = element.getAttribute('data-' + selectedLang);
                 if (text) {
                     element.textContent = text;
                 }
             });
+
+            // Handle placeholder translations
+            document.querySelectorAll('input[data-placeholder-tr]').forEach(input => {
+                const placeholderText = input.getAttribute('data-placeholder-' + selectedLang);
+                if (placeholderText) {
+                    input.placeholder = placeholderText;
+                }
+            });
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', function() {
+            const selectedLang = this.value;
+            // Store selected language
+            localStorage.setItem('selectedLanguage', selectedLang);
+            switchLanguage(selectedLang);
         });
+
+        // Apply saved language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('selectedLanguage') || 'tr';
+            document.getElementById('languageSelect').value = savedLang;
+            switchLanguage(savedLang);
+        });
+
+        // Watch for dynamically loaded content
+        const observer = new MutationObserver(function(mutations) {
+            const selectedLang = localStorage.getItem('selectedLanguage') || 'tr';
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) { // Element node
+                        // Handle text translations
+                        const elementsWithTranslations = node.querySelectorAll ? node.querySelectorAll('[data-tr]') : [];
+                        elementsWithTranslations.forEach(element => {
+                            const text = element.getAttribute('data-' + selectedLang);
+                            if (text) {
+                                element.textContent = text;
+                            }
+                        });
+
+                        // Handle placeholder translations
+                        const elementsWithPlaceholders = node.querySelectorAll ? node.querySelectorAll('input[data-placeholder-tr]') : [];
+                        elementsWithPlaceholders.forEach(input => {
+                            const placeholderText = input.getAttribute('data-placeholder-' + selectedLang);
+                            if (placeholderText) {
+                                input.placeholder = placeholderText;
+                            }
+                        });
+
+                        // Also check if the node itself has translations
+                        if (node.getAttribute && node.getAttribute('data-tr')) {
+                            const text = node.getAttribute('data-' + selectedLang);
+                            if (text) {
+                                node.textContent = text;
+                            }
+                        }
+
+                        // Check if the node itself has placeholder translations
+                        if (node.tagName === 'INPUT' && node.getAttribute && node.getAttribute('data-placeholder-tr')) {
+                            const placeholderText = node.getAttribute('data-placeholder-' + selectedLang);
+                            if (placeholderText) {
+                                node.placeholder = placeholderText;
+                            }
+                        }
+                    }
+                });
+            });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
     </script>
     
     <!-- Simple video-lite loading system -->
