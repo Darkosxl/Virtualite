@@ -196,7 +196,12 @@ post '/submit-booking' do
   name = params['name']
   selected_date = params['selected_date']
   selected_time = params['selected_time']
-  
+
+  # Handle occupation selection
+  occupation = params['occupation']
+  custom_occupation = params['custom_occupation']
+  final_occupation = (occupation == 'custom' && custom_occupation && !custom_occupation.empty?) ? custom_occupation : occupation
+
   # Handle multiple social platforms
   social_platforms = params['social_platforms'] || []
   social_usernames = {}
@@ -218,6 +223,7 @@ post '/submit-booking' do
     phone_number: phone_number,
     selected_date: selected_date,
     selected_time: selected_time,
+    occupation: final_occupation,
     social_platforms: social_platforms,
     social_usernames: social_usernames
   }
