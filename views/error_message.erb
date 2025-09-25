@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/pictures/amoreditlogo.png">
-    <title>Rezervasyon Hatası - Amoredit</title>
+    <title data-tr="Rezervasyon Hatası - Amoredit" data-en="Booking Error - Amoredit" data-it="Errore Prenotazione - Amoredit">Rezervasyon Hatası - Amoredit</title>
 </head>
 <body>
 
@@ -22,9 +22,9 @@
 
 <div style="text-align: center; padding: 2rem; max-width: 600px; margin: 2rem auto; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
 b    
-    <h2 style="color: white; font-size: 2rem; font-weight: 700; margin-bottom: 1rem; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">Rezervasyon tamamlanamadı :(</h2>
-    
-    <p style="color: white; font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">Lütfen tekrar deneyin veya emailimize yazın</p>
+    <h2 style="color: white; font-size: 2rem; font-weight: 700; margin-bottom: 1rem; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;" data-tr="Rezervasyon tamamlanamadı :(" data-en="Booking could not be completed :(" data-it="Prenotazione non completata :(">Rezervasyon tamamlanamadı :(</h2>
+
+    <p style="color: white; font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;" data-tr="Lütfen tekrar deneyin veya emailimize yazın" data-en="Please try again or email us" data-it="Per favore riprova o scrivici un'email">Lütfen tekrar deneyin veya emailimize yazın</p>
     
     <!-- Error icon -->
     <div style="margin: 2rem 0;">
@@ -37,18 +37,32 @@ b
     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
         <button onclick="window.history.back()" 
                 style="background: linear-gradient(to right, #ef4444, #dc2626); color: white; padding: 0.75rem 2rem; border-radius: 9999px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s;">
-            Geri Dön
+            <span data-tr="Geri Dön" data-en="Go Back" data-it="Torna Indietro">Geri Dön</span>
         </button>
-        
-        <button onclick="window.location.href='/'" 
+
+        <button onclick="window.location.href='/'"
                 style="background: linear-gradient(to right, #f87171, #4db5bc); color: white; padding: 0.75rem 2rem; border-radius: 9999px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s;">
-            Ana Sayfaya Dön
+            <span data-tr="Ana Sayfaya Dön" data-en="Back to Homepage" data-it="Torna alla Homepage">Ana Sayfaya Dön</span>
         </button>
     </div>
 
 </div>
 
 <script>
+// Apply translations on page load
+function applyTranslations() {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'tr';
+    document.querySelectorAll('[data-tr]').forEach(element => {
+        const text = element.getAttribute('data-' + selectedLang);
+        if (text) {
+            element.textContent = text;
+        }
+    });
+}
+
+// Apply translations when page loads
+applyTranslations();
+
 // Hide all previous steps when error occurs
 if (document.getElementById('datetime-selection')) {
     document.getElementById('datetime-selection').style.display = 'none';
