@@ -143,30 +143,33 @@
         }
 
         .language-select {
-            background: rgba(255, 255, 255, 0.15);
-            border: 0.0625vw solid rgba(255, 255, 255, 0.25);
-            border-radius: 1.56vw;
+            background: rgba(0, 0, 0, 0.8);
+            border: 0.0625vw solid rgba(255, 255, 255, 0.3);
+            border-radius: 0.5vw;
             color: white;
             padding: 0.6vh 2vw 0.6vh 1.5vw;
             font-size: clamp(0.8rem, 1vw, 1.2rem);
-            font-weight: 600;
+            font-weight: 500;
             cursor: none;
             appearance: none;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
             transition: all 0.3s ease;
-            min-width: 120px;
+            min-width: 140px;
+            box-shadow: 0 0.2vw 1vw rgba(0, 0, 0, 0.3);
         }
 
         .language-select:hover {
-            background: linear-gradient(45deg, #F2522E, #F24535);
-            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(0, 0, 0, 0.9);
+            border-color: rgba(255, 255, 255, 0.5);
             transform: translateY(-0.125vw);
-            box-shadow: 0 0.5vw 1.25vw rgba(242, 69, 53, 0.3);
+            box-shadow: 0 0.5vw 1.5vw rgba(0, 0, 0, 0.4);
         }
 
         .language-select option {
-            background: #262626;
+            background: #1a1a1a;
             color: white;
+            padding: 0.5vh 1vw;
+            font-weight: 500;
         }
 
 
@@ -1058,8 +1061,7 @@
             </div>
 
             <h2 class="section-title" data-tr="Takipçilerini görsel şölene hazırla" data-en="Prepare your followers for a visual feast" data-it="Prepara i tuoi follower per una festa visiva">Takipçilerini görsel şölene hazırla</h2>
-            <p class="section-subtitle">Sana bir sır verelim mi? Bir ekip arkadaşımızın tek görevi “nasıl bu kadar hızlı yaptınız?”, “yapay zeka falan mı kullanıyorsunuz?” gibi soruları cevaplamak.</p>
-            
+            <p class="section-subtitle" data-tr="Sana bir sır verelim mi? Bir ekip arkadaşımızın tek görevi &quot;nasıl bu kadar hızlı yaptınız?&quot;, &quot;yapay zeka falan mı kullanıyorsunuz?&quot; gibi soruları cevaplamak." data-en="Can we tell you a secret? One of our team members' only job is to answer questions like &quot;how did you do it so fast?&quot;, &quot;are you using AI or something?&quot;" data-it="Possiamo dirti un segreto? Il compito di uno dei nostri membri del team è rispondere a domande come &quot;come avete fatto così velocemente?&quot;, &quot;usate l'intelligenza artificiale o qualcosa del genere?&quot;">Sana bir sır verelim mi? Bir ekip arkadaşımızın tek görevi "nasıl bu kadar hızlı yaptınız?", "yapay zeka falan mı kullanıyorsunuz?" gibi soruları cevaplamak.</p>
             <!-- Short form videos -->
             <div class="short-videos-section">
                 
@@ -1105,13 +1107,13 @@
         <!-- Sunglasses animation canvas -->
         <canvas id="sunglasses-canvas"></canvas>
         <div class="container">
-            <h2 class="contact-title">Tanışalım mı?</h2>
-            <p class="contact-subtitle">sana uygun saati seç, seni arayalım!</p>
+            <h2 class="contact-title" data-tr="Tanışalım mı?" data-en="Shall we meet?" data-it="Conosciamoci!">Tanışalım mı?</h2>
+            <p class="contact-subtitle" data-tr="sana uygun saati seç, seni arayalım!" data-en="pick a suitable time for you, let us call you!" data-it="scegli un orario adatto per te, ti chiamiamo noi!">sana uygun saati seç, seni arayalım!</p>
             
             <div class="booking-container">
                 <!-- Step 1: Date and Time Selection -->
                 <div class="calendar-section" id="datetime-selection">
-                    <h3 style="color: white; font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">Tarih ve Saat Seç</h3>
+                    <h3 style="color: white; font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;" data-tr="Tarih ve Saat Seç" data-en="Select Date and Time" data-it="Seleziona Data e Ora">Tarih ve Saat Seç</h3>
                     
                     <div class="calendar-time-container">
                         <div class="calendar-container">
@@ -1157,7 +1159,7 @@
                             hx-include="#selected-date, #selected-time, #loadTime"
                             hx-trigger="click"
                             hx-swap="innerHTML">
-                        İletişim Bilgilerinizi Girin
+                        <span data-tr="İletişim Bilgilerinizi Girin" data-en="Enter Your Contact Information" data-it="Inserisci le Tue Informazioni di Contatto">İletişim Bilgilerinizi Girin</span>
                     </button>
                     
                     <!-- Hidden inputs to track selections -->
