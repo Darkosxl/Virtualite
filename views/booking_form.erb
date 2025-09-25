@@ -55,6 +55,43 @@
                    placeholder="+90 555 123 45 67">
         </div>
 
+        <!-- Occupation selection -->
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; color: white; font-weight: 600; margin-bottom: 0.75rem;" data-tr="Ne işle meşgulsünüz?" data-en="Occupation" data-it="Occupazione">Ne işle meşgulsünüz?</label>
+            <div style="position: relative;">
+                <select name="occupation"
+                        id="occupation-select"
+                        required
+                        style="width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; transition: all 0.3s; appearance: none; cursor: pointer;">
+                    <option value="" data-tr="Seçiniz..." data-en="Select..." data-it="Seleziona...">Seçiniz...</option>
+                    <option value="digital_marketing" data-tr="Digital Marketing" data-en="Digital Marketing" data-it="Digital Marketing">Digital Marketing</option>
+                    <option value="clothing_brand" data-tr="Giyim Markası" data-en="Clothing Brand" data-it="Marchio di Abbigliamento">Giyim Markası</option>
+                    <option value="startup_founder" data-tr="Startup Kurucusu" data-en="Startup Founder" data-it="Startup Founder">Startup Kurucusu</option>
+                    <option value="content_creator" data-tr="İçerik Üreticisi" data-en="Content Creator" data-it="Content Creator">İçerik Üreticisi</option>
+                    <option value="psychologist" data-tr="Psikolog" data-en="Psychologist" data-it="Psicologo">Psikolog</option>
+                    <option value="custom" data-tr="Siz doldurun" data-en="Specify your occupation" data-it="Specifica la tua occupazione">Siz doldurun</option>
+                </select>
+                <!-- Dropdown arrow -->
+                <div style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: white;">
+                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Custom occupation input (hidden by default) -->
+            <div id="custom-occupation" style="margin-top: 0.75rem; display: none;">
+                <input type="text"
+                       name="custom_occupation"
+                       id="custom-occupation-input"
+                       style="width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; transition: all 0.3s;"
+                       data-placeholder-tr="Mesleğinizi yazın"
+                       data-placeholder-en="Enter your occupation"
+                       data-placeholder-it="Inserisci la tua occupazione"
+                       placeholder="Mesleğinizi yazın">
+            </div>
+        </div>
+
         <!-- Social media platforms selection -->
         <div style="margin-bottom: 1.5rem;">
             <label style="display: block; color: white; font-weight: 600; margin-bottom: 0.75rem;" data-tr="Hangi sosyal medya platformlarında içerik üretiyorsun?" data-en="Which social media platforms do you create content on?" data-it="Su quali piattaforme social crei contenuti?">Hangi sosyal medya platformlarında içerik üretiyorsun?</label>
@@ -196,6 +233,22 @@ input::placeholder {
     opacity: 1 !important;
 }
 
+/* Select dropdown styling */
+select {
+    color: white !important;
+}
+
+select option {
+    background-color: #730202 !important;
+    color: white !important;
+}
+
+select:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 2px #F24535 !important;
+    border-color: transparent !important;
+}
+
 /* Button hover effects */
 #submit-booking-btn:not(:disabled):hover {
     transform: scale(1.05);
@@ -213,12 +266,33 @@ button:last-child:hover {
 </style>
 
 <script>
+// Handle occupation dropdown selection
+document.getElementById('occupation-select').addEventListener('change', function() {
+    const customOccupationDiv = document.getElementById('custom-occupation');
+    const customOccupationInput = document.getElementById('custom-occupation-input');
+
+    if (this.value === 'custom') {
+        customOccupationDiv.style.display = 'block';
+        customOccupationInput.required = true;
+    } else {
+        customOccupationDiv.style.display = 'none';
+        customOccupationInput.required = false;
+        customOccupationInput.value = '';
+    }
+
+    // Check form validation
+    validateForm();
+});
+
+// Handle custom occupation input changes
+document.getElementById('custom-occupation-input').addEventListener('input', validateForm);
+
 // Handle social platform checkbox selection
 document.querySelectorAll('.social-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
         const platform = this.getAttribute('data-platform');
         const usernameDiv = document.getElementById(`${platform}-username`);
-        
+
         if (this.checked) {
             usernameDiv.style.display = 'block';
         } else {
@@ -227,7 +301,7 @@ document.querySelectorAll('.social-checkbox').forEach(checkbox => {
             const usernameInput = usernameDiv.querySelector('input');
             if (usernameInput) usernameInput.value = '';
         }
-        
+
         // Check form validation
         validateForm();
     });
@@ -242,20 +316,35 @@ document.querySelectorAll('input[name$="_username"]').forEach(input => {
 function validateForm() {
     const checkboxes = document.querySelectorAll('.social-checkbox');
     const submitBtn = document.getElementById('submit-booking-btn');
-    
-    let hasValidSelection = false;
-    
+    const occupationSelect = document.getElementById('occupation-select');
+    const customOccupationInput = document.getElementById('custom-occupation-input');
+
+    // Check occupation validation
+    let hasValidOccupation = false;
+    if (occupationSelect.value && occupationSelect.value !== '') {
+        if (occupationSelect.value === 'custom') {
+            // If custom is selected, check if the custom input has a value
+            hasValidOccupation = customOccupationInput.value.trim() !== '';
+        } else {
+            // Any other selection is valid
+            hasValidOccupation = true;
+        }
+    }
+
+    // Check social media selection validation
+    let hasValidSocialSelection = false;
     checkboxes.forEach(checkbox => {
         if (checkbox.checked) {
             const platform = checkbox.getAttribute('data-platform');
             const usernameInput = document.querySelector(`input[name="${platform}_username"]`);
             if (usernameInput && usernameInput.value.trim() !== '') {
-                hasValidSelection = true;
+                hasValidSocialSelection = true;
             }
         }
     });
-    
-    if (hasValidSelection) {
+
+    // Both occupation and at least one social platform must be valid
+    if (hasValidOccupation && hasValidSocialSelection) {
         submitBtn.disabled = false;
         submitBtn.style.opacity = '1';
         submitBtn.style.cursor = 'pointer';
