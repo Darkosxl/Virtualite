@@ -37,7 +37,12 @@ class FacebookTracker
       client_ip_address: event_data[:client_ip],
       client_user_agent: event_data[:user_agent],
       fbc: event_data[:fbc],
-      fbp: event_data[:fbp]
+      fbp: event_data[:fbp],
+      # Geographic data for better matching
+      country: hash_data(event_data[:country] || 'TR'), # Default to Turkey
+      ct: hash_data(event_data[:city]),
+      st: hash_data(event_data[:state]),
+      zp: hash_data(event_data[:zip_code])
     }.compact
 
     payload = {

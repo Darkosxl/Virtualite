@@ -432,10 +432,14 @@ rescue => e
 end
 
 def extract_fbc_from_request(request)
-  # Try to get fbc from various sources
-  request.cookies['_fbc'] ||
-  request.params['fbc'] ||
-  extract_fbclid_from_url(request)
+  # Try to get fbc from various sources (priority order for EMQ)
+  fbc = request.cookies['_fbc'] ||
+        request.params['fbc'] ||
+        extract_fbclid_from_url(request)
+
+  # Log for debugging EMQ issues
+  puts "FBC extracted: #{fbc ? 'YES' : 'NO'} from #{request.url}" if ENV['RACK_ENV'] == 'development'
+  fbc
 end
 
 def extract_fbp_from_request(request)
