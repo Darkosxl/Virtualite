@@ -106,6 +106,9 @@ function generateCalendar() {
                     dateInput.value = selectedDate;
                 }
 
+                // Track date selection
+                trackEvent('/track/date-select', { selected_date: selectedDate });
+
                 // Update time slots for selected date
                 updateTimeSlots(selectedDate);
 
@@ -153,6 +156,9 @@ function generateCalendar() {
                 if (dateInput) {
                     dateInput.value = selectedDate;
                 }
+
+                // Track date selection
+                trackEvent('/track/date-select', { selected_date: selectedDate });
 
                 // Update time slots for selected date
                 updateTimeSlots(selectedDate);
@@ -243,8 +249,17 @@ async function updateTimeSlots(selectedDate) {
 
                     // Update hidden input
                     const timeInput = document.getElementById('selected-time');
+                    const dateInput = document.getElementById('selected-date');
                     if (timeInput) {
                         timeInput.value = timeText;
+                    }
+
+                    // Track time selection
+                    if (dateInput && dateInput.value) {
+                        trackEvent('/track/time-select', {
+                            selected_time: timeText,
+                            selected_date: dateInput.value
+                        });
                     }
 
                     checkSelectionComplete();
@@ -826,19 +841,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const tomorrow = getTomorrowDate();
     const tomorrowString = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
     updateTimeSlots(tomorrowString);
-    
+
+    // Setup calendar view tracking
+    setupCalendarViewTracking();
+
     // Setup performance monitoring
     setupPerformanceMonitoring();
-    
+
     // Setup smart animation controls
     setupSmartAnimations();
-    
+
     // Setup hover-based video controls for 60fps performance
     setupVideoHoverControls();
-    
+
     // Setup sunglasses animation in calendar section
     setupSunglassesAnimation();
-    
+
     // Load 3D models but don't start animation yet
     loadAvailableModels().then(() => {
         console.log('All models loaded, setting up smart loading');
@@ -846,8 +864,37 @@ document.addEventListener('DOMContentLoaded', () => {
         // Start immediately since hero is likely visible on load
         start3DAnimation();
     });
-    
+
 });
+
+// Facebook event tracking helpers
+function trackEvent(endpoint, data = {}) {
+    fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(data)
+    }).catch(e => console.log('Tracking error:', e));
+}
+
+// Track calendar view when user scrolls to calendar section
+function setupCalendarViewTracking() {
+    const calendarSection = document.querySelector('.contact-section');
+    if (!calendarSection) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Track calendar view only once
+                trackEvent('/track/calendar-view');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    observer.observe(calendarSection);
+}
 
 // Check if both date and time are selected
 function checkSelectionComplete() {

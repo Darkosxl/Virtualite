@@ -2,65 +2,114 @@ require 'net/http'
 require 'uri'
 require 'json'
 require 'digest'
+require 'securerandom'
+require 'logger'
 
 class FacebookTracker
   def initialize
     @pixel_id = ENV['META_PIXEL_ID']
     @access_token = ENV['META_ACCESS_TOKEN']
-    @api_url = "https://graph.facebook.com/v18.0/#{@pixel_id}/events"
+    @test_event_code = ENV['META_TEST_EVENT_CODE']
+    @api_url = "https://graph.facebook.com/v21.0/#{@pixel_id}/events"
+    @logger = Logger.new(STDOUT)
+    @logger.level = Logger::INFO
   end
 
   def track_event(event_data)
     return { error: 'Missing Facebook credentials' } unless @pixel_id && @access_token
-    
+
+    request_id = SecureRandom.hex(8)
+    @logger.info("[#{request_id}] 📊 Tracking event: #{event_data[:event_name]}")
+
     # Hash sensitive user data for privacy
     hashed_email = event_data[:email] ? hash_data(event_data[:email].strip.downcase) : nil
-    hashed_phone = event_data[:phone] ? hash_data(event_data[:phone].gsub(/\D/, '')) : nil
-    
+    hashed_phone = event_data[:phone] ? hash_data(normalize_phone(event_data[:phone])) : nil
+    hashed_first_name = event_data[:first_name] ? hash_data(event_data[:first_name].strip.downcase) : nil
+    hashed_last_name = event_data[:last_name] ? hash_data(event_data[:last_name].strip.downcase) : nil
+    hashed_external_id = event_data[:external_id] ? hash_data(event_data[:external_id]) : nil
+
+    user_data = {
+      em: hashed_email,
+      ph: hashed_phone,
+      fn: hashed_first_name,
+      ln: hashed_last_name,
+      external_id: hashed_external_id,
+      client_ip_address: event_data[:client_ip],
+      client_user_agent: event_data[:user_agent],
+      fbc: event_data[:fbc],
+      fbp: event_data[:fbp]
+    }.compact
+
     payload = {
       data: [{
         event_name: event_data[:event_name],
-        event_time: Time.now.to_i,
-        event_id: event_data[:event_id],
+        event_time: event_data[:event_time] || Time.now.to_i,
+        event_id: event_data[:event_id] || SecureRandom.uuid,
         action_source: 'website',
         event_source_url: event_data[:source_url],
-        user_data: {
-          em: hashed_email ? [hashed_email] : nil,
-          ph: hashed_phone ? [hashed_phone] : nil,
-          client_user_agent: event_data[:user_agent],
-          fbc: event_data[:fbc],
-          fbp: event_data[:fbp]
-        }.compact,
+        user_data: user_data,
         custom_data: event_data[:custom_data] || {}
       }]
     }
-    
-    send_to_facebook(payload)
+
+    # Add test event code if available (for testing)
+    payload[:test_event_code] = @test_event_code if @test_event_code && !@test_event_code.empty?
+
+    @logger.info("[#{request_id}] ⬆️  Sending to Meta: #{payload.to_json}")
+    result = send_to_facebook(payload, request_id)
+    @logger.info("[#{request_id}] ✅ Meta response: #{result}")
+
+    result
   end
 
   private
 
   def hash_data(data)
-    Digest::SHA256.hexdigest(data)
+    return nil unless data && !data.to_s.empty?
+    Digest::SHA256.hexdigest(data.to_s.strip)
   end
 
-  def send_to_facebook(payload)
+  def normalize_phone(phone)
+    return nil unless phone
+    # Remove all non-digits
+    digits = phone.gsub(/\D/, '')
+    # For Turkey: if starts with 0, replace with 90
+    if digits.start_with?('0') && digits.length == 11
+      digits = '90' + digits[1..-1]
+    end
+    digits
+  end
+
+  def send_to_facebook(payload, request_id = nil)
     uri = URI("#{@api_url}?access_token=#{@access_token}")
-    
-    response = Net::HTTP.post(
-      uri,
-      payload.to_json,
-      { 'Content-Type' => 'application/json' }
-    )
-    
-    puts "Facebook Conversions API: #{response.code} - #{response.body}"
-    
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.read_timeout = 10
+    http.open_timeout = 5
+
+    request = Net::HTTP::Post.new(uri)
+    request['Content-Type'] = 'application/json'
+    request['User-Agent'] = 'Influencer-Landing-CAPI/1.0'
+    request.body = payload.to_json
+
+    response = http.request(request)
+
+    @logger.info("[#{request_id}] Facebook CAPI: #{response.code} - #{response.body}")
+
     {
       status: response.code.to_i,
-      body: JSON.parse(response.body)
+      body: JSON.parse(response.body),
+      success: response.code.to_i == 200
     }
+  rescue JSON::ParserError => e
+    @logger.error("[#{request_id}] JSON parse error: #{e.message}")
+    { error: "Invalid JSON response: #{e.message}", success: false }
+  rescue Net::TimeoutError => e
+    @logger.error("[#{request_id}] Timeout error: #{e.message}")
+    { error: "Request timeout: #{e.message}", success: false }
   rescue => e
-    puts "Facebook tracking error: #{e.message}"
-    { error: e.message }
+    @logger.error("[#{request_id}] Facebook tracking error: #{e.message}")
+    { error: e.message, success: false }
   end
 end

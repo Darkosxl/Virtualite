@@ -56,6 +56,14 @@ end
 
 # Routes
 get '/' do
+  # Track website visit
+  track_facebook_event('Website_Visit', request, {
+    custom_data: {
+      page: 'homepage',
+      referrer: request.referrer
+    }
+  })
+
   send_file File.join('public', 'index.html')
 end
 
@@ -151,6 +159,13 @@ end
 
 # Submit booking with bot protection
 post '/submit-booking' do
+  # Track form start
+  track_facebook_event('Form_Start', request, {
+    custom_data: {
+      selected_date: params['selected_date'],
+      selected_time: params['selected_time']
+    }
+  })
   # Bot protection checks
   honeypot_value = params['user_nickname']
   load_time = params['load_time']
@@ -241,7 +256,22 @@ post '/submit-booking' do
   end
   
   if booking_id && email_success
-    erb :success_message, locals: { 
+    # Track successful booking completion (pure lead tracking - no monetary value)
+    track_facebook_event('Booking_Complete', request, {
+      first_name: extract_first_name(booking_data[:name]),
+      last_name: extract_last_name(booking_data[:name]),
+      phone: booking_data[:phone_number],
+      external_id: booking_id.to_s,
+      custom_data: {
+        booking_id: booking_id,
+        selected_date: booking_data[:selected_date],
+        selected_time: booking_data[:selected_time],
+        occupation: booking_data[:occupation],
+        social_platforms: booking_data[:social_platforms]&.join(',')
+      }
+    })
+
+    erb :success_message, locals: {
       booking_id: booking_id,
       email: booking_data[:phone_number], # We'll use phone as identifier since we don't collect email
       phone: booking_data[:phone_number]
@@ -250,6 +280,48 @@ post '/submit-booking' do
     status 500
     erb :error_message, locals: { message: "Rezervasyon kaydedilemedi. Lütfen tekrar deneyin." }
   end
+end
+
+# Track calendar view event
+post '/track/calendar-view' do
+  track_facebook_event('Calendar_View', request, {
+    custom_data: {
+      action: 'calendar_viewed',
+      page_section: 'booking'
+    }
+  })
+
+  { success: true }.to_json
+end
+
+# Track date selection event
+post '/track/date-select' do
+  selected_date = params['selected_date']
+
+  track_facebook_event('Date_Select', request, {
+    custom_data: {
+      selected_date: selected_date,
+      action: 'date_selected'
+    }
+  })
+
+  { success: true }.to_json
+end
+
+# Track time slot selection event
+post '/track/time-select' do
+  selected_time = params['selected_time']
+  selected_date = params['selected_date']
+
+  track_facebook_event('Time_Select', request, {
+    custom_data: {
+      selected_date: selected_date,
+      selected_time: selected_time,
+      action: 'time_selected'
+    }
+  })
+
+  { success: true }.to_json
 end
 
 # Facebook tracking endpoint - receives data from client, sends to Facebook
@@ -339,6 +411,57 @@ def send_notification_email(booking_data)
     puts "ENV['GMAIL_PASSWORD']: #{ENV['GMAIL_PASSWORD'] ? '[SET]' : '[NOT SET]'}"
     false
   end
+end
+
+# Facebook event tracking helper
+def track_facebook_event(event_name, request, additional_data = {})
+  return unless $fb_tracker
+
+  event_data = {
+    event_name: event_name,
+    source_url: request.url,
+    user_agent: request.user_agent,
+    client_ip: request.ip,
+    fbc: extract_fbc_from_request(request),
+    fbp: extract_fbp_from_request(request)
+  }.merge(additional_data)
+
+  $fb_tracker.track_event(event_data)
+rescue => e
+  puts "Facebook tracking error for #{event_name}: #{e.message}"
+end
+
+def extract_fbc_from_request(request)
+  # Try to get fbc from various sources
+  request.cookies['_fbc'] ||
+  request.params['fbc'] ||
+  extract_fbclid_from_url(request)
+end
+
+def extract_fbp_from_request(request)
+  request.cookies['_fbp'] || request.params['fbp']
+end
+
+def extract_fbclid_from_url(request)
+  # Extract fbclid from URL and format as fbc cookie
+  fbclid = request.params['fbclid']
+  return nil unless fbclid
+
+  # Format: fb.{subdomain}.{timestamp}.{fbclid}
+  subdomain = request.host.split('.').first || 'www'
+  timestamp = Time.now.to_i * 1000
+  "fb.#{subdomain}.#{timestamp}.#{fbclid}"
+end
+
+def extract_first_name(full_name)
+  return nil unless full_name
+  full_name.split(' ').first
+end
+
+def extract_last_name(full_name)
+  return nil unless full_name
+  parts = full_name.split(' ')
+  parts.length > 1 ? parts[1..-1].join(' ') : nil
 end
 
 # reCAPTCHA verification helper

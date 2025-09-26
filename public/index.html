@@ -143,32 +143,92 @@
         }
 
         .language-select {
+            position: relative;
+            display: inline-block;
+        }
+
+        .selected-language {
             background: rgba(255, 255, 255, 0.15);
             border: 0.0625vw solid rgba(255, 255, 255, 0.25);
             border-radius: 1.56vw;
             color: white;
-            padding: 0.6vh 2vw 0.6vh 1.5vw;
+            padding: 0.6vh 1.5vw;
             font-size: clamp(0.8rem, 1vw, 1.2rem);
             font-weight: 600;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
-            cursor: none;
-            appearance: none;
+            cursor: pointer;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
             min-width: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
         }
 
-        .language-select:hover {
+        .selected-language:hover {
             background: linear-gradient(45deg, #F2522E, #F24535);
             border-color: rgba(255, 255, 255, 0.4);
             transform: translateY(-0.125vw);
             box-shadow: 0 0.5vw 1.25vw rgba(242, 69, 53, 0.3);
         }
 
-        .language-select option {
-            background: #262626;
+        .flag-icon {
+            width: 20px;
+            height: 15px;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        .dropdown-arrow {
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+            position: absolute;
+            right: 1.5vw;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .language-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(38, 38, 38, 0.95);
+            border: 0.0625vw solid rgba(255, 255, 255, 0.25);
+            border-radius: 1.56vw;
+            backdrop-filter: blur(10px);
+            margin-top: 0.5vh;
+            display: none;
+            z-index: 1000;
+        }
+
+        .language-options.show {
+            display: block;
+        }
+
+        .language-option {
+            padding: 0.6vh 1.5vw;
             color: white;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: clamp(0.8rem, 1vw, 1.2rem);
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .language-option:hover {
+            background: rgba(242, 82, 46, 0.3);
+        }
+
+        .language-option:first-child {
+            border-radius: 1.56vw 1.56vw 0 0;
+        }
+
+        .language-option:last-child {
+            border-radius: 0 0 1.56vw 1.56vw;
         }
 
 
@@ -1012,11 +1072,23 @@
             <a href="#services" class="nav-link" data-tr="Portfolyo" data-en="Portfolio" data-it="Portfolio">Portfolyo</a>
             <a href="#contact" class="nav-link" data-tr="Bize Ulaş" data-en="Contact Us" data-it="Contattaci">Bize Ulaş</a>
             <div class="language-dropdown">
-                <select class="language-select" id="languageSelect">
-                    <option value="tr">🇹🇷 Türkçe</option>
-                    <option value="en">🇬🇧 English</option>
-                    <option value="it">🇮🇹 Italiano</option>
-                </select>
+                <div class="language-select" id="languageSelect">
+                    <div class="selected-language" id="selectedLanguage">
+                        <img src="pictures/tr.svg" class="flag-icon" alt="TR"> Türkçe
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="language-options" id="languageOptions">
+                        <div class="language-option" data-lang="tr">
+                            <img src="pictures/tr.svg" class="flag-icon" alt="TR"> Türkçe
+                        </div>
+                        <div class="language-option" data-lang="en">
+                            <img src="pictures/us.svg" class="flag-icon" alt="US"> English
+                        </div>
+                        <div class="language-option" data-lang="it">
+                            <img src="pictures/it.svg" class="flag-icon" alt="IT"> Italiano
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -1246,17 +1318,56 @@
             });
         }
 
-        document.getElementById('languageSelect').addEventListener('change', function() {
-            const selectedLang = this.value;
-            // Store selected language
-            localStorage.setItem('selectedLanguage', selectedLang);
-            switchLanguage(selectedLang);
-        });
-
-        // Apply saved language on page load
+        // Custom dropdown functionality
         document.addEventListener('DOMContentLoaded', function() {
+            const selectedLanguage = document.getElementById('selectedLanguage');
+            const languageOptions = document.getElementById('languageOptions');
+            const dropdownArrow = selectedLanguage.querySelector('.dropdown-arrow');
+
+            // Toggle dropdown
+            selectedLanguage.addEventListener('click', function() {
+                languageOptions.classList.toggle('show');
+                dropdownArrow.style.transform = languageOptions.classList.contains('show') ? 'translateY(-50%) rotate(180deg)' : 'translateY(-50%) rotate(0deg)';
+            });
+
+            // Handle language selection
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const selectedLang = this.getAttribute('data-lang');
+                    const flagSrc = this.querySelector('.flag-icon').src;
+                    const langText = this.textContent.trim();
+
+                    // Update selected language display
+                    selectedLanguage.querySelector('.flag-icon').src = flagSrc;
+                    selectedLanguage.childNodes[1].textContent = ' ' + langText;
+
+                    // Hide dropdown
+                    languageOptions.classList.remove('show');
+                    dropdownArrow.style.transform = 'translateY(-50%) rotate(0deg)';
+
+                    // Store selected language
+                    localStorage.setItem('selectedLanguage', selectedLang);
+                    switchLanguage(selectedLang);
+                });
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.language-dropdown')) {
+                    languageOptions.classList.remove('show');
+                    dropdownArrow.style.transform = 'translateY(-50%) rotate(0deg)';
+                }
+            });
+
+            // Apply saved language on page load
             const savedLang = localStorage.getItem('selectedLanguage') || 'tr';
-            document.getElementById('languageSelect').value = savedLang;
+            const savedOption = document.querySelector(`[data-lang="${savedLang}"]`);
+            if (savedOption) {
+                const flagSrc = savedOption.querySelector('.flag-icon').src;
+                const langText = savedOption.textContent.trim();
+                selectedLanguage.querySelector('.flag-icon').src = flagSrc;
+                selectedLanguage.childNodes[1].textContent = ' ' + langText;
+            }
             switchLanguage(savedLang);
         });
 
