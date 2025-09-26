@@ -127,33 +127,7 @@ if (typeof fbq !== 'undefined') {
     console.log('Facebook Pixel blocked by ad blocker - tracking via server-side only');
 }
 
-// Send event to our server, which forwards to Facebook (bypasses ad blockers)
-<% if defined?(booking_id) && booking_id %>
-fetch('/track-facebook', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        event_name: 'Schedule',
-        event_id: eventId,
-        email: '<%= defined?(email) ? email : "" %>',
-        phone: '<%= defined?(phone) ? phone : "" %>',
-        source_url: window.location.href,
-        user_agent: navigator.userAgent,
-        fbc: fbc,
-        fbp: fbp,
-        custom_data: {
-            booking_id: '<%= booking_id %>',
-            value: 0.00,
-            currency: 'EUR',
-            content_name: 'Editing consultation booking'
-        }
-    })
-}).catch(error => {
-    console.log('Facebook tracking failed:', error);
-});
-<% end %>
+// Booking completion tracking is now handled server-side in app.rb
 </script>
 
 </body>

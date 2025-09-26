@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' blob: https://www.google.com https://www.gstatic.com https://connect.facebook.net; object-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' blob: https://www.google.com https://www.gstatic.com https://connect.facebook.net https://static.cloudflareinsights.com; object-src 'none';">
     <link rel="icon" type="image/x-icon" href="/pictures/amoreditlogo.png">
     <title>Amoredit - Kaydırmayı Durduran İçerikler</title>
     <style>
@@ -1033,27 +1033,7 @@
         return null;
     }
     
-    // Always track PageView via server-side (bypasses ad blockers)
-    const fbc = getCookie('_fbc') || (new URLSearchParams(window.location.search).get('fbclid') ? 'fb.1.' + Date.now() + '.' + new URLSearchParams(window.location.search).get('fbclid') : null);
-    const fbp = getCookie('_fbp');
-    
-    fetch('/track-facebook', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            event_name: 'PageView',
-            event_id: pageViewEventId,
-            source_url: window.location.href,
-            user_agent: navigator.userAgent,
-            fbc: fbc,
-            fbp: fbp,
-            custom_data: {
-                content_name: 'Landing Page View'
-            }
-        })
-    }).catch(error => {
-        console.log('Server-side PageView tracking failed:', error);
-    });
+    // PageView tracking is now handled server-side in app.rb
     </script>
     <noscript><img height="1" width="1" style="display:none"
     src="https://www.facebook.com/tr?id=787530457230374&ev=PageView&noscript=1"
