@@ -209,6 +209,8 @@ post '/submit-booking' do
   
   phone_number = params['phone_number']
   name = params['name']
+  email = params['email']
+  language = params['language'] || 'tr'
   selected_date = params['selected_date']
   selected_time = params['selected_time']
 
@@ -236,6 +238,8 @@ post '/submit-booking' do
   booking_data = {
     name: name,
     phone_number: phone_number,
+    email: email,
+    language: language,
     selected_date: selected_date,
     selected_time: selected_time,
     occupation: final_occupation,
@@ -246,8 +250,11 @@ post '/submit-booking' do
   # Save to database
   booking_id = $db.save_booking(booking_data)
 
-  # Send notification email
+  # Send notification email to team
   email_success = send_notification_email(booking_data)
+
+  # Send confirmation email to customer
+  customer_email_success = send_customer_confirmation_email(booking_data)
 
   # Add to Google Sheets
   sheets_result = $google_sheets.add_booking_to_sheet(booking_data)
@@ -258,6 +265,7 @@ post '/submit-booking' do
   if booking_id && email_success
     # Track successful booking completion (pure lead tracking - no monetary value)
     track_facebook_event('Booking_Complete', request, {
+      email: booking_data[:email],
       first_name: extract_first_name(booking_data[:name]),
       last_name: extract_last_name(booking_data[:name]),
       phone: booking_data[:phone_number],
@@ -271,9 +279,16 @@ post '/submit-booking' do
       }
     })
 
+    # Log customer email status
+    if customer_email_success
+      puts "Customer confirmation email sent successfully"
+    else
+      puts "Warning: Customer confirmation email failed to send"
+    end
+
     erb :success_message, locals: {
       booking_id: booking_id,
-      email: booking_data[:phone_number], # We'll use phone as identifier since we don't collect email
+      email: booking_data[:email],
       phone: booking_data[:phone_number]
     }
   else
@@ -387,17 +402,19 @@ def send_notification_email(booking_data)
     end
     
     mail = Mail.new do
-      from     ENV['GMAIL_USERNAME']
-      to       ['bscemarslan@gmail.com', 'onur5celik8@gmail.com']
-      subject  'Yeni Rezervasyon - Virtualite'
+      from     'hello@amoredit.com'
+      to       ['cem@amoredit.com', 'onur@amoredit.com', 'hello@amoredit.com']
+      subject  "Amoredit Rezervasyon - #{booking_data[:name]}"
       body     <<~EMAIL
         Yeni bir rezervasyon alındı!
-        
+
         İsim: #{booking_data[:name]}
+        E-posta: #{booking_data[:email]}
         Telefon: #{booking_data[:phone_number]}
+        Meslek: #{booking_data[:occupation]}
         Tarih: #{booking_data[:selected_date]}
         Saat: #{booking_data[:selected_time]}#{social_info}
-        
+
         Lütfen bu kişi ile iletişime geçin.
       EMAIL
     end
@@ -409,6 +426,87 @@ def send_notification_email(booking_data)
     puts "Email error: #{e.message}"
     puts "ENV['GMAIL_USERNAME']: #{ENV['GMAIL_USERNAME']}"
     puts "ENV['GMAIL_PASSWORD']: #{ENV['GMAIL_PASSWORD'] ? '[SET]' : '[NOT SET]'}"
+    false
+  end
+end
+
+def send_customer_confirmation_email(booking_data)
+  begin
+    language = booking_data[:language] || 'tr'
+
+    # Multilingual content
+    subjects = {
+      'tr' => "Amoredit Rezervasyonunuz Onaylandı",
+      'en' => "Your Amoredit Booking is Confirmed",
+      'it' => "La Tua Prenotazione Amoredit è Confermata"
+    }
+
+    greetings = {
+      'tr' => "Selam #{booking_data[:name]}!",
+      'en' => "Hi #{booking_data[:name]}!",
+      'it' => "Ciao #{booking_data[:name]}!"
+    }
+
+    confirmations = {
+      'tr' => "Rezervasyonunuz başarıyla alındı. Ekibimiz rezervasyon saatinizde sizinle iletişime geçecek.",
+      'en' => "Your booking has been successfully received. Our team will contact you at your booking time.",
+      'it' => "La tua prenotazione è stata ricevuta con successo. Il nostro team ti contatterà all'orario della tua prenotazione."
+    }
+
+    booking_details = {
+      'tr' => "Rezervasyon Detayları:",
+      'en' => "Booking Details:",
+      'it' => "Dettagli della Prenotazione:"
+    }
+
+    date_labels = {
+      'tr' => "Tarih",
+      'en' => "Date",
+      'it' => "Data"
+    }
+
+    time_labels = {
+      'tr' => "Saat",
+      'en' => "Time",
+      'it' => "Ora"
+    }
+
+    contact_info = {
+      'tr' => "Herhangi bir sorunuz varsa, hello@amoredit.com adresinden bize ulaşabilirsiniz.",
+      'en' => "If you have any questions, you can reach us at hello@amoredit.com.",
+      'it' => "Se hai domande, puoi contattarci all'indirizzo hello@amoredit.com."
+    }
+
+    signatures = {
+      'tr' => "Amoredit Ekibi",
+      'en' => "Amoredit Team",
+      'it' => "Team Amoredit"
+    }
+
+    mail = Mail.new do
+      from     'hello@amoredit.com'
+      to       booking_data[:email]
+      subject  subjects[language]
+      body     <<~EMAIL
+        #{greetings[language]}
+
+        #{confirmations[language]}
+
+        #{booking_details[language]}
+        #{date_labels[language]}: #{booking_data[:selected_date]}
+        #{time_labels[language]}: #{booking_data[:selected_time]}
+
+        #{contact_info[language]}
+
+        #{signatures[language]}
+      EMAIL
+    end
+
+    mail.deliver!
+    puts "Customer confirmation email sent successfully to #{booking_data[:email]}"
+    true
+  rescue => e
+    puts "Customer email error: #{e.message}"
     false
   end
 end

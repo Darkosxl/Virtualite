@@ -22,6 +22,7 @@
         <input type="hidden" name="selected_time" value="<%= selected_time %>">
         <input type="hidden" name="load_time" value="<%= params['load_time'] %>">
         <input type="hidden" name="g-recaptcha-response" id="recaptchaResponse">
+        <input type="hidden" name="language" id="selectedLanguageInput" value="tr">
         
         <!-- Honeypot trap - hidden field only bots will fill -->
         <div style="position: absolute; left: -5000px;" aria-hidden="true">
@@ -53,6 +54,22 @@
                    data-placeholder-en="+1 555 123 4567"
                    data-placeholder-it="+39 555 123 456"
                    placeholder="+90 555 123 45 67">
+        </div>
+
+        <!-- Email input -->
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; color: white; font-weight: 600; margin-bottom: 0.5rem;" data-tr="E-posta Adresiniz *" data-en="Your Email Address *" data-it="Il Tuo Indirizzo Email *">E-posta Adresiniz *</label>
+            <input type="email"
+                   name="email"
+                   required
+                   style="width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; transition: all 0.3s;"
+                   data-placeholder-tr="ornek@email.com"
+                   data-placeholder-en="example@email.com"
+                   data-placeholder-it="esempio@email.com"
+                   placeholder="ornek@email.com">
+            <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.875rem; margin-top: 0.5rem; margin-bottom: 0;">
+                <span data-tr="Onay e-postası hello@amoredit.com adresinden gönderilecektir." data-en="Confirmation email will be sent from hello@amoredit.com." data-it="L'email di conferma sarà inviata da hello@amoredit.com.">Onay e-postası hello@amoredit.com adresinden gönderilecektir.</span>
+            </p>
         </div>
 
         <!-- Occupation selection -->
@@ -386,6 +403,27 @@ document.getElementById('contact-form').addEventListener('submit', function(e) {
         form.submit();
     }
 });
+
+// Update language field when language changes
+function updateLanguageField() {
+    const savedLang = localStorage.getItem('selectedLanguage') || 'tr';
+    const languageInput = document.getElementById('selectedLanguageInput');
+    if (languageInput) {
+        languageInput.value = savedLang;
+    }
+}
+
+// Update language field on form load
+updateLanguageField();
+
+// Watch for language changes
+const originalSetItem = localStorage.setItem;
+localStorage.setItem = function(key, value) {
+    originalSetItem.call(this, key, value);
+    if (key === 'selectedLanguage') {
+        updateLanguageField();
+    }
+};
 
 // The main page's MutationObserver will automatically handle translations for this form
 </script>

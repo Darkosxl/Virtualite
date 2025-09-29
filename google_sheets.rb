@@ -36,9 +36,10 @@ class GoogleSheetsIntegration
         booking_data[:name],                    # Name Surname (C)
         booking_data[:phone_number],            # Phone (D)
         social_username,                        # Instagram username (E)
-        booking_data[:occupation] || '',        # Occupation (F)
-        booking_data[:status] || '',            # Status (G) - empty by default
-        booking_data[:special_note] || ''       # Special Note (H) - empty by default
+        booking_data[:email],                   # Email (F)
+        booking_data[:occupation] || '',        # Occupation (G)
+        booking_data[:status] || '',            # Status (H) - empty by default
+        booking_data[:special_note] || ''       # Special Note (I) - empty by default
       ]
 
       # SECURITY: Only get row count, never read existing data

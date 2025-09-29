@@ -159,12 +159,13 @@
             cursor: pointer;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
-            min-width: 140px;
+            width: 3rem;
+            height: 3rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
             position: relative;
+            flex-shrink: 0;
         }
 
         .selected-language:hover {
@@ -175,19 +176,20 @@
         }
 
         .flag-icon {
-            width: 20px;
-            height: 15px;
-            margin-right: 8px;
-            border-radius: 2px;
+            width: 24px;
+            height: 18px;
+            border-radius: 3px;
+            object-fit: cover;
         }
 
         .dropdown-arrow {
             font-size: 0.8em;
             transition: transform 0.3s ease;
             position: absolute;
-            right: 1.5vw;
+            right: 0.5vw;
             top: 50%;
             transform: translateY(-50%);
+            color: white;
         }
 
         .language-options {
@@ -292,7 +294,9 @@
         }
 
         .cta-button {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 1.2vh 3.5vw;
             background: linear-gradient(45deg, #F2522E, #F24535);
             color: white;
@@ -306,6 +310,7 @@
             position: relative;
             overflow: hidden;
             margin-bottom: 4vh;
+            text-align: center;
         }
 
         .cta-button::before {
@@ -635,6 +640,25 @@
                 grid-template-columns: 1fr;
                 gap: 2vh;
             }
+
+            .nav-container {
+                gap: 1.5vw;
+            }
+
+            .nav-link {
+                padding: 1vh 2vw;
+                font-size: clamp(0.5rem, 2vw, 0.8rem);
+            }
+
+            .selected-language {
+                width: 2rem;
+                height: 2rem;
+            }
+
+            .flag-icon {
+                width: 16px;
+                height: 12px;
+            }
         }
 
         .video-placeholder {
@@ -926,24 +950,70 @@
             }
             
             .navbar {
-                padding: 1vh 2vw;
+                padding: 1vh 1.5vw;
                 border-radius: 5vw;
-                max-width: 95%;
+                max-width: 98%;
+                width: auto;
             }
             
             .nav-container {
-                gap: 3vw;
+                gap: 2vw;
+                flex-wrap: nowrap;
             }
             
             .nav-logo {
                 height: 8vw;
                 min-height: 30px;
+                flex-shrink: 0;
             }
             
             .nav-link {
-                padding: 1vh 3vw;
-                font-size: clamp(0.7rem, 2.5vw, 1rem);
+                padding: 1vh 2.5vw;
+                font-size: clamp(0.6rem, 2.2vw, 0.9rem);
                 border-radius: 4vw;
+                flex-shrink: 1;
+                min-width: 0;
+            }
+
+            .language-dropdown {
+                flex-shrink: 0;
+            }
+
+            .selected-language {
+                width: 2.5rem;
+                height: 2.5rem;
+                padding: 0.5vh 1vw;
+                border-radius: 4vw;
+            }
+
+            .flag-icon {
+                width: 20px;
+                height: 15px;
+            }
+
+            .dropdown-arrow {
+                right: 0.3vw;
+                font-size: 0.7em;
+            }
+
+            .language-options {
+                right: 0;
+                left: auto;
+                min-width: 120px;
+                border-radius: 4vw;
+            }
+
+            .language-option {
+                padding: 1vh 2vw;
+                font-size: clamp(0.8rem, 2vw, 1rem);
+            }
+
+            .language-option:first-child {
+                border-radius: 4vw 4vw 0 0;
+            }
+
+            .language-option:last-child {
+                border-radius: 0 0 4vw 4vw;
             }
             
             .hero-content {
@@ -1054,7 +1124,7 @@
             <div class="language-dropdown">
                 <div class="language-select" id="languageSelect">
                     <div class="selected-language" id="selectedLanguage">
-                        <img src="pictures/tr.svg" class="flag-icon" alt="TR"> Türkçe
+                        <img src="pictures/tr.svg" class="flag-icon" alt="TR">
                         <span class="dropdown-arrow">▼</span>
                     </div>
                     <div class="language-options" id="languageOptions">
@@ -1317,9 +1387,8 @@
                     const flagSrc = this.querySelector('.flag-icon').src;
                     const langText = this.textContent.trim();
 
-                    // Update selected language display
+                    // Update selected language display (only flag)
                     selectedLanguage.querySelector('.flag-icon').src = flagSrc;
-                    selectedLanguage.childNodes[1].textContent = ' ' + langText;
 
                     // Hide dropdown
                     languageOptions.classList.remove('show');
@@ -1344,9 +1413,7 @@
             const savedOption = document.querySelector(`[data-lang="${savedLang}"]`);
             if (savedOption) {
                 const flagSrc = savedOption.querySelector('.flag-icon').src;
-                const langText = savedOption.textContent.trim();
                 selectedLanguage.querySelector('.flag-icon').src = flagSrc;
-                selectedLanguage.childNodes[1].textContent = ' ' + langText;
             }
             switchLanguage(savedLang);
         });
