@@ -40,11 +40,11 @@ end
 begin
   Mail.defaults do
     delivery_method :smtp, {
-      address: 'smtp.gmail.com',
+      address: 'smtp-relay.brevo.com',
       port: 587,
-      domain: 'gmail.com',
-      user_name: ENV['GMAIL_USERNAME'],
-      password: ENV['GMAIL_PASSWORD'],
+      domain: 'amoredit.com',
+      user_name: ENV['BREVO_SMTP_LOGIN'],
+      password: ENV['BREVO_SMTP_PASSWORD'],
       authentication: 'plain',
       enable_starttls_auto: true
     }
