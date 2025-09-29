@@ -257,18 +257,27 @@
             position: relative;
             z-index: 2;
             max-width: 42%;
-            padding: 3vh 2vw 4vh 2vw;
-            min-height: 35vh;
+            padding: 3vh 2vw;
+            min-height: 60vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
+        }
+
+        .hero-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex-grow: 1;
+            justify-content: center;
         }
 
         .hero h1 {
             font-size: clamp(2.34rem, 5.2vw, 5.2rem);
             font-weight: 900;
-            margin-bottom: 5rem;
+            margin-bottom: 3vh;
             background: linear-gradient(45deg, #fff, #F2522E, #F24535);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -279,7 +288,7 @@
 
         .hero p {
             font-size: clamp(0.91rem, 1.3vw, 1.56rem);
-            margin-bottom: 2.5vh;
+            margin-bottom: 2vh;
             opacity: 0.95;
             font-weight: 300;
             line-height: 1.6;
@@ -301,7 +310,7 @@
             cursor: none;
             position: relative;
             overflow: hidden;
-            margin-bottom: 4vh;
+            margin: 2vh 0;
             text-align: center;
         }
 
@@ -1003,8 +1012,8 @@
             
             .hero-content {
                 max-width: 57%;
-                padding: 4vh 4vw 8vh 4vw;
-                min-height: 40vh;
+                padding: 4vh 4vw;
+                min-height: 70vh;
             }
             
             .content-grid {
@@ -1130,9 +1139,11 @@
     <section class="hero" id="home">
         <canvas id="three-canvas"></canvas>
         <div class="hero-content">
-            <h1 data-tr="Edit: ayda 40 saatini alan o baş belası!" data-en="Editing: that 40-hour monthly headache!" data-it="Editing: quel mal di testa di 40 ore al mese!">Edit: ayda 40 saatini alan o baş belası!</h1>
-            <p data-tr="Bu süreyi iş birliklerini artırmaya ayırmak harika olmaz mı? Veya daha çok içerik üretmeye! Veya takipçilerini artırmaya!" data-en="Wouldn't it be great to spend this time getting more brand deals? Or creating more content! Or growing your followers!" data-it="Non sarebbe fantastico usare questo tempo per aumentare le collaborazioni? O per creare più content! O per far crescere i tuoi follower!">Bu süreyi iş birliklerini artırmaya ayırmak harika olmaz mı? Veya daha çok içerik üretmeye! Veya takipçilerini artırmaya!</p>
-            <p data-tr="Videonu çek, bize gönder, ışık hızında editleyelim, paylaş. Tekrar et!" data-en="Shoot your video, send it to us, we'll edit it at lightning speed, share it. Repeat!" data-it="Gira il tuo video, invialo a noi, lo modificheremo alla velocità della luce, condividilo. Ripeti!">Videonu çek, bize gönder, ışık hızında editleyelim, paylaş. Tekrar et!</p>
+            <div class="hero-text">
+                <h1 data-tr="Edit: ayda 40 saatini alan o baş belası!" data-en="Editing: that 40-hour monthly headache!" data-it="Editing: quel mal di testa di 40 ore al mese!">Edit: ayda 40 saatini alan o baş belası!</h1>
+                <p data-tr="Bu süreyi iş birliklerini artırmaya ayırmak harika olmaz mı? Veya daha çok içerik üretmeye! Veya takipçilerini artırmaya!" data-en="Wouldn't it be great to spend this time getting more brand deals? Or creating more content! Or growing your followers!" data-it="Non sarebbe fantastico usare questo tempo per aumentare le collaborazioni? O per creare più content! O per far crescere i tuoi follower!">Bu süreyi iş birliklerini artırmaya ayırmak harika olmaz mı? Veya daha çok içerik üretmeye! Veya takipçilerini artırmaya!</p>
+                <p data-tr="Videonu çek, bize gönder, ışık hızında editleyelim, paylaş. Tekrar et!" data-en="Shoot your video, send it to us, we'll edit it at lightning speed, share it. Repeat!" data-it="Gira il tuo video, invialo a noi, lo modificheremo alla velocità della luce, condividilo. Ripeti!">Videonu çek, bize gönder, ışık hızında editleyelim, paylaş. Tekrar et!</p>
+            </div>
             <a href="#contact" class="cta-button" data-tr="Tanışalım mı?" data-en="Shall we meet?" data-it="Conosciamoci!">Tanışalım mı?</a>
         </div>
         <div class="scroll-indicator" data-tr="Keşfetmek için kaydır" data-en="Scroll to explore" data-it="Scorri per esplorare">Keşfetmek için kaydır</div>
@@ -1310,11 +1321,11 @@
             </div>
 
             <!-- Copyright and contact info -->
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: nowrap; gap: 1rem;">
+                <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.85rem; margin: 0; white-space: nowrap; flex-shrink: 0;">
                     hello@amoredit.com
                 </p>
-                <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; margin: 0;">
+                <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin: 0; text-align: right; flex-shrink: 1; min-width: 0;">
                     © 2025 Amoredit.
                     <span data-tr="Tüm hakları saklıdır." data-en="All rights reserved." data-it="Tutti i diritti riservati.">Tüm hakları saklıdır.</span>
                 </p>
@@ -1338,6 +1349,17 @@
                 flex-direction: column !important;
                 gap: 0.5rem !important;
                 text-align: center !important;
+            }
+
+            footer div > div:last-child p {
+                font-size: 0.8rem !important;
+                text-align: center !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            footer div > div:last-child p {
+                font-size: 0.75rem !important;
             }
         }
     </style>
