@@ -180,15 +180,8 @@
             height: 18px;
             border-radius: 3px;
             object-fit: cover;
-            margin-right: 0.5vw;
         }
 
-        .dropdown-arrow {
-            font-size: 0.8em;
-            transition: transform 0.3s ease;
-            margin-left: 0.5vw;
-            color: white;
-        }
 
         .language-options {
             position: absolute;
@@ -214,6 +207,7 @@
             cursor: pointer;
             display: flex;
             align-items: center;
+            justify-content: center;
             font-size: clamp(0.8rem, 1vw, 1.2rem);
             font-weight: 600;
             transition: background 0.3s ease;
@@ -655,7 +649,6 @@
             .flag-icon {
                 width: 16px;
                 height: 12px;
-                margin-right: 0.2vw;
             }
         }
 
@@ -985,13 +978,8 @@
             .flag-icon {
                 width: 20px;
                 height: 15px;
-                margin-right: 0.3vw;
             }
 
-            .dropdown-arrow {
-                margin-left: 0.3vw;
-                font-size: 0.7em;
-            }
 
             .language-options {
                 right: 0;
@@ -1122,17 +1110,16 @@
                 <div class="language-select" id="languageSelect">
                     <div class="selected-language" id="selectedLanguage">
                         <img src="pictures/tr.svg" class="flag-icon" alt="TR">
-                        <span class="dropdown-arrow">▼</span>
                     </div>
                     <div class="language-options" id="languageOptions">
                         <div class="language-option" data-lang="tr">
-                            <img src="pictures/tr.svg" class="flag-icon" alt="TR"> Türkçe
+                            <img src="pictures/tr.svg" class="flag-icon" alt="TR">
                         </div>
                         <div class="language-option" data-lang="en">
-                            <img src="pictures/us.svg" class="flag-icon" alt="US"> English
+                            <img src="pictures/us.svg" class="flag-icon" alt="US">
                         </div>
                         <div class="language-option" data-lang="it">
-                            <img src="pictures/it.svg" class="flag-icon" alt="IT"> Italiano
+                            <img src="pictures/it.svg" class="flag-icon" alt="IT">
                         </div>
                     </div>
                 </div>
@@ -1322,24 +1309,35 @@
                 </div>
             </div>
 
-            <!-- Copyright text -->
-            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; margin: 0;">
-                © 2025 Amoredit.
-                <span data-tr="Tüm hakları saklıdır." data-en="All rights reserved." data-it="Tutti i diritti riservati.">Tüm hakları saklıdır.</span>
-            </p>
+            <!-- Copyright and contact info -->
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin: 0;">
+                    hello@amoredit.com
+                </p>
+                <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; margin: 0;">
+                    © 2025 Amoredit.
+                    <span data-tr="Tüm hakları saklıdır." data-en="All rights reserved." data-it="Tutti i diritti riservati.">Tüm hakları saklıdır.</span>
+                </p>
+            </div>
         </div>
     </footer>
 
     <!-- Mobile responsive footer -->
     <style>
         @media (max-width: 768px) {
-            footer div > div {
+            footer div > div:first-child {
                 flex-direction: column !important;
                 gap: 1rem !important;
             }
 
-            footer div > div > div {
+            footer div > div:first-child > div {
                 justify-content: center !important;
+            }
+
+            footer div > div:last-child {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+                text-align: center !important;
             }
         }
     </style>
@@ -1369,12 +1367,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             const selectedLanguage = document.getElementById('selectedLanguage');
             const languageOptions = document.getElementById('languageOptions');
-            const dropdownArrow = selectedLanguage.querySelector('.dropdown-arrow');
 
             // Toggle dropdown
             selectedLanguage.addEventListener('click', function() {
                 languageOptions.classList.toggle('show');
-                dropdownArrow.style.transform = languageOptions.classList.contains('show') ? 'translateY(-50%) rotate(180deg)' : 'translateY(-50%) rotate(0deg)';
             });
 
             // Handle language selection
@@ -1389,7 +1385,6 @@
 
                     // Hide dropdown
                     languageOptions.classList.remove('show');
-                    dropdownArrow.style.transform = 'translateY(-50%) rotate(0deg)';
 
                     // Store selected language
                     localStorage.setItem('selectedLanguage', selectedLang);
@@ -1401,7 +1396,6 @@
             document.addEventListener('click', function(event) {
                 if (!event.target.closest('.language-dropdown')) {
                     languageOptions.classList.remove('show');
-                    dropdownArrow.style.transform = 'translateY(-50%) rotate(0deg)';
                 }
             });
 
