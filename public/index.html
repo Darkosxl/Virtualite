@@ -159,13 +159,13 @@
             cursor: pointer;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
-            width: 3rem;
-            height: 3rem;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             flex-shrink: 0;
+            white-space: nowrap;
+            min-width: auto;
         }
 
         .selected-language:hover {
@@ -651,8 +651,7 @@
             }
 
             .selected-language {
-                width: 2rem;
-                height: 2rem;
+                padding: 1vh 2vw;
             }
 
             .flag-icon {
@@ -980,9 +979,7 @@
             }
 
             .selected-language {
-                width: 2.5rem;
-                height: 2.5rem;
-                padding: 0.5vh 1vw;
+                padding: 1vh 2.5vw;
                 border-radius: 4vw;
             }
 
