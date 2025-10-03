@@ -58,7 +58,11 @@
 }
 
 .form-field select option:disabled {
-    color: rgba(255, 255, 255, 0.5);
+    color: #ff4444 !important;
+    background-color: #330000 !important;
+    text-decoration: line-through !important;
+    font-weight: bold !important;
+    cursor: not-allowed !important;
 }
 
 /* Custom checkbox styling */
@@ -316,15 +320,51 @@
 <script>
 // Form validation and interactions
 document.addEventListener('DOMContentLoaded', function() {
-    // Set minimum date to tomorrow
+    // Set date constraints
     const dateInput = document.getElementById('selected-date');
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowString = tomorrow.toISOString().split('T')[0];
-    dateInput.min = tomorrowString;
+    const today = new Date();
+
+    // Minimum date: tomorrow
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    dateInput.min = tomorrow.toISOString().split('T')[0];
+
+    // Maximum date: 1 month + 1 week from today (approximately 5 weeks)
+    const maxDate = new Date(today);
+    maxDate.setDate(today.getDate() + 35); // 5 weeks = 35 days
+    dateInput.max = maxDate.toISOString().split('T')[0];
+
+    // Block Sundays - validate on change and input
+    function validateDateSelection() {
+        const selectedDate = dateInput.value;
+        if (!selectedDate) return;
+
+        const date = new Date(selectedDate + 'T12:00:00'); // Use noon to avoid timezone issues
+        const dayOfWeek = date.getDay();
+
+        // If Sunday (0), clear the selection and alert
+        if (dayOfWeek === 0) {
+            dateInput.value = '';
+            const lang = localStorage.getItem('selectedLanguage') || 'tr';
+            const messages = {
+                tr: 'Pazar günleri rezervasyon kabul edilmemektedir. Lütfen başka bir gün seçin.',
+                en: 'Bookings are not accepted on Sundays. Please select another day.',
+                it: 'Le prenotazioni non sono accettate la domenica. Si prega di selezionare un altro giorno.'
+            };
+            alert(messages[lang] || messages.tr);
+            return false;
+        }
+        return true;
+    }
+
+    dateInput.addEventListener('input', validateDateSelection);
 
     // Handle date selection - fetch available time slots
     dateInput.addEventListener('change', async function() {
+        if (!validateDateSelection()) {
+            return;
+        }
+
         const selectedDate = this.value;
         const timeSelect = document.getElementById('selected-time');
 
@@ -332,33 +372,33 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch(`/api/available-slots/${selectedDate}`);
             const data = await response.json();
 
-            // Re-enable all options first
+            // Re-enable all options first and reset text
             Array.from(timeSelect.options).forEach(option => {
                 if (option.value) {
                     option.disabled = false;
                     option.textContent = option.value;
+                    option.style.color = '';
+                    option.style.backgroundColor = '';
+                    option.style.textDecoration = '';
                 }
             });
 
-            // Disable booked slots
+            // Disable booked slots with VERY VISIBLE styling
             if (data.booked_slots && data.booked_slots.length > 0) {
                 data.booked_slots.forEach(bookedTime => {
                     const option = Array.from(timeSelect.options).find(opt => opt.value === bookedTime);
                     if (option) {
                         option.disabled = true;
-                        option.textContent = `${bookedTime} (Dolu)`;
+                        option.textContent = `${bookedTime} ❌ DOLU / BOOKED`;
+                        option.style.color = '#ff4444';
+                        option.style.backgroundColor = '#330000';
+                        option.style.textDecoration = 'line-through';
+                        option.style.fontWeight = 'bold';
                     }
                 });
             }
 
-            // Check if it's Sunday
-            const date = new Date(selectedDate);
-            if (date.getDay() === 0) {
-                timeSelect.disabled = true;
-                alert('Pazar günleri rezervasyon kabul edilmemektedir.');
-            } else {
-                timeSelect.disabled = false;
-            }
+            timeSelect.disabled = false;
         } catch (error) {
             console.error('Error fetching available slots:', error);
         }

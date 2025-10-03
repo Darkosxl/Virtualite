@@ -1,3 +1,401 @@
+<style>
+/* Content showcase section - static gradient with more space */
+.content-showcase {
+    padding: 3vh 2vw 5vh 2vw;
+    background: linear-gradient(135deg, #F2522E 0%, #730202 100%);
+    position: relative;
+    border-radius: 3vh 3vh 0 0;
+    margin-top: -3vh;
+    margin-bottom: 0;
+}
+
+/* Stats styles within content showcase */
+.stats-title {
+    font-size: clamp(2rem, 2.5vw, 3rem);
+    font-weight: 800;
+    margin-bottom: 1vh;
+    color: white;
+    text-align: center;
+}
+
+.stats-subtitle {
+    font-size: clamp(1rem, 1.2vw, 1.4rem);
+    margin-bottom: 3vh;
+    opacity: 0.9;
+    color: white;
+    font-style: italic;
+    text-align: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5vw;
+    max-width: 85%;
+    margin: 0 auto 5vh auto;
+}
+
+.stat-item {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 0.9375vw;
+    padding: 1.5vh 0.8vw;
+    border: 0.0625vw solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.stat-item:hover {
+    transform: translateY(-0.31vw);
+}
+
+.stat-number {
+    font-size: clamp(1.5rem, 1.8vw, 2.2rem);
+    font-weight: 900;
+    color: white;
+    margin-bottom: 0.5vh;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stat-label {
+    font-size: clamp(0.8rem, 0.9vw, 1.1rem);
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.container {
+    max-width: 90%;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.section-title {
+    text-align: center;
+    font-size: clamp(2.5rem, 3.5vw, 4rem);
+    font-weight: 800;
+    margin-bottom: 1vh;
+    color: white;
+}
+
+.section-subtitle {
+    text-align: center;
+    font-size: clamp(1.2rem, 1.4vw, 1.6rem);
+    margin-bottom: 4vh;
+    opacity: 0.9;
+    font-weight: 300;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2vw;
+}
+
+.content-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 1.25vw;
+    overflow: hidden;
+    box-shadow: 0 1.25vw 2.5vw rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: #333;
+}
+
+.content-card:hover {
+    transform: translateY(-0.9375vw);
+    box-shadow: 0 1.875vw 3.75vw rgba(0, 0, 0, 0.2);
+}
+
+.content-video {
+    width: 100%;
+    aspect-ratio: 9/16;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Video showcase sections */
+.short-videos-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3vw;
+    width: 100%;
+}
+
+.long-video-section {
+    margin: 4vh 0;
+    display: flex;
+    justify-content: center;
+}
+
+/* Desktop/Mobile visibility toggles */
+.mobile-only {
+    display: none !important;
+}
+
+.desktop-only {
+    display: block !important;
+}
+
+/* Desktop: Grid layout for short videos */
+.short-videos-grid {
+    display: flex;
+    gap: 2%;
+    width: 100%;
+    max-width: 1400px;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.short-videos-grid .short-video {
+    flex: 1;
+    max-width: 32%;
+    width: 100%;
+    aspect-ratio: 9/16;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+}
+
+/* Mobile: Vertical stack */
+.short-videos-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+    max-width: 90%;
+    margin: 0 auto;
+}
+
+.short-videos-stack .short-video {
+    width: 100%;
+    height: clamp(300px, 60vh, 500px);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+}
+
+.long-video-container {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+    max-width: 90%;
+}
+
+.long-video {
+    width: 100%;
+    max-width: 900px;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.video-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #F2522E, #F24535);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(2rem, 3vw, 4rem);
+    color: white;
+}
+
+/* Simple video-lite system */
+.video-lite {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: none;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    border-radius: inherit;
+    overflow: hidden;
+}
+
+.video-lite img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+.video-lite::after {
+    content: '▶';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.video-lite:hover::after {
+    background: rgba(255, 255, 255, 0.9);
+    color: black;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Custom video controls styling */
+video {
+    position: relative;
+}
+
+/* Hide fullscreen and menu buttons - more comprehensive */
+video::-webkit-media-controls-fullscreen-button,
+video::-webkit-media-controls-overflow-button,
+video::-webkit-media-controls-overflow-menu-button {
+    display: none !important;
+}
+
+/* For Firefox */
+video::-moz-media-controls,
+video::-moz-media-controls-fullscreen-button {
+    display: none !important;
+}
+
+/* Style mute button and add tooltip */
+video::-webkit-media-controls-mute-button {
+    opacity: 0.7;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+/* Simple tooltip for muted videos */
+video[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 50px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.content-info {
+    padding: 1.5vh 1vw;
+}
+
+.content-brand {
+    font-size: clamp(1rem, 1.1vw, 1.3rem);
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 0.5vh;
+}
+
+.content-title {
+    font-size: clamp(1.1rem, 1.3vw, 1.5rem);
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1vh;
+}
+
+.content-stats {
+    display: flex;
+    gap: 1vw;
+    font-size: clamp(0.8rem, 0.9vw, 1rem);
+    color: #888;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .content-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 3vw;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .content-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 3vw;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .stat-item {
+        padding: 2vh 2vw;
+        border-radius: 3vw;
+        min-height: 12vh;
+    }
+
+    .stat-number {
+        font-size: clamp(1.2rem, 4vw, 1.8rem);
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+        line-height: 1.1;
+    }
+
+    .stat-label {
+        font-size: clamp(0.9rem, 3vw, 1.2rem);
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+        line-height: 1.2;
+    }
+
+    /* Switch to mobile layout */
+    .desktop-only {
+        display: none !important;
+    }
+
+    .mobile-only {
+        display: flex !important;
+        flex-direction: column;
+    }
+
+    .long-video-container {
+        max-width: 95%;
+    }
+
+    /* Reduce grid gaps on smaller tablets */
+    .short-videos-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 4vw;
+    }
+}
+
+@media (max-width: 480px) {
+    .short-videos-grid {
+        grid-template-columns: 1fr;
+        gap: 2vh;
+    }
+}
+</style>
+
 <section class="content-showcase" id="services">
         <div class="container">
             <h2 class="stats-title" data-tr="Sayılarla Amoredit!" data-en="Amoredit by the numbers!" data-it="Amoredit in numeri!">Sayılarla Amoredit!</h2>

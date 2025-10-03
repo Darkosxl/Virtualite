@@ -321,29 +321,37 @@ document.querySelectorAll('.time-slot').forEach(slot => {
 
 
 // Three.js Scene for floating GLB models
-const canvas = document.getElementById('three-canvas');
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
-
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x000000, 0);
-
-// Performance optimization: Smart 3D scene control
+let canvas, scene, camera, renderer, loader, floatingModels = [];
 let is3DActive = false;
 let animationId = null;
 
-// Add lighting to show textures properly
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-scene.add(ambientLight);
+function initThreeJS() {
+    canvas = document.getElementById('three-canvas');
+    if (!canvas) {
+        console.error('Three.js canvas not found!');
+        return false;
+    }
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-directionalLight.position.set(10, 10, 5);
-scene.add(directionalLight);
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
 
-// GLTFLoader for loading .glb files
-const loader = new THREE.GLTFLoader();
-const floatingModels = [];
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0);
+
+    // Add lighting to show textures properly
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(10, 10, 5);
+    scene.add(directionalLight);
+
+    // GLTFLoader for loading .glb files
+    loader = new THREE.GLTFLoader();
+
+    return true;
+}
 
 // Load available GLB models from server
 async function loadAvailableModels() {
@@ -857,13 +865,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup sunglasses animation in calendar section
     setupSunglassesAnimation();
 
-    // Load 3D models but don't start animation yet
-    loadAvailableModels().then(() => {
-        console.log('All models loaded, setting up smart loading');
-        setupIntersectionObserver();
-        // Start immediately since hero is likely visible on load
-        start3DAnimation();
-    });
+    // Initialize Three.js scene first, then load 3D models
+    if (initThreeJS()) {
+        loadAvailableModels().then(() => {
+            console.log('All models loaded, setting up smart loading');
+            setupIntersectionObserver();
+            // Start immediately since hero is likely visible on load
+            start3DAnimation();
+        });
+    } else {
+        console.error('Failed to initialize Three.js - canvas not found');
+    }
 
 });
 
