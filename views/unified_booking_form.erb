@@ -156,27 +156,63 @@
             </div>
             <input type="hidden" name="selected_date" id="selected-date" required>
 
-            <!-- Simple Calendar Picker -->
-            <div id="custom-date-picker" style="display: none; margin-top: 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0.75rem; padding: 1rem; backdrop-filter: blur(10px);">
+            <!-- Calendar Modal Overlay -->
+            <div id="calendar-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9998; backdrop-filter: blur(5px); animation: fadeIn 0.3s;"></div>
+            
+            <!-- Calendar Modal Popup -->
+            <div id="custom-date-picker" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; background: linear-gradient(135deg, #1a0505 0%, #330000 100%); border: 2px solid rgba(242, 69, 53, 0.3); border-radius: 1.5rem; padding: 2rem; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); max-width: 500px; width: 90%; animation: slideIn 0.3s;">
+                <!-- Close Button -->
+                <button type="button" id="close-calendar-btn" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255, 255, 255, 0.1); color: white; border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1.25rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center;">×</button>
+                
                 <!-- Month Header -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <button type="button" id="prev-month-btn" style="background: none; color: white; border: none; font-size: 1.5rem; cursor: pointer;">←</button>
-                    <h3 id="calendar-month-year" style="color: white; margin: 0; font-size: 1.1rem;"></h3>
-                    <button type="button" id="next-month-btn" style="background: none; color: white; border: none; font-size: 1.5rem; cursor: pointer;">→</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button type="button" id="prev-month-btn" style="background: linear-gradient(135deg, #F2522E, #F24535); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 1.5rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(242, 69, 53, 0.3);">←</button>
+                    <h3 id="calendar-month-year" style="color: white; margin: 0; font-size: 1.5rem; font-weight: 700;"></h3>
+                    <button type="button" id="next-month-btn" style="background: linear-gradient(135deg, #F2522E, #F24535); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 1.5rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(242, 69, 53, 0.3);">→</button>
                 </div>
+                
                 <!-- Day Headers -->
-                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; margin-bottom: 0.5rem;">
-                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;">Pzt</div>
-                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;">Sal</div>
-                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;">Çar</div>
-                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;">Per</div>
-                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;">Cum</div>
-                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;">Cmt</div>
-                    <div style="text-align: center; color: rgba(255,0,0,0.7); font-size: 0.75rem; font-weight: 600;">Paz</div>
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.75rem; margin-bottom: 1rem;">
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.875rem; font-weight: 700;">Pzt</div>
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.875rem; font-weight: 700;">Sal</div>
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.875rem; font-weight: 700;">Çar</div>
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.875rem; font-weight: 700;">Per</div>
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.875rem; font-weight: 700;">Cum</div>
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.875rem; font-weight: 700;">Cmt</div>
+                    <div style="text-align: center; color: rgba(255,0,0,0.8); font-size: 0.875rem; font-weight: 700;">Paz</div>
                 </div>
+                
                 <!-- Calendar Grid -->
-                <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem;"></div>
+                <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.75rem;"></div>
             </div>
+            
+            <style>
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                
+                @keyframes slideIn {
+                    from { 
+                        opacity: 0;
+                        transform: translate(-50%, -45%);
+                    }
+                    to { 
+                        opacity: 1;
+                        transform: translate(-50%, -50%);
+                    }
+                }
+                
+                #prev-month-btn:hover, #next-month-btn:hover {
+                    transform: scale(1.1);
+                    box-shadow: 0 6px 20px rgba(242, 69, 53, 0.5);
+                }
+                
+                #close-calendar-btn:hover {
+                    background: rgba(255, 255, 255, 0.2);
+                    transform: rotate(90deg);
+                }
+            </style>
 
             <!-- Time Selection (nested inside date field) -->
             <div id="time-selection-field" style="display: none; margin-top: 1rem;">
@@ -398,46 +434,59 @@
             if (isSunday) {
                 // Sunday - blocked with red
                 btn.style.cssText = `
-                    width: 45px;
-                    height: 45px;
+                    width: 55px;
+                    height: 55px;
                     border-radius: 50%;
-                    background: rgba(255, 0, 0, 0.2);
+                    background: rgba(255, 0, 0, 0.15);
                     color: rgba(255, 0, 0, 0.5);
                     border: 2px solid rgba(255, 0, 0, 0.3);
                     cursor: not-allowed;
-                    font-size: 0.9rem;
-                    font-weight: 600;
+                    font-size: 1rem;
+                    font-weight: 700;
                     transition: all 0.3s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto;
                 `;
                 btn.disabled = true;
             } else if (!isValid) {
                 // Past dates - disabled
                 btn.style.cssText = `
-                    width: 45px;
-                    height: 45px;
+                    width: 55px;
+                    height: 55px;
                     border-radius: 50%;
-                    background: rgba(255, 255, 255, 0.05);
+                    background: rgba(255, 255, 255, 0.03);
                     color: rgba(255, 255, 255, 0.3);
-                    border: 2px solid rgba(255, 255, 255, 0.1);
+                    border: 2px solid rgba(255, 255, 255, 0.08);
                     cursor: not-allowed;
-                    font-size: 0.9rem;
-                    font-weight: 600;
+                    font-size: 1rem;
+                    font-weight: 700;
                     transition: all 0.3s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto;
                 `;
                 btn.disabled = true;
             } else {
                 // Valid dates - clickable
                 btn.style.cssText = `
-                    width: 45px;
-                    height: 45px;
+                    width: 55px;
+                    height: 55px;
                     border-radius: 50%;
                     background: rgba(255, 255, 255, 0.1);
                     color: white;
                     border: 2px solid rgba(255, 255, 255, 0.3);
                     cursor: pointer;
-                    font-size: 0.9rem;
-                    font-weight: 600;
+                    font-size: 1rem;
+                    font-weight: 700;
                     transition: all 0.3s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
                 `;
                 
                 btn.addEventListener('mouseenter', function() {
@@ -456,7 +505,7 @@
                     }
                 });
                 
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', async function() {
                     selectedDate = date;
                     dateInput.value = this.dataset.date;
                     dateDisplayText.textContent = formatFullDate(date);
@@ -476,8 +525,11 @@
                     this.style.borderColor = '#F24535';
                     this.style.transform = 'scale(1.1)';
                     
-                    // Show time picker (NO database call yet)
-                    showTimePicker();
+                    // Close modal after selection
+                    setTimeout(() => closeCalendarModal(), 300);
+                    
+                    // Show time picker and check database
+                    await showTimePicker();
                     validateUnifiedForm();
                 });
             }
@@ -577,15 +629,26 @@
         }
     }
 
-    // Toggle date picker
-    dateDisplay.addEventListener('click', function() {
-        const isVisible = datePicker.style.display !== 'none';
-        datePicker.style.display = isVisible ? 'none' : 'block';
-        
-        if (!isVisible) {
-            renderCalendar();
-        }
-    });
+    // Toggle date picker modal
+    const modalOverlay = document.getElementById('calendar-modal-overlay');
+    const closeCalendarBtn = document.getElementById('close-calendar-btn');
+    
+    function openCalendarModal() {
+        modalOverlay.style.display = 'block';
+        datePicker.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        renderCalendar();
+    }
+    
+    function closeCalendarModal() {
+        modalOverlay.style.display = 'none';
+        datePicker.style.display = 'none';
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+    
+    dateDisplay.addEventListener('click', openCalendarModal);
+    closeCalendarBtn.addEventListener('click', closeCalendarModal);
+    modalOverlay.addEventListener('click', closeCalendarModal); // Close on overlay click
 
     // Month navigation
     prevMonthBtn.addEventListener('click', function() {
