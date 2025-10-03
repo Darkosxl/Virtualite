@@ -6,6 +6,7 @@ gem 'rackup'      # Rack server for production
 gem 'puma'        # Web server
 gem 'mail'        # Email sending
 gem 'pg'          # PostgreSQL adapter for Supabase
+gem 'connection_pool' # Connection pooling for PostgreSQL
 gem 'json'        # JSON parsing
 gem 'dotenv'      # Environment variable management
 gem 'google_drive' # Google Sheets integration

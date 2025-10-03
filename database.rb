@@ -1,49 +1,44 @@
 require 'pg'
 require 'json'
 require 'dotenv/load'
-
+require 'connection_pool'
 
 class Database
+  attr_reader :pool
+
   def initialize
-    connect
-    setup_table
-  end
-
-  def connect
-    @connection = PG.connect(ENV['POSTGRES_URL'])
-  end
-
-  def reconnect
-    begin
-      @connection.close if @connection && !@connection.finished?
-    rescue => e
-      puts "Error closing existing connection: #{e.message}"
+    # Create connection pool with size limit
+    # Pool size should be <= your Postgres pooler's max_clients
+    @pool = ConnectionPool.new(size: 5, timeout: 5) do
+      PG.connect(ENV['POSTGRES_URL'])
     end
-    connect
-    puts "Database reconnected successfully"
+    
+    # Setup table using a connection from the pool
+    with_connection { |conn| setup_table(conn) }
+    puts "✅ Database connection pool initialized (size: 5)"
   end
 
-  def ensure_connection
-    # Only reconnect if connection is actually dead, don't test every time
-    start_time = Time.now
-    begin
-      if @connection && !@connection.finished?
-        duration = ((Time.now - start_time) * 1000).round(2)
-        puts "      🔌 [DB] Connection check: ALIVE (#{duration}ms)"
-        return
-      end
-      puts "      ⚠️ [DB] Connection lost, reconnecting..."
-      reconnect
-    rescue => e
-      puts "      ❌ [DB] Connection check failed: #{e.message}, reconnecting..."
-      reconnect
+  # Execute block with a connection from the pool
+  def with_connection
+    @pool.with do |conn|
+      # Check if connection is still alive
+      conn.exec('SELECT 1') rescue reconnect_connection(conn)
+      yield conn
     end
+  rescue => e
+    puts "❌ Connection pool error: #{e.message}"
+    raise
   end
 
   private
 
-  def setup_table
-    @connection.exec <<~SQL
+  def reconnect_connection(conn)
+    conn.reset
+    puts "🔄 Connection reset"
+  end
+
+  def setup_table(conn)
+    conn.exec <<~SQL
       CREATE TABLE IF NOT EXISTS bookings (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
@@ -59,76 +54,85 @@ class Database
     SQL
 
     # Add columns if they don't exist (for existing databases)
-    begin
-      @connection.exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT ''")
-      @connection.exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS special_note TEXT DEFAULT ''")
-    rescue PG::Error => e
-      puts "Column addition warning: #{e.message}"
-    end
+    conn.exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT ''")
+    conn.exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS special_note TEXT DEFAULT ''")
   rescue PG::Error => e
-    puts "Database setup error: #{e.message}"
+    puts "Table setup: #{e.message}" unless e.message.include?('already exists')
   end
 
   public
 
   def save_booking(booking_data)
-    ensure_connection
-    social_accounts = booking_data[:social_usernames] || {}
+    with_connection do |conn|
+      social_accounts = booking_data[:social_usernames] || {}
 
-    result = @connection.exec_params(
-      'INSERT INTO bookings (name, phone_number, selected_date, selected_time, social_accounts) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-      [
-        booking_data[:name],
-        booking_data[:phone_number],
-        booking_data[:selected_date],
-        booking_data[:selected_time],
-        social_accounts.to_json
-      ]
-    )
-    result[0]['id'].to_i
+      result = conn.exec_params(
+        'INSERT INTO bookings (name, phone_number, selected_date, selected_time, social_accounts) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+        [
+          booking_data[:name],
+          booking_data[:phone_number],
+          booking_data[:selected_date],
+          booking_data[:selected_time],
+          social_accounts.to_json
+        ]
+      )
+      result[0]['id'].to_i
+    end
   rescue PG::Error => e
     puts "Database save error: #{e.message}"
     nil
   end
 
   def get_all_bookings
-    ensure_connection
-    result = @connection.exec('SELECT * FROM bookings ORDER BY created_at DESC')
-    result.map { |row| format_booking(row) }
+    with_connection do |conn|
+      result = conn.exec('SELECT * FROM bookings ORDER BY created_at DESC')
+      result.map { |row| format_booking(row) }
+    end
   rescue PG::Error => e
     puts "Database fetch error: #{e.message}"
     []
   end
 
   def get_bookings_for_date(date)
-    ensure_connection
-    result = @connection.exec_params(
-      'SELECT * FROM bookings WHERE selected_date = $1',
-      [date]
-    )
-    result.map { |row| format_booking(row) }
+    with_connection do |conn|
+      result = conn.exec_params(
+        'SELECT * FROM bookings WHERE selected_date = $1',
+        [date]
+      )
+      result.map { |row| format_booking(row) }
+    end
   rescue PG::Error => e
     puts "Database fetch error for date #{date}: #{e.message}"
     []
   end
 
   def get_masked_name_for_time_slot(date, time)
-    ensure_connection
-    result = @connection.exec_params(
-      'SELECT name FROM bookings WHERE selected_date = $1 AND selected_time = $2 LIMIT 1',
-      [date, time]
-    )
+    with_connection do |conn|
+      result = conn.exec_params(
+        'SELECT name FROM bookings WHERE selected_date = $1 AND selected_time = $2 LIMIT 1',
+        [date, time]
+      )
 
-    if result.ntuples > 0
-      name = result[0]['name']
-      # Mask the name (e.g., "Cem Arslan" becomes "*** ******")
-      name.split.map { |word| '*' * word.length }.join(' ')
-    else
-      nil
+      if result.ntuples > 0
+        name = result[0]['name']
+        # Mask the name (e.g., "Cem Arslan" becomes "*** ******")
+        name.split.map { |word| '*' * word.length }.join(' ')
+      else
+        nil
+      end
     end
   rescue PG::Error => e
     puts "Database fetch error for masked name: #{e.message}"
     nil
+  end
+
+  # For warmup endpoint - just check pool is alive
+  def ensure_connection
+    with_connection { |conn| conn.exec('SELECT 1') }
+    true
+  rescue => e
+    puts "Connection check failed: #{e.message}"
+    false
   end
 
   private
