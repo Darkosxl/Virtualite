@@ -17,11 +17,18 @@ set :port, ENV['PORT'] || 4568
 set :bind, '0.0.0.0'
 set :sessions, true
 set :host_authorization, { permitted_hosts: [] }
+
+# Puma configuration - single process mode to avoid fork issues
+set :server_settings, {
+  workers: 0,  # No worker processes (single process mode)
+  min_threads: 0,
+  max_threads: 5
+}
+
 # Production optimizations
 configure :production do
   set :server, :puma
   
-
   # Enable gzip compression
   use Rack::Deflater
   set :host_authorization, { permitted_hosts: ["amoredit.com"] }
