@@ -458,7 +458,7 @@
                     dateInput.value = this.dataset.date;
                     dateDisplayText.textContent = formatFullDate(date);
                     dateDisplay.style.color = 'white';
-                    datePicker.style.display = 'none';
+                    // Don't hide the date picker - keep it visible
 
                     // Mark as selected
                     weekContainer.querySelectorAll('button').forEach(b => {
@@ -469,8 +469,8 @@
                         }
                     });
                     this.classList.add('selected');
-                    this.style.background = 'linear-gradient(45deg, #F2522E, #F24535)';
-                    this.style.borderColor = '#F24535';
+                    this.style.background = 'rgba(242, 82, 46, 0.3)';
+                    this.style.borderColor = '#F2522E';
 
                     // Load time slots
                     await loadTimeSlots(this.dataset.date);
