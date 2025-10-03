@@ -334,6 +334,28 @@
     let selectedDate = null;
     let isRendering = false; // Prevent simultaneous renders
     const allTimeSlots = ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30'];
+    
+    // Cache for API responses
+    const apiCache = {
+        data: {},
+        set: function(dateStr, response) {
+            this.data[dateStr] = {
+                response: response,
+                timestamp: Date.now()
+            };
+        },
+        get: function(dateStr) {
+            const cached = this.data[dateStr];
+            if (!cached) return null;
+            
+            // Cache expires after 5 minutes
+            if (Date.now() - cached.timestamp > 300000) {
+                delete this.data[dateStr];
+                return null;
+            }
+            return cached.response;
+        }
+    };
 
     // Get start of week (Monday)
     function getMonday(d) {
@@ -377,13 +399,6 @@
         }
         isRendering = true;
 
-        // Disable navigation buttons during render
-        prevWeekBtn.disabled = true;
-        nextWeekBtn.disabled = true;
-        prevWeekBtn.style.opacity = '0.3';
-        nextWeekBtn.style.opacity = '0.3';
-
-        weekContainer.innerHTML = '';
         const dates = [];
 
         // Generate 7 days starting from Monday
@@ -393,38 +408,81 @@
             dates.push(date);
         }
 
-        // Fetch booked status for all dates in the week
-        const bookedStatusPromises = dates.map(async (date) => {
-            if (!isDateValid(date) || date.getDay() === 0) return { date, fullyBooked: false };
+        // Only clear DOM if it's empty (first render)
+        const isFirstRender = weekContainer.children.length === 0;
+        if (isFirstRender) {
+            weekContainer.innerHTML = '';
+        }
 
+        // Fetch booked status ONLY for valid dates (skip Sundays and invalid dates)
+        const bookedStatusPromises = dates.map(async (date, index) => {
+            const isValid = isDateValid(date);
+            const isSunday = date.getDay() === 0;
+            
+            // Skip API call for invalid dates
+            if (!isValid || isSunday) {
+                return { date, fullyBooked: false, index };
+            }
+
+            const dateStr = date.toISOString().split('T')[0];
+            
+            // Check cache first
+            const cached = apiCache.get(dateStr);
+            if (cached) {
+                const fullyBooked = cached.booked_slots && cached.booked_slots.length >= allTimeSlots.length;
+                return { date, fullyBooked, index };
+            }
+
+            // Make API call only if not cached
             try {
-                const dateStr = date.toISOString().split('T')[0];
                 const response = await fetch(`/api/available-slots/${dateStr}`);
 
                 if (!response.ok) {
                     console.warn(`API returned ${response.status} for ${dateStr}`);
-                    return { date, fullyBooked: false };
+                    return { date, fullyBooked: false, index };
                 }
 
                 const data = await response.json();
+                
+                // Cache the response
+                apiCache.set(dateStr, data);
+                
                 const fullyBooked = data.booked_slots && data.booked_slots.length >= allTimeSlots.length;
-                return { date, fullyBooked };
+                return { date, fullyBooked, index };
             } catch (error) {
                 console.warn(`Error checking date ${date.toISOString().split('T')[0]}:`, error.message);
-                return { date, fullyBooked: false };
+                return { date, fullyBooked: false, index };
             }
         });
 
         const bookedStatuses = await Promise.all(bookedStatusPromises);
 
-        // Render date buttons
-        bookedStatuses.forEach(({ date, fullyBooked }) => {
+        // Render or update date buttons
+        bookedStatuses.forEach(({ date, fullyBooked, index }) => {
             const isValid = isDateValid(date);
             const isSunday = date.getDay() === 0;
             const isDisabled = !isValid || isSunday || fullyBooked;
 
-            const btn = document.createElement('button');
-            btn.type = 'button';
+            let btn;
+            
+            // Reuse existing button or create new one
+            if (isFirstRender) {
+                btn = document.createElement('button');
+                btn.type = 'button';
+                weekContainer.appendChild(btn);
+            } else {
+                btn = weekContainer.children[index];
+                if (!btn) {
+                    btn = document.createElement('button');
+                    btn.type = 'button';
+                    weekContainer.appendChild(btn);
+                }
+                // Clear existing event listeners by cloning
+                const newBtn = btn.cloneNode(false);
+                btn.parentNode.replaceChild(newBtn, btn);
+                btn = newBtn;
+            }
+            
             btn.textContent = formatDateDisplay(date);
             btn.dataset.date = date.toISOString().split('T')[0];
 
@@ -458,6 +516,7 @@
                     text-align: center;
                     transition: all 0.3s;
                 `;
+                btn.disabled = false;
 
                 btn.addEventListener('mouseenter', function() {
                     if (!this.classList.contains('selected')) {
@@ -497,8 +556,6 @@
                     validateUnifiedForm();
                 });
             }
-
-            weekContainer.appendChild(btn);
         });
 
         // Update navigation buttons state
@@ -523,8 +580,20 @@
     // Load time slots for selected date
     async function loadTimeSlots(dateStr) {
         try {
-            const response = await fetch(`/api/available-slots/${dateStr}`);
-            const data = await response.json();
+            let data;
+            
+            // Check cache first
+            const cached = apiCache.get(dateStr);
+            if (cached) {
+                data = cached;
+            } else {
+                // Fetch if not cached
+                const response = await fetch(`/api/available-slots/${dateStr}`);
+                data = await response.json();
+                
+                // Cache the response
+                apiCache.set(dateStr, data);
+            }
 
             timePickerContainer.innerHTML = '';
 
