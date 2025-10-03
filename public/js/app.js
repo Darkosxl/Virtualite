@@ -326,12 +326,19 @@ let is3DActive = false;
 let animationId = null;
 
 function initThreeJS() {
+    // Check if THREE is loaded
+    if (typeof THREE === 'undefined') {
+        console.error('THREE.js library not loaded!');
+        return false;
+    }
+
     canvas = document.getElementById('three-canvas');
     if (!canvas) {
         console.error('Three.js canvas not found!');
         return false;
     }
 
+    console.log('Initializing Three.js...');
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
@@ -842,6 +849,8 @@ function setupSunglassesAnimation() {
 
 // Initialize everything immediately when script loads (DOM is already ready)
 (function() {
+    console.log('app.js loaded and executing...');
+
     // Generate calendar
     generateCalendar();
 

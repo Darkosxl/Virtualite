@@ -332,6 +332,7 @@
 
     let currentWeekStart = null;
     let selectedDate = null;
+    let isRendering = false; // Prevent simultaneous renders
     const allTimeSlots = ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30'];
 
     // Get start of week (Monday)
@@ -369,6 +370,10 @@
 
     // Render week dates
     async function renderWeek(weekStart) {
+        // Prevent simultaneous renders
+        if (isRendering) return;
+        isRendering = true;
+
         weekContainer.innerHTML = '';
         const dates = [];
 
@@ -386,11 +391,17 @@
             try {
                 const dateStr = date.toISOString().split('T')[0];
                 const response = await fetch(`/api/available-slots/${dateStr}`);
+
+                if (!response.ok) {
+                    console.warn(`API returned ${response.status} for ${dateStr}`);
+                    return { date, fullyBooked: false };
+                }
+
                 const data = await response.json();
                 const fullyBooked = data.booked_slots && data.booked_slots.length >= allTimeSlots.length;
                 return { date, fullyBooked };
             } catch (error) {
-                console.error('Error checking date:', error);
+                console.warn(`Error checking date ${date.toISOString().split('T')[0]}:`, error.message);
                 return { date, fullyBooked: false };
             }
         });
@@ -491,6 +502,9 @@
         nextWeekBtn.disabled = weekStart >= lastValidMonday;
         nextWeekBtn.style.opacity = nextWeekBtn.disabled ? '0.3' : '1';
         nextWeekBtn.style.cursor = nextWeekBtn.disabled ? 'not-allowed' : 'pointer';
+
+        // Unlock rendering
+        isRendering = false;
     }
 
     // Load time slots for selected date
