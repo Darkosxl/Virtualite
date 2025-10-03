@@ -140,17 +140,32 @@ get '/api/available-slots/:date' do
   }.to_json
 end
 
-# Booking form step 1 - Contact details
+# Booking form step 1 - Contact details (old multi-step form)
 get '/booking-form' do
   selected_date = params['selected_date']
   selected_time = params['selected_time']
-  
-  erb :booking_form, locals: { 
-    selected_date: selected_date, 
-    selected_time: selected_time 
+
+  erb :booking_form, locals: {
+    selected_date: selected_date,
+    selected_time: selected_time
   }
 end
 
+# Unified booking form (new single-page form)
+get '/unified-booking-form' do
+  erb :unified_booking_form
+end
+get '/hero-section' do
+  erb :hero_section
+end
+
+get '/content-section' do
+  erb :content_section
+end
+
+get '/footer-section' do
+  erb :footer
+end
 # Social media fields partial - no longer needed but keeping for compatibility
 get '/social-fields' do
   # Return empty content since we now handle platforms directly in the form
@@ -219,6 +234,9 @@ post '/submit-booking' do
   custom_occupation = params['custom_occupation']
   final_occupation = (occupation == 'custom' && custom_occupation && !custom_occupation.empty?) ? custom_occupation : occupation
 
+  # Handle budget selection
+  budget = params['budget']
+
   # Handle multiple social platforms
   social_platforms = params['social_platforms'] || []
   social_usernames = {}
@@ -243,6 +261,7 @@ post '/submit-booking' do
     selected_date: selected_date,
     selected_time: selected_time,
     occupation: final_occupation,
+    budget: budget,
     social_platforms: social_platforms,
     social_usernames: social_usernames
   }

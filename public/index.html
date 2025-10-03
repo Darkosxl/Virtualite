@@ -784,12 +784,16 @@
 
         /* Contact section - static gradient */
         .contact-section {
+            min-height: 100vh;
             padding: 5vh 2vw;
             background: linear-gradient(135deg, #730202 0%, #F2522E 100%);
             text-align: center;
             margin-top: 0;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .contact-title {
@@ -806,7 +810,8 @@
         }
 
         .booking-container {
-            max-width: 70%;
+            max-width: 90%;
+            width: 100%;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -816,62 +821,65 @@
             box-shadow: 0 1.5625vw 3.125vw rgba(0, 0, 0, 0.1);
         }
 
-        .calendar-section h3 {
-            font-size: clamp(1.5rem, 2vw, 2.5rem);
-            margin-bottom: 2vh;
-            color: white;
-            text-align: center;
-            font-weight: 700;
-        }
-
-        .calendar-time-container {
+        .booking-form {
             display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 3vw;
-            align-items: start;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            text-align: left;
         }
 
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0.3vw;
-            margin-bottom: 2vh;
-        }
-
-        .calendar-day {
-            aspect-ratio: 1;
+        .form-field {
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-field label {
+            color: white;
+            font-weight: 600;
+            font-size: clamp(0.9rem, 1vw, 1.1rem);
+        }
+
+        .form-field input, .form-field select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 0.75vw;
-            font-weight: 800;
-            transition: all 0.3s ease;
-            border: 0.125vw solid transparent;
-            font-size: clamp(0.7rem, 1vw, 1.2rem);
-            font-family: 'Inter', monospace;
-            letter-spacing: 0.03125vw;
-            text-shadow: 0 0.125vw 0.25vw rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: clamp(0.85rem, 0.95vw, 1rem);
+            transition: all 0.3s;
         }
 
-        .calendar-day:hover {
-            background: rgba(242, 82, 46, 0.3);
-            transform: translateY(-0.1875vw);
-            border-color: rgba(242, 82, 46, 0.5);
-            box-shadow: 0 0.625vw 1.5625vw rgba(242, 82, 46, 0.2);
+        .form-field input:focus, .form-field select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #F24535;
+            border-color: transparent;
         }
 
-        .calendar-day.selected {
-            background: linear-gradient(45deg, #F2522E, #F24535);
-            border-color: #F24535;
-            box-shadow: 0 0.9375vw 1.875vw rgba(242, 69, 53, 0.3);
-            transform: translateY(-0.1875vw);
+        .form-field input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
         }
 
-        .time-slots {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(5.5vw, 1fr));
-            gap: 0.8vw;
+        .form-field select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        .form-field select option {
+            background-color: #730202;
+            color: white;
+        }
+
+        .form-field select option:disabled {
+            color: rgba(255, 255, 255, 0.5);
         }
 
         .time-slot {
@@ -1106,279 +1114,42 @@
 </head>
 <body>
     <div class="cursor"></div>
-
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="#home" class="nav-logo">
-                <img src="/pictures/amoreditlogo.png" alt="Amoredit Logo">
-            </a>
-            <a href="#home" class="nav-link" data-tr="Ana Sayfa" data-en="Home" data-it="Home">Ana Sayfa</a>
-            <a href="#services" class="nav-link" data-tr="Portfolyo" data-en="Portfolio" data-it="Portfolio">Portfolyo</a>
-            <a href="#contact" class="nav-link" data-tr="Bize Ulaş" data-en="Contact Us" data-it="Contattaci">Bize Ulaş</a>
-            <div class="language-dropdown">
-                <div class="language-select" id="languageSelect">
-                    <div class="selected-language" id="selectedLanguage">
-                        <img src="pictures/tr.svg" class="flag-icon" alt="TR">
-                    </div>
-                    <div class="language-options" id="languageOptions">
-                        <div class="language-option" data-lang="tr">
-                            <img src="pictures/tr.svg" class="flag-icon" alt="TR">
-                        </div>
-                        <div class="language-option" data-lang="en">
-                            <img src="pictures/us.svg" class="flag-icon" alt="US">
-                        </div>
-                        <div class="language-option" data-lang="it">
-                            <img src="pictures/it.svg" class="flag-icon" alt="IT">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <section class="hero" id="home">
-        <canvas id="three-canvas"></canvas>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1 data-tr="Edit: ayda 40 saatini alan o baş belası!" data-en="Editing: that 40-hour monthly headache!" data-it="Editing: quel mal di testa di 40 ore al mese!">Edit: ayda 40 saatini alan o baş belası!</h1>
-                <p data-tr="Bu süreyi iş birliklerini artırmaya ayırmak harika olmaz mı? Veya daha çok içerik üretmeye! Veya takipçilerini artırmaya!" data-en="Wouldn't it be great to spend this time getting more brand deals? Or creating more content! Or growing your followers!" data-it="Non sarebbe fantastico usare questo tempo per aumentare le collaborazioni? O per creare più content! O per far crescere i tuoi follower!">Bu süreyi iş birliklerini artırmaya ayırmak harika olmaz mı? Veya daha çok içerik üretmeye! Veya takipçilerini artırmaya!</p>
-                <p data-tr="Videonu çek, bize gönder, ışık hızında editleyelim, paylaş. Tekrar et!" data-en="Shoot your video, send it to us, we'll edit it at lightning speed, share it. Repeat!" data-it="Gira il tuo video, invialo a noi, lo modificheremo alla velocità della luce, condividilo. Ripeti!">Videonu çek, bize gönder, ışık hızında editleyelim, paylaş. Tekrar et!</p>
-            </div>
-            <a href="#contact" class="cta-button" data-tr="Tanışalım mı?" data-en="Shall we meet?" data-it="Conosciamoci!">Tanışalım mı?</a>
-        </div>
-        <div class="scroll-indicator" data-tr="Keşfetmek için kaydır" data-en="Scroll to explore" data-it="Scorri per esplorare">Keşfetmek için kaydır</div>
-    </section>
-
-    <section class="content-showcase" id="services">
-        <div class="container">
-            <h2 class="stats-title" data-tr="Sayılarla Amoredit!" data-en="Amoredit by the numbers!" data-it="Amoredit in numeri!">Sayılarla Amoredit!</h2>
-            <p class="stats-subtitle" data-tr="Aşk ve edit bir araya gelirse ne mi olur?" data-en="What happens when love and editing come together?" data-it="Cosa succede quando amore e editing si uniscono?">Aşk ve edit bir araya gelirse ne mi olur?</p>
-            
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number">200+</div>
-                    <div class="stat-label" data-tr="Video" data-en="Videos" data-it="Video">Video</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-number" data-tr="15 Milyon" data-en="15 Million" data-it="15 Milioni">15 Milyon</div>
-                    <div class="stat-label" data-tr="izlenme" data-en="views" data-it="visualizzazioni">izlenme</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-number">20+</div>
-                    <div class="stat-label" data-tr="İçerik üretici" data-en="Content creators" data-it="Content creator">İçerik üretici</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-number" data-tr="5 Milyon TL" data-en="100,000+ USD" data-it="100.000+ EUR">5 Milyon TL</div>
-                    <div class="stat-label" data-tr="kazandırıldı" data-en="earned" data-it="guadagnati">kazandırıldı</div>
-                </div>
-            </div>
-
-            <h2 class="section-title" data-tr="Takipçilerini görsel şölene hazırla" data-en="Prepare your followers for a visual feast" data-it="Prepara i tuoi follower per una festa visiva">Takipçilerini görsel şölene hazırla</h2>
-            <p class="section-subtitle" data-tr="Sana bir sır verelim mi? Bir ekip arkadaşımızın tek görevi &quot;nasıl bu kadar hızlı yaptınız?&quot;, &quot;yapay zeka falan mı kullanıyorsunuz?&quot; gibi soruları cevaplamak." data-en="Wanna hear a secret? One of our team members' only job is to answer questions like &quot;how did you do it so fast?&quot;, &quot;are you using AI or something?&quot;" data-it="Possiamo dirti un segreto? Il compito di uno dei nostri membri del team è rispondere a domande come &quot;come avete fatto così velocemente?&quot;, &quot;usate l'intelligenza artificiale o qualcosa del genere?&quot;">Sana bir sır verelim mi? Bir ekip arkadaşımızın tek görevi "nasıl bu kadar hızlı yaptınız?", "yapay zeka falan mı kullanıyorsunuz?" gibi soruları cevaplamak.</p>
-            <!-- Short form videos -->
-            <div class="short-videos-section">
-                
-                <!-- Desktop: Show all 3 videos side by side -->
-                <div class="short-videos-grid desktop-only">
-                    <button class="video-lite short-video" data-src="/videos/umut.mov" aria-label="Play Umut video">
-                        <img src="/pictures/umutthumbnail.png" alt="Umut video" loading="lazy">
-                    </button>
-                    <button class="video-lite short-video" data-src="/videos/baran.mov" aria-label="Play Baran video">
-                        <img src="/pictures/baranthumbnail.png" alt="Baran video" loading="lazy">
-                    </button>
-                    <button class="video-lite short-video" data-src="/videos/gulizar.mov" aria-label="Play Gulizar video">
-                        <img src="/pictures/gulizarthumbnail.png" alt="Gulizar video" loading="lazy">
-                    </button>
-                </div>
-                
-                <!-- Mobile: Vertical stack -->
-                <div class="short-videos-stack mobile-only">
-                    <button class="video-lite short-video" data-src="/videos/umut.mov" aria-label="Play Umut video">
-                        <img src="/pictures/umutthumbnail.png" alt="Umut video" loading="lazy">
-                    </button>
-                    <button class="video-lite short-video" data-src="/videos/baran.mov" aria-label="Play Baran video">
-                        <img src="/pictures/baranthumbnail.png" alt="Baran video" loading="lazy">
-                    </button>
-                    <button class="video-lite short-video" data-src="/videos/gulizar.mov" aria-label="Play Gulizar video">
-                        <img src="/pictures/gulizarthumbnail.png" alt="Gulizar video" loading="lazy">
-                    </button>
-                </div>
-            </div>
-
-            <!-- Long form video -->
-            <div class="long-video-section">
-                <div class="long-video-container">
-                    <button class="video-lite long-video" data-src="/videos/ceyda.mov" aria-label="Play Ceyda video">
-                        <img src="/pictures/ceydathumbnail.png" alt="Ceyda video" loading="lazy">
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
+    <div id="hero-container"></div>
+    
+    <div id="content-container"></div>
+    
 
     <section class="contact-section" id="contact">
         <!-- Sunglasses animation canvas -->
         <canvas id="sunglasses-canvas"></canvas>
-        <div class="container">
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
             <h2 class="contact-title" data-tr="Tanışalım mı?" data-en="Shall we meet?" data-it="Conosciamoci!">Tanışalım mı?</h2>
             <p class="contact-subtitle" data-tr="sana uygun saati seç, seni arayalım!" data-en="pick a suitable time & let us call you!" data-it="scegli un orario adatto per te, ti chiamiamo noi!">sana uygun saati seç, seni arayalım!</p>
-            
-            <div class="booking-container">
-                <!-- Step 1: Date and Time Selection -->
-                <div class="calendar-section" id="datetime-selection">
-                    <h3 style="color: white; font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;" data-tr="Tarih ve Saat Seç" data-en="Select Date and Time" data-it="Seleziona Data e Ora">Tarih ve Saat Seç</h3>
-                    
-                    <div class="calendar-time-container">
-                        <div class="calendar-container">
-                            <div class="calendar-grid" id="calendar">
-                                <!-- Calendar will be populated by JavaScript -->
-                            </div>
-                        </div>
-                        
-                        <div class="time-slots" id="timeSlots" style="margin-bottom: 3vh;">
-                        <div class="time-slot">10:00</div>
-                        <div class="time-slot">10:30</div>
-                        <div class="time-slot">11:00</div>
-                        <div class="time-slot">11:30</div>
-                        <div class="time-slot">12:00</div>
-                        <div class="time-slot">12:30</div>
-                        <div class="time-slot">13:00</div>
-                        <div class="time-slot">13:30</div>
-                        <div class="time-slot">14:00</div>
-                        <div class="time-slot">14:30</div>
-                        <div class="time-slot">15:00</div>
-                        <div class="time-slot">15:30</div>
-                        <div class="time-slot">16:00</div>
-                        <div class="time-slot">16:30</div>
-                        <div class="time-slot">17:00</div>
-                        <div class="time-slot">17:30</div>
-                        <div class="time-slot">18:00</div>
-                        <div class="time-slot">18:30</div>
-                        <div class="time-slot">19:00</div>
-                        <div class="time-slot">19:30</div>
-                        <div class="time-slot">20:00</div>
-                        <div class="time-slot">20:30</div>
-                        <div class="time-slot">21:00</div>
-                        <div class="time-slot">21:30</div>
-                        </div>
-                    </div>
+        </div>
 
-                    <button id="proceed-to-form"
-                            style="width: 100%; background: linear-gradient(to right, #F2522E, #F24535); color: white; padding: 0.75vh 1.5vw; border-radius: 62.4375vw; font-weight: 600; transition: all 0.3s; border: none; cursor: none; font-size: clamp(0.9rem, 1vw, 1.2rem);"
-                            disabled
-                            title="Lütfen bir tarih ve bir saat seçin"
-                            hx-get="/booking-form"
-                            hx-target="#booking-steps"
-                            hx-include="#selected-date, #selected-time, #loadTime"
-                            hx-trigger="click"
-                            hx-swap="innerHTML">
-                        <span data-tr="İletişim Bilgilerinizi Girin" data-en="Enter Your Contact Information" data-it="Inserisci le Tue Informazioni di Contatto">İletişim Bilgilerinizi Girin</span>
-                    </button>
-                    
-                    <!-- Hidden inputs to track selections -->
-                    <input type="hidden" id="selected-date" name="selected_date" />
-                    <input type="hidden" id="selected-time" name="selected_time" />
-                    <input type="hidden" name="load_time" id="loadTime" value="">
-                </div>
-
-                <!-- Multi-step booking form area -->
-                <div id="booking-steps"></div>
-            </div>
+        <div class="booking-container" id="booking-form-container">
+            <!-- Booking form will be loaded here -->
         </div>
     </section>
 
+    <script>
+        // Load the unified booking form
+        fetch('/unified-booking-form')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('booking-form-container').innerHTML = html;
+            })
+            .catch(error => console.error('Error loading booking form:', error));
+    </script>
+
     <!-- Footer -->
-    <footer style="background-color: #262626; padding: 2rem 0; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
-            <!-- Left: Email -->
-            <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.85rem; margin: 0;">
-                hello@amoredit.com
-            </p>
-            
-            <!-- Center: Logo with social links -->
-            <div style="display: flex; align-items: center; gap: 1.5rem;">
-                <img src="/pictures/amoreditlogo.png" alt="Amoredit Logo" style="height: 40px; width: auto;">
-
-                <!-- Instagram Link -->
-                <a href="https://www.instagram.com/amoredit.video/" target="_blank" rel="noopener noreferrer"
-                   style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: linear-gradient(45deg, #E4405F, #F56040); border-radius: 50%; transition: transform 0.3s ease, box-shadow 0.3s ease; text-decoration: none;"
-                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(228, 64, 95, 0.3)'"
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                    <svg style="width: 20px; height: 20px; color: white;" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                    </svg>
-                </a>
-
-                <!-- Facebook Link -->
-                <a href="https://www.facebook.com/profile.php?id=61580251902506" target="_blank" rel="noopener noreferrer"
-                   style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: linear-gradient(45deg, #1877F2, #42A5F5); border-radius: 50%; transition: transform 0.3s ease, box-shadow 0.3s ease; text-decoration: none;"
-                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(24, 119, 242, 0.3)'"
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                    <svg style="width: 20px; height: 20px; color: white;" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                </a>
-            </div>
-            
-            <!-- Right: Copyright -->
-            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin: 0; text-align: right;">
-                © 2025 Amoredit.
-                <span data-tr="Tüm hakları saklıdır." data-en="All rights reserved." data-it="Tutti i diritti riservati.">Tüm hakları saklıdır.</span>
-            </p>
-        </div>
-    </footer>
-
-    <!-- Mobile responsive footer -->
-    <style>
-        @media (max-width: 768px) {
-            footer > div {
-                flex-direction: column !important;
-                gap: 1.5rem !important;
-                text-align: center !important;
-            }
-
-            footer > div > p {
-                font-size: 0.8rem !important;
-                text-align: center !important;
-            }
-
-            footer > div > div {
-                order: -1;
-            }
-        }
-
-        @media (max-width: 480px) {
-            footer > div {
-                gap: 1rem !important;
-            }
-
-            footer > div > p {
-                font-size: 0.75rem !important;
-            }
-
-            footer > div > div {
-                gap: 1rem !important;
-            }
-
-            footer > div > div img {
-                height: 35px !important;
-            }
-
-            footer > div > div a {
-                width: 35px !important;
-                height: 35px !important;
-            }
-
-            footer > div > div a svg {
-                width: 18px !important;
-                height: 18px !important;
-            }
-        }
-    </style>
-
+    <div id="footer-container"></div>
+    <script>
+        // Load sections
+        fetch('/hero-section').then(r => r.text()).then(html => document.getElementById('hero-container').innerHTML = html);
+        fetch('/content-section').then(r => r.text()).then(html => document.getElementById('content-container').innerHTML = html);
+        fetch('/footer-section').then(r => r.text()).then(html => document.getElementById('footer-container').innerHTML = html);
+    </script>
     <script src="/js/app.js"></script>
 
     <!-- Language switching -->
@@ -1530,5 +1301,6 @@
             });
         });
     </script>
+    
 </body>
 </html>

@@ -1,0 +1,452 @@
+<style>
+/* Booking form styles */
+.booking-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    text-align: left;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-field label {
+    color: white;
+    font-weight: 600;
+    font-size: clamp(0.9rem, 1vw, 1.1rem);
+}
+
+.form-field input, .form-field select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: clamp(0.85rem, 0.95vw, 1rem);
+    transition: all 0.3s;
+}
+
+.form-field input:focus, .form-field select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #F24535;
+    border-color: transparent;
+}
+
+.form-field input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.form-field select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+}
+
+.form-field select option {
+    background-color: #730202;
+    color: white;
+}
+
+.form-field select option:disabled {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Custom checkbox styling */
+.social-checkbox:checked + div .checkbox-dot {
+    display: block !important;
+}
+
+.social-checkbox:checked + div {
+    border-color: #F24535 !important;
+    background-color: rgba(242, 69, 53, 0.1) !important;
+}
+
+.platform-username {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: clamp(0.85rem, 0.95vw, 1rem);
+    transition: all 0.3s;
+}
+
+.platform-username:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #F24535;
+    border-color: transparent;
+}
+
+.htmx-indicator {
+    display: none !important;
+}
+
+.htmx-request .htmx-indicator {
+    display: inline !important;
+}
+
+.htmx-request button {
+    opacity: 0.7 !important;
+    pointer-events: none !important;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Button hover effects */
+#submit-booking-btn:not(:disabled):hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+#submit-booking-btn:not(:disabled) {
+    opacity: 1 !important;
+    cursor: pointer !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .booking-form {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .form-field.full-width {
+        grid-column: 1;
+    }
+}
+</style>
+
+<form id="unified-booking-form" action="/submit-booking" method="post">
+    <input type="hidden" name="load_time" id="loadTime" value="">
+    <input type="hidden" name="g-recaptcha-response" id="recaptchaResponse">
+    <input type="hidden" name="language" id="selectedLanguageInput" value="tr">
+
+    <!-- Honeypot trap -->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true">
+        <input type="text" name="user_nickname" tabindex="-1" value="">
+    </div>
+
+    <div class="booking-form">
+        <!-- Date Selection -->
+        <div class="form-field">
+            <label data-tr="Tarih Seçin *" data-en="Select Date *" data-it="Seleziona Data *">Tarih Seçin *</label>
+            <input type="date" name="selected_date" id="selected-date" required>
+        </div>
+
+        <!-- Time Selection -->
+        <div class="form-field">
+            <label data-tr="Saat Seçin *" data-en="Select Time *" data-it="Seleziona Ora *">Saat Seçin *</label>
+            <select name="selected_time" id="selected-time" required>
+                <option value="" data-tr="Saat seçin..." data-en="Select time..." data-it="Seleziona ora...">Saat seçin...</option>
+                <option value="10:00">10:00</option>
+                <option value="10:30">10:30</option>
+                <option value="11:00">11:00</option>
+                <option value="11:30">11:30</option>
+                <option value="12:00">12:00</option>
+                <option value="12:30">12:30</option>
+                <option value="13:00">13:00</option>
+                <option value="13:30">13:30</option>
+                <option value="14:00">14:00</option>
+                <option value="14:30">14:30</option>
+                <option value="15:00">15:00</option>
+                <option value="15:30">15:30</option>
+                <option value="16:00">16:00</option>
+                <option value="16:30">16:30</option>
+                <option value="17:00">17:00</option>
+                <option value="17:30">17:30</option>
+                <option value="18:00">18:00</option>
+                <option value="18:30">18:30</option>
+                <option value="19:00">19:00</option>
+                <option value="19:30">19:30</option>
+                <option value="20:00">20:00</option>
+                <option value="20:30">20:30</option>
+                <option value="21:00">21:00</option>
+                <option value="21:30">21:30</option>
+            </select>
+        </div>
+
+        <!-- Name -->
+        <div class="form-field">
+            <label data-tr="Adınız Soyadınız *" data-en="Your Full Name *" data-it="Il Tuo Nome Completo *">Adınız Soyadınız *</label>
+            <input type="text" name="name" required
+                   data-placeholder-tr="Adınız ve soyadınızı girin"
+                   data-placeholder-en="Enter your full name"
+                   data-placeholder-it="Inserisci il tuo nome completo"
+                   placeholder="Adınız ve soyadınızı girin">
+        </div>
+
+        <!-- Phone -->
+        <div class="form-field">
+            <label data-tr="Telefon Numaranız *" data-en="Your Phone Number *" data-it="Il Tuo Numero di Telefono *">Telefon Numaranız *</label>
+            <input type="tel" name="phone_number" required pattern="[0-9\s\-\+\(\)]*"
+                   data-placeholder-tr="+90 555 123 45 67"
+                   data-placeholder-en="+1 555 123 4567"
+                   data-placeholder-it="+39 555 123 456"
+                   placeholder="+90 555 123 45 67">
+        </div>
+
+        <!-- Email -->
+        <div class="form-field full-width">
+            <label data-tr="E-posta Adresiniz *" data-en="Your Email Address *" data-it="Il Tuo Indirizzo Email *">E-posta Adresiniz *</label>
+            <input type="email" name="email" required
+                   data-placeholder-tr="ornek@email.com"
+                   data-placeholder-en="example@email.com"
+                   data-placeholder-it="esempio@email.com"
+                   placeholder="ornek@email.com">
+            <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.875rem; margin-top: 0.5rem; margin-bottom: 0;">
+                <span data-tr="Onay e-postası hello@amoredit.com adresinden gönderilecektir." data-en="Confirmation email will be sent from hello@amoredit.com." data-it="L'email di conferma sarà inviata da hello@amoredit.com.">Onay e-postası hello@amoredit.com adresinden gönderilecektir.</span>
+            </p>
+        </div>
+
+        <!-- Occupation -->
+        <div class="form-field">
+            <label data-tr="Ne işle meşgulsünüz?" data-en="Occupation" data-it="Occupazione">Ne işle meşgulsünüz?</label>
+            <select name="occupation" id="occupation-select" required>
+                <option value="" data-tr="Seçiniz..." data-en="Select..." data-it="Seleziona...">Seçiniz...</option>
+                <option value="digital_marketing" data-tr="Dijital Pazarlama/Meta Pazarlama" data-en="Digital Marketing" data-it="Digital Marketing">Dijital Pazarlama/Meta Pazarlama</option>
+                <option value="clothing_brand" data-tr="Giyim Markası" data-en="Clothing Brand" data-it="Marchio di Abbigliamento">Giyim Markası</option>
+                <option value="startup_founder" data-tr="Startup Kurucusu" data-en="Startup Founder" data-it="Startup Founder">Startup Kurucusu</option>
+                <option value="content_creator" data-tr="Influencer" data-en="Content Creator" data-it="Content Creator">İçerik Üreticisi</option>
+                <option value="psychologist" data-tr="Psikolog" data-en="Psychologist" data-it="Psicologo">Psikolog</option>
+                <option value="custom" data-tr="Diğer..." data-en="Other..." data-it="Altro...">Diğer...</option>
+            </select>
+            <input type="text" name="custom_occupation" id="custom-occupation-input" style="display: none; margin-top: 0.75rem;"
+                   data-placeholder-tr="Mesleğinizi yazın"
+                   data-placeholder-en="Enter your occupation"
+                   data-placeholder-it="Inserisci la tua occupazione"
+                   placeholder="Mesleğinizi yazın">
+        </div>
+
+        <!-- Budget -->
+        <div class="form-field">
+            <label id="budget-label" data-tr="Video post-prodüksiyonu için ne kadar ödemeye hazırsınız?" data-en="How much would you pay for professional video post-production?" data-it="Quanto pagheresti per la post-produzione professionale di un video?">Video post-prodüksiyonu için ne kadar ödemeye hazırsınız?</label>
+            <select name="budget" id="budget-select" required>
+                <option value="" data-tr="Seçiniz..." data-en="Select..." data-it="Seleziona...">Seçiniz...</option>
+                <option value="low" data-tr="1000 TL'den az" data-en="Less than 100 EUR/USD" data-it="Meno di 100 EUR/USD">1000 TL'den az</option>
+                <option value="medium" data-tr="1000-2000 TL arası" data-en="100-200 EUR/USD" data-it="100-200 EUR/USD">1000-2000 TL arası</option>
+                <option value="high" data-tr="2000-10000 TL arası" data-en="200-1000 EUR/USD" data-it="200-1000 EUR/USD">2000-10000 TL arası</option>
+                <option value="premium" data-tr="+10000 TL" data-en="1000+ EUR/USD" data-it="1000+ EUR/USD">+10000 TL</option>
+            </select>
+        </div>
+
+        <!-- Social media platforms -->
+        <div class="form-field full-width">
+            <label data-tr="Hangi sosyal medya platformlarında içerik üretiyorsun?" data-en="Which social media platforms do you create content on?" data-it="Su quali piattaforme social crei contenuti?">Hangi sosyal medya platformlarında içerik üretiyorsun?</label>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 0.5rem;">
+                <!-- TikTok -->
+                <div>
+                    <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 0.5rem;">
+                        <input type="checkbox" name="social_platforms[]" value="tiktok" class="social-checkbox" data-platform="tiktok" style="position: absolute; left: -10000px;">
+                        <div style="width: 1.25rem; height: 1.25rem; border: 2px solid white; border-radius: 0.25rem; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center;">
+                            <div class="checkbox-dot" style="width: 0.5rem; height: 0.5rem; background-color: white; border-radius: 0.125rem; display: none;"></div>
+                        </div>
+                        <span style="color: white;">TikTok</span>
+                    </label>
+                    <input type="text" name="tiktok_username" class="platform-username" data-platform="tiktok" style="display: none;"
+                           data-placeholder-tr="TikTok kullanıcı adınız"
+                           data-placeholder-en="Your TikTok username"
+                           data-placeholder-it="Il tuo nome utente TikTok"
+                           placeholder="TikTok kullanıcı adınız">
+                </div>
+
+                <!-- Instagram -->
+                <div>
+                    <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 0.5rem;">
+                        <input type="checkbox" name="social_platforms[]" value="instagram" class="social-checkbox" data-platform="instagram" style="position: absolute; left: -10000px;">
+                        <div style="width: 1.25rem; height: 1.25rem; border: 2px solid white; border-radius: 0.25rem; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center;">
+                            <div class="checkbox-dot" style="width: 0.5rem; height: 0.5rem; background-color: white; border-radius: 0.125rem; display: none;"></div>
+                        </div>
+                        <span style="color: white;">Instagram</span>
+                    </label>
+                    <input type="text" name="instagram_username" class="platform-username" data-platform="instagram" style="display: none;"
+                           data-placeholder-tr="Instagram kullanıcı adınız"
+                           data-placeholder-en="Your Instagram username"
+                           data-placeholder-it="Il tuo nome utente Instagram"
+                           placeholder="Instagram kullanıcı adınız">
+                </div>
+
+                <!-- YouTube -->
+                <div>
+                    <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 0.5rem;">
+                        <input type="checkbox" name="social_platforms[]" value="youtube" class="social-checkbox" data-platform="youtube" style="position: absolute; left: -10000px;">
+                        <div style="width: 1.25rem; height: 1.25rem; border: 2px solid white; border-radius: 0.25rem; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center;">
+                            <div class="checkbox-dot" style="width: 0.5rem; height: 0.5rem; background-color: white; border-radius: 0.125rem; display: none;"></div>
+                        </div>
+                        <span style="color: white;">YouTube</span>
+                    </label>
+                    <input type="text" name="youtube_username" class="platform-username" data-platform="youtube" style="display: none;"
+                           data-placeholder-tr="YouTube kanal adınız"
+                           data-placeholder-en="Your YouTube channel name"
+                           data-placeholder-it="Il nome del tuo canale YouTube"
+                           placeholder="YouTube kanal adınız">
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit button -->
+        <div class="form-field full-width">
+            <button type="submit" id="submit-booking-btn" disabled
+                    style="width: 100%; background: linear-gradient(to right, #F2522E, #F24535); color: white; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.125rem; transition: all 0.3s; border: none; cursor: pointer; opacity: 0.5;">
+                <span class="htmx-indicator" id="loading" style="display: none;">
+                    <svg style="animation: spin 1s linear infinite; margin-left: -0.25rem; margin-right: 0.75rem; height: 1.25rem; width: 1.25rem; color: white; display: inline;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </span>
+                <span data-tr="Rezervasyonu Tamamla" data-en="Complete Booking" data-it="Completa Prenotazione">Rezervasyonu Tamamla</span>
+            </button>
+        </div>
+    </div>
+</form>
+
+<script>
+// Form validation and interactions
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle occupation dropdown selection
+    const occupationSelect = document.getElementById('occupation-select');
+    const customOccupationInput = document.getElementById('custom-occupation-input');
+
+    if (occupationSelect) {
+        occupationSelect.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customOccupationInput.style.display = 'block';
+                customOccupationInput.required = true;
+            } else {
+                customOccupationInput.style.display = 'none';
+                customOccupationInput.required = false;
+                customOccupationInput.value = '';
+            }
+            validateUnifiedForm();
+        });
+    }
+
+    // Handle custom occupation input changes
+    if (customOccupationInput) {
+        customOccupationInput.addEventListener('input', validateUnifiedForm);
+    }
+
+    // Handle social platform checkbox selection
+    document.querySelectorAll('.social-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const platform = this.getAttribute('data-platform');
+            const usernameInput = document.querySelector(`input.platform-username[data-platform="${platform}"]`);
+
+            if (this.checked) {
+                usernameInput.style.display = 'block';
+            } else {
+                usernameInput.style.display = 'none';
+                usernameInput.value = '';
+            }
+
+            validateUnifiedForm();
+        });
+    });
+
+    // Handle username input changes
+    document.querySelectorAll('.platform-username').forEach(input => {
+        input.addEventListener('input', validateUnifiedForm);
+    });
+
+    // Form validation function
+    function validateUnifiedForm() {
+        const checkboxes = document.querySelectorAll('.social-checkbox');
+        const submitBtn = document.getElementById('submit-booking-btn');
+        const occupationSelect = document.getElementById('occupation-select');
+        const customOccupationInput = document.getElementById('custom-occupation-input');
+
+        // Check occupation validation
+        let hasValidOccupation = false;
+        if (occupationSelect.value && occupationSelect.value !== '') {
+            if (occupationSelect.value === 'custom') {
+                hasValidOccupation = customOccupationInput.value.trim() !== '';
+            } else {
+                hasValidOccupation = true;
+            }
+        }
+
+        // Check social media selection validation
+        let hasValidSocialSelection = false;
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                const platform = checkbox.getAttribute('data-platform');
+                const usernameInput = document.querySelector(`input.platform-username[data-platform="${platform}"]`);
+                if (usernameInput && usernameInput.value.trim() !== '') {
+                    hasValidSocialSelection = true;
+                }
+            }
+        });
+
+        // Both occupation and at least one social platform must be valid
+        if (hasValidOccupation && hasValidSocialSelection) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        } else {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+    }
+
+    // Initial validation check
+    validateUnifiedForm();
+
+    // Handle form submission with reCAPTCHA
+    const form = document.getElementById('unified-booking-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submit-booking-btn');
+            if (submitBtn.disabled) {
+                return;
+            }
+
+            // Check if reCAPTCHA is available
+            if (typeof grecaptcha !== 'undefined') {
+                grecaptcha.ready(function() {
+                    grecaptcha.execute('6LfyocYrAAAAAAO2wxWMTCTxNWrbS-qVSU_woJjU', {action: 'submit'}).then(function(token) {
+                        document.getElementById('recaptchaResponse').value = token;
+                        form.submit();
+                    });
+                });
+            } else {
+                form.submit();
+            }
+        });
+    }
+
+    // Update language field when language changes
+    function updateLanguageField() {
+        const savedLang = localStorage.getItem('selectedLanguage') || 'tr';
+        const languageInput = document.getElementById('selectedLanguageInput');
+        if (languageInput) {
+            languageInput.value = savedLang;
+        }
+    }
+
+    updateLanguageField();
+
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = function(key, value) {
+        originalSetItem.call(this, key, value);
+        if (key === 'selectedLanguage') {
+            updateLanguageField();
+        }
+    };
+});
+</script>
