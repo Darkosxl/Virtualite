@@ -231,11 +231,25 @@
             // 2. Initialize video-lite system
             initVideoLite();
 
-            // 3. Trigger DOMContentLoaded for booking form scripts
+            // 3. Execute inline scripts from loaded sections (innerHTML doesn't auto-execute scripts)
+            const bookingFormContainer = document.getElementById('booking-form-container');
+            const inlineScripts = bookingFormContainer.querySelectorAll('script');
+            inlineScripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                document.body.appendChild(newScript);
+                oldScript.remove();
+            });
+
+            // 4. Trigger DOMContentLoaded for booking form scripts
             const event = new Event('DOMContentLoaded');
             document.dispatchEvent(event);
 
-            // 4. Load app.js
+            // 5. Load app.js
             const appScript = document.createElement('script');
             appScript.src = '/js/app.js';
             document.body.appendChild(appScript);

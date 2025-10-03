@@ -231,15 +231,14 @@
                    placeholder="Mesleğinizi yazın">
         </div>
 
-        <!-- Budget -->
+        <!-- Reason for seeking editor -->
         <div class="form-field">
-            <label id="budget-label" data-tr="Video post-prodüksiyonu için ne kadar ödemeye hazırsınız?" data-en="How much would you pay for professional video post-production?" data-it="Quanto pagheresti per la post-produzione professionale di un video?">Video post-prodüksiyonu için ne kadar ödemeye hazırsınız?</label>
+            <label id="budget-label" data-tr="Neden bir editör arıyorsunuz?" data-en="Why are you searching for an editor?" data-it="Perché stai cercando un editor?">Neden bir editör arıyorsunuz?</label>
             <select name="budget" id="budget-select" required>
                 <option value="" data-tr="Seçiniz..." data-en="Select..." data-it="Seleziona...">Seçiniz...</option>
-                <option value="low" data-tr="1000 TL'den az" data-en="Less than 100 EUR/USD" data-it="Meno di 100 EUR/USD">1000 TL'den az</option>
-                <option value="medium" data-tr="1000-2000 TL arası" data-en="100-200 EUR/USD" data-it="100-200 EUR/USD">1000-2000 TL arası</option>
-                <option value="high" data-tr="2000-10000 TL arası" data-en="200-1000 EUR/USD" data-it="200-1000 EUR/USD">2000-10000 TL arası</option>
-                <option value="premium" data-tr="+10000 TL" data-en="1000+ EUR/USD" data-it="1000+ EUR/USD">+10000 TL</option>
+                <option value="save_time" data-tr="Zaman kazanmak için (şu an kendi editimi yapıyorum)" data-en="To save time (I do the edits myself)" data-it="Per risparmiare tempo (faccio le modifiche da solo)">Zaman kazanmak için (şu an kendi editimi yapıyorum)</option>
+                <option value="expand_reach" data-tr="Daha popüler videolar oluşturarak erişimimi genişletmek için" data-en="To expand my outreach by creating more popular videos" data-it="Per espandere la mia portata creando video più popolari">Daha popüler videolar oluşturarak erişimimi genişletmek için</option>
+                <option value="professional_videos" data-tr="Profesyonel videolar üretmek için" data-en="To produce professional videos" data-it="Per produrre video professionali">Profesyonel videolar üretmek için</option>
             </select>
         </div>
 
@@ -315,7 +314,7 @@
 
 <script>
 // Custom Date and Time Picker
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
     const dateInput = document.getElementById('selected-date');
     const dateDisplay = document.getElementById('date-display');
     const dateDisplayText = document.getElementById('date-display-text');
@@ -629,16 +628,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Handle social platform checkbox selection
-    document.querySelectorAll('.social-checkbox').forEach(checkbox => {
+    const socialCheckboxes = document.querySelectorAll('.social-checkbox');
+    console.log('Found social checkboxes:', socialCheckboxes.length);
+
+    socialCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const platform = this.getAttribute('data-platform');
             const usernameInput = document.querySelector(`input.platform-username[data-platform="${platform}"]`);
 
-            if (this.checked) {
-                usernameInput.style.display = 'block';
-            } else {
-                usernameInput.style.display = 'none';
-                usernameInput.value = '';
+            console.log('Checkbox changed:', platform, 'checked:', this.checked);
+            console.log('Username input found:', usernameInput);
+
+            if (usernameInput) {
+                if (this.checked) {
+                    usernameInput.style.display = 'block';
+                } else {
+                    usernameInput.style.display = 'none';
+                    usernameInput.value = '';
+                }
             }
 
             validateUnifiedForm();
@@ -737,5 +744,5 @@ document.addEventListener('DOMContentLoaded', function() {
             updateLanguageField();
         }
     };
-});
+})();
 </script>
