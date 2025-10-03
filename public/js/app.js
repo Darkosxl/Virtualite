@@ -328,17 +328,21 @@ let animationId = null;
 function initThreeJS() {
     // Check if THREE is loaded
     if (typeof THREE === 'undefined') {
-        console.error('THREE.js library not loaded!');
+        console.error('❌ THREE.js library not loaded!');
         return false;
     }
+    console.log('✅ THREE.js library loaded');
 
     canvas = document.getElementById('three-canvas');
     if (!canvas) {
-        console.error('Three.js canvas not found!');
+        console.error('❌ Three.js canvas not found! Canvas element with id="three-canvas" does not exist in DOM');
+        console.log('Available elements with "canvas" in id:', 
+            Array.from(document.querySelectorAll('[id*="canvas"]')).map(el => el.id));
         return false;
     }
+    console.log('✅ Canvas element found:', canvas);
 
-    console.log('Initializing Three.js...');
+    console.log('🎨 Initializing Three.js scene...');
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
@@ -357,16 +361,24 @@ function initThreeJS() {
     // GLTFLoader for loading .glb files
     loader = new THREE.GLTFLoader();
 
+    // Set camera position
+    camera.position.z = 15;
+
     return true;
 }
 
 // Load available GLB models from server
 async function loadAvailableModels() {
+    console.log('📦 Fetching available models from /api/models...');
     try {
         const response = await fetch('/api/models');
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
         const models = await response.json();
         
-        console.log('Available models:', models);
+        console.log('📦 Available models:', models);
+        console.log(`📦 Found ${models.length} model(s)`);
         
         // Define specific model-to-position mapping
         const modelPositions = [
@@ -507,9 +519,6 @@ function getModelPosition(modelIndex) {
     // Return position based on model index, with fallback
     return positions[modelIndex % positions.length];
 }
-
-
-camera.position.z = 15;
 
 // Animation loop
 function animate() {
@@ -875,15 +884,19 @@ function setupSunglassesAnimation() {
     setupSunglassesAnimation();
 
     // Initialize Three.js scene first, then load 3D models
+    console.log('🚀 Starting Three.js initialization...');
     if (initThreeJS()) {
+        console.log('✅ Three.js initialized successfully, loading models...');
         loadAvailableModels().then(() => {
-            console.log('All models loaded, setting up smart loading');
+            console.log('✅ All models loaded, setting up smart loading');
             setupIntersectionObserver();
             // Start immediately since hero is likely visible on load
             start3DAnimation();
+        }).catch(err => {
+            console.error('❌ Error loading models:', err);
         });
     } else {
-        console.error('Failed to initialize Three.js - canvas not found');
+        console.error('❌ Failed to initialize Three.js - see errors above');
     }
 })();
 
@@ -939,10 +952,6 @@ function checkSelectionComplete() {
         console.log('Button disabled - Date:', hasDate, 'Time:', hasTime); // Debug log
     }
 }
-
-
-// Start animation immediately even if models haven't loaded yet
-animate();
 
 // Viewport-based video loading for mobile short videos
 document.addEventListener('DOMContentLoaded', function() {

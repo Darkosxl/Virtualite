@@ -156,17 +156,26 @@
             </div>
             <input type="hidden" name="selected_date" id="selected-date" required>
 
-            <!-- Custom Date Picker -->
+            <!-- Simple Calendar Picker -->
             <div id="custom-date-picker" style="display: none; margin-top: 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0.75rem; padding: 1rem; backdrop-filter: blur(10px);">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
-                    <button type="button" id="prev-week-btn" style="background: linear-gradient(45deg, #F2522E, #F24535); color: white; border: none; border-radius: 0.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; font-size: 1.25rem; flex-shrink: 0;">
-                        ←
-                    </button>
-                    <div id="week-dates-container" style="display: flex; gap: 0.5rem; flex: 1; overflow-x: auto; justify-content: center;"></div>
-                    <button type="button" id="next-week-btn" style="background: linear-gradient(45deg, #F2522E, #F24535); color: white; border: none; border-radius: 0.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; font-size: 1.25rem; flex-shrink: 0;">
-                        →
-                    </button>
+                <!-- Month Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <button type="button" id="prev-month-btn" style="background: none; color: white; border: none; font-size: 1.5rem; cursor: pointer;">←</button>
+                    <h3 id="calendar-month-year" style="color: white; margin: 0; font-size: 1.1rem;"></h3>
+                    <button type="button" id="next-month-btn" style="background: none; color: white; border: none; font-size: 1.5rem; cursor: pointer;">→</button>
                 </div>
+                <!-- Day Headers -->
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;">Pzt</div>
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;">Sal</div>
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;">Çar</div>
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;">Per</div>
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;">Cum</div>
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;">Cmt</div>
+                    <div style="text-align: center; color: rgba(255,0,0,0.7); font-size: 0.75rem; font-weight: 600;">Paz</div>
+                </div>
+                <!-- Calendar Grid -->
+                <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem;"></div>
             </div>
 
             <!-- Time Selection (nested inside date field) -->
@@ -313,292 +322,200 @@
 </form>
 
 <script>
-// Custom Date and Time Picker
+// SIMPLE Custom Calendar
 (function() {
     const dateInput = document.getElementById('selected-date');
     const dateDisplay = document.getElementById('date-display');
     const dateDisplayText = document.getElementById('date-display-text');
     const datePicker = document.getElementById('custom-date-picker');
-    const weekContainer = document.getElementById('week-dates-container');
-    const prevWeekBtn = document.getElementById('prev-week-btn');
-    const nextWeekBtn = document.getElementById('next-week-btn');
+    const calendarGrid = document.getElementById('calendar-grid');
+    const monthYearDisplay = document.getElementById('calendar-month-year');
+    const prevMonthBtn = document.getElementById('prev-month-btn');
+    const nextMonthBtn = document.getElementById('next-month-btn');
     const timeSelectionField = document.getElementById('time-selection-field');
     const timePickerContainer = document.getElementById('custom-time-picker');
     const timeInput = document.getElementById('selected-time');
 
     const today = new Date();
-    const maxBookingDate = new Date(today);
-    maxBookingDate.setDate(today.getDate() + 35); // 5 weeks
-
-    let currentWeekStart = null;
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
     let selectedDate = null;
-    let isRendering = false; // Prevent simultaneous renders
+
     const allTimeSlots = ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30'];
     
-    // Cache for API responses
-    const apiCache = {
-        data: {},
-        set: function(dateStr, response) {
-            this.data[dateStr] = {
-                response: response,
-                timestamp: Date.now()
-            };
-        },
-        get: function(dateStr) {
-            const cached = this.data[dateStr];
-            if (!cached) return null;
-            
-            // Cache expires after 5 minutes
-            if (Date.now() - cached.timestamp > 300000) {
-                delete this.data[dateStr];
-                return null;
-            }
-            return cached.response;
-        }
+    const months = {
+        tr: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
+        en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        it: ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
     };
-
-    // Get start of week (Monday)
-    function getMonday(d) {
-        const date = new Date(d);
-        const day = date.getDay();
-        const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
-        return new Date(date.setDate(diff));
-    }
-
-    // Format date for display
-    function formatDateDisplay(date) {
-        const days = {tr: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'], en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], it: ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']};
-        const lang = localStorage.getItem('selectedLanguage') || 'tr';
-        return `${days[lang][date.getDay()]} ${date.getDate()}`;
-    }
 
     // Format full date display
     function formatFullDate(date) {
-        const months = {
-            tr: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
-            en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            it: ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
-        };
         const lang = localStorage.getItem('selectedLanguage') || 'tr';
         return `${date.getDate()} ${months[lang][date.getMonth()]} ${date.getFullYear()}`;
     }
 
-    // Check if date is valid for booking
+    // Check if date is valid for booking (tomorrow onwards, no Sundays)
     function isDateValid(date) {
         const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
         const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        return dateOnly > todayOnly && dateOnly <= maxBookingDate && date.getDay() !== 0;
+        return dateOnly > todayOnly && date.getDay() !== 0;
     }
 
-    // Render week dates
-    function renderWeek(weekStart) {
-        console.log('   🎨 renderWeek() called');
-        console.time('   ⏱️ renderWeek_TOTAL');
-
-        // Prevent simultaneous renders
-        if (isRendering) {
-            console.log('   ⚠️ Already rendering, skipping...');
-            return;
+    // Render calendar for current month
+    function renderCalendar() {
+        const lang = localStorage.getItem('selectedLanguage') || 'tr';
+        monthYearDisplay.textContent = `${months[lang][currentMonth]} ${currentYear}`;
+        
+        calendarGrid.innerHTML = '';
+        
+        // Get first day of month (0=Sunday, 1=Monday, etc)
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        // Convert Sunday (0) to 7 for Monday-start week
+        const firstDayAdjusted = firstDay === 0 ? 6 : firstDay - 1;
+        
+        // Get days in month
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        
+        // Add empty cells for days before month starts
+        for (let i = 0; i < firstDayAdjusted; i++) {
+            const emptyCell = document.createElement('div');
+            calendarGrid.appendChild(emptyCell);
         }
-        isRendering = true;
-
-        console.time('   ⏱️ generate_7_dates');
-        const dates = [];
-
-        // Generate 7 days starting from Monday
-        for (let i = 0; i < 7; i++) {
-            const date = new Date(weekStart);
-            date.setDate(weekStart.getDate() + i);
-            dates.push(date);
-        }
-        console.timeEnd('   ⏱️ generate_7_dates');
-
-        console.time('   ⏱️ check_and_clear_DOM');
-        // Only clear DOM if it's empty (first render)
-        const isFirstRender = weekContainer.children.length === 0;
-        console.log('   Is first render:', isFirstRender);
-        if (isFirstRender) {
-            weekContainer.innerHTML = '';
-        }
-        console.timeEnd('   ⏱️ check_and_clear_DOM');
-
-        console.time('   ⏱️ create_7_buttons');
-        console.log('   🔨 Creating 7 date buttons (NO API CALLS)');
-        // NO API CALLS - just render based on date validity
-        dates.forEach((date, index) => {
-            const isValid = isDateValid(date);
+        
+        // Add day buttons
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(currentYear, currentMonth, day);
             const isSunday = date.getDay() === 0;
-            const isDisabled = !isValid || isSunday;
-
-            let btn;
+            const isValid = isDateValid(date);
             
-            // Reuse existing button or create new one
-            if (isFirstRender) {
-                btn = document.createElement('button');
-                btn.type = 'button';
-                weekContainer.appendChild(btn);
-            } else {
-                btn = weekContainer.children[index];
-                if (!btn) {
-                    btn = document.createElement('button');
-                    btn.type = 'button';
-                    weekContainer.appendChild(btn);
-                }
-                // Clear existing event listeners by cloning
-                const newBtn = btn.cloneNode(false);
-                btn.parentNode.replaceChild(newBtn, btn);
-                btn = newBtn;
-            }
-            
-            btn.textContent = formatDateDisplay(date);
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = day;
             btn.dataset.date = date.toISOString().split('T')[0];
-
-            // Styling
-            if (isDisabled) {
+            
+            // CIRCULAR BUTTON STYLING
+            if (isSunday) {
+                // Sunday - blocked with red
                 btn.style.cssText = `
+                    width: 45px;
+                    height: 45px;
+                    border-radius: 50%;
+                    background: rgba(255, 0, 0, 0.2);
+                    color: rgba(255, 0, 0, 0.5);
+                    border: 2px solid rgba(255, 0, 0, 0.3);
+                    cursor: not-allowed;
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    transition: all 0.3s;
+                `;
+                btn.disabled = true;
+            } else if (!isValid) {
+                // Past dates - disabled
+                btn.style.cssText = `
+                    width: 45px;
+                    height: 45px;
+                    border-radius: 50%;
                     background: rgba(255, 255, 255, 0.05);
                     color: rgba(255, 255, 255, 0.3);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 0.5rem;
-                    padding: 0.75rem 0.5rem;
+                    border: 2px solid rgba(255, 255, 255, 0.1);
                     cursor: not-allowed;
-                    font-size: 0.875rem;
-                    flex: 1;
-                    min-width: 70px;
-                    text-align: center;
+                    font-size: 0.9rem;
+                    font-weight: 600;
                     transition: all 0.3s;
                 `;
                 btn.disabled = true;
             } else {
+                // Valid dates - clickable
                 btn.style.cssText = `
+                    width: 45px;
+                    height: 45px;
+                    border-radius: 50%;
                     background: rgba(255, 255, 255, 0.1);
                     color: white;
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                    border-radius: 0.5rem;
-                    padding: 0.75rem 0.5rem;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
                     cursor: pointer;
-                    font-size: 0.875rem;
-                    flex: 1;
-                    min-width: 70px;
-                    text-align: center;
+                    font-size: 0.9rem;
+                    font-weight: 600;
                     transition: all 0.3s;
                 `;
-                btn.disabled = false;
-
+                
                 btn.addEventListener('mouseenter', function() {
                     if (!this.classList.contains('selected')) {
-                        this.style.background = 'rgba(242, 82, 46, 0.3)';
-                        this.style.borderColor = '#F2522E';
+                        this.style.background = 'linear-gradient(135deg, #F2522E, #F24535)';
+                        this.style.borderColor = '#F24535';
+                        this.style.transform = 'scale(1.1)';
                     }
                 });
-
+                
                 btn.addEventListener('mouseleave', function() {
                     if (!this.classList.contains('selected')) {
                         this.style.background = 'rgba(255, 255, 255, 0.1)';
                         this.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                        this.style.transform = 'scale(1)';
                     }
                 });
-
-                btn.addEventListener('click', async function() {
+                
+                btn.addEventListener('click', function() {
                     selectedDate = date;
                     dateInput.value = this.dataset.date;
                     dateDisplayText.textContent = formatFullDate(date);
                     dateDisplay.style.color = 'white';
-                    // Don't hide the date picker - keep it visible
-
-                    // Mark as selected
-                    weekContainer.querySelectorAll('button').forEach(b => {
+                    
+                    // Update selected styling
+                    calendarGrid.querySelectorAll('button').forEach(b => {
                         b.classList.remove('selected');
                         if (!b.disabled) {
                             b.style.background = 'rgba(255, 255, 255, 0.1)';
                             b.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                            b.style.transform = 'scale(1)';
                         }
                     });
                     this.classList.add('selected');
-                    this.style.background = 'rgba(242, 82, 46, 0.3)';
-                    this.style.borderColor = '#F2522E';
-
-                    // Load time slots
-                    await loadTimeSlots(this.dataset.date);
+                    this.style.background = 'linear-gradient(135deg, #F2522E, #F24535)';
+                    this.style.borderColor = '#F24535';
+                    this.style.transform = 'scale(1.1)';
+                    
+                    // Show time picker (NO database call yet)
+                    showTimePicker();
                     validateUnifiedForm();
                 });
             }
-        });
-        console.timeEnd('   ⏱️ create_7_buttons');
-
-        console.time('   ⏱️ update_nav_buttons');
-        // Update navigation buttons state
-        const firstWeekMonday = getMonday(new Date(today.getTime() + 86400000)); // Tomorrow's week
-        const lastValidMonday = getMonday(maxBookingDate);
-
-        const isPrevDisabled = weekStart <= firstWeekMonday;
-        const isNextDisabled = weekStart >= lastValidMonday;
-
-        prevWeekBtn.disabled = isPrevDisabled;
-        prevWeekBtn.style.opacity = isPrevDisabled ? '0.3' : '1';
-        prevWeekBtn.style.cursor = isPrevDisabled ? 'not-allowed' : 'pointer';
-
-        nextWeekBtn.disabled = isNextDisabled;
-        nextWeekBtn.style.opacity = isNextDisabled ? '0.3' : '1';
-        nextWeekBtn.style.cursor = isNextDisabled ? 'not-allowed' : 'pointer';
-        console.timeEnd('   ⏱️ update_nav_buttons');
-
-        // Unlock rendering
-        isRendering = false;
-        console.timeEnd('   ⏱️ renderWeek_TOTAL');
-        console.log('   ✅ renderWeek() complete');
+            
+            calendarGrid.appendChild(btn);
+        }
     }
 
-    // Load time slots for selected date
-    async function loadTimeSlots(dateStr) {
-        console.log('   🕐 loadTimeSlots() called for:', dateStr);
-        console.time('   ⏱️ loadTimeSlots_TOTAL');
+    // Show time picker and check database for booked slots
+    async function showTimePicker() {
+        const dateStr = dateInput.value;
+        if (!dateStr) return;
+        
+        timePickerContainer.innerHTML = '<p style="color: white; text-align: center;">Loading times...</p>';
+        timeSelectionField.style.display = 'block';
+        
         try {
-            let data;
-
-            console.time('   ⏱️ check_cache');
-            // Check cache first
-            const cached = apiCache.get(dateStr);
-            console.timeEnd('   ⏱️ check_cache');
-
-            if (cached) {
-                console.log('   ✅ Using cached data');
-                data = cached;
-            } else {
-                console.log('   🌐 Cache miss - fetching from API');
-                console.time('   ⏱️ API_CALL_/api/available-slots');
-                // Fetch if not cached
-                const response = await fetch(`/api/available-slots/${dateStr}`);
-                console.timeEnd('   ⏱️ API_CALL_/api/available-slots');
-
-                console.time('   ⏱️ parse_JSON');
-                data = await response.json();
-                console.timeEnd('   ⏱️ parse_JSON');
-
-                // Cache the response
-                apiCache.set(dateStr, data);
-                console.log('   💾 Data cached');
-            }
-
-            console.time('   ⏱️ clear_time_picker');
+            // CHECK DATABASE for booked slots
+            const response = await fetch(`/api/available-slots/${dateStr}`);
+            const data = await response.json();
+            
             timePickerContainer.innerHTML = '';
-            console.timeEnd('   ⏱️ clear_time_picker');
-
-            console.time('   ⏱️ render_24_time_buttons');
-            console.log('   🔨 Rendering 24 time slot buttons');
+            
+            // Show all time slots with proper styling
             allTimeSlots.forEach(time => {
                 const isBooked = data.booked_slots && data.booked_slots.includes(time);
-
+                
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.textContent = time;
                 btn.dataset.time = time;
-
+                
                 if (isBooked) {
+                    // Booked slot - disabled with red
                     btn.style.cssText = `
-                        background: rgba(255, 68, 68, 0.2);
-                        color: rgba(255, 68, 68, 0.5);
-                        border: 1px solid rgba(255, 68, 68, 0.3);
+                        background: rgba(255, 0, 0, 0.2);
+                        color: rgba(255, 0, 0, 0.5);
+                        border: 2px solid rgba(255, 0, 0, 0.3);
                         border-radius: 0.5rem;
                         padding: 0.75rem 0.5rem;
                         cursor: not-allowed;
@@ -608,34 +525,35 @@
                     `;
                     btn.disabled = true;
                 } else {
+                    // Available slot - clickable
                     btn.style.cssText = `
                         background: rgba(255, 255, 255, 0.1);
                         color: white;
-                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        border: 2px solid rgba(255, 255, 255, 0.3);
                         border-radius: 0.5rem;
                         padding: 0.75rem 0.5rem;
                         cursor: pointer;
                         font-size: 0.875rem;
                         transition: all 0.3s;
                     `;
-
+                    
                     btn.addEventListener('mouseenter', function() {
                         if (!this.classList.contains('selected')) {
-                            this.style.background = 'rgba(242, 82, 46, 0.3)';
+                            this.style.background = 'linear-gradient(135deg, #F2522E, #F24535)';
                             this.style.borderColor = '#F2522E';
                         }
                     });
-
+                    
                     btn.addEventListener('mouseleave', function() {
                         if (!this.classList.contains('selected')) {
                             this.style.background = 'rgba(255, 255, 255, 0.1)';
                             this.style.borderColor = 'rgba(255, 255, 255, 0.3)';
                         }
                     });
-
+                    
                     btn.addEventListener('click', function() {
                         timeInput.value = this.dataset.time;
-
+                        
                         timePickerContainer.querySelectorAll('button').forEach(b => {
                             b.classList.remove('selected');
                             if (!b.disabled) {
@@ -644,81 +562,48 @@
                             }
                         });
                         this.classList.add('selected');
-                        this.style.background = 'linear-gradient(45deg, #F2522E, #F24535)';
+                        this.style.background = 'linear-gradient(135deg, #F2522E, #F24535)';
                         this.style.borderColor = '#F24535';
-
+                        
                         validateUnifiedForm();
                     });
                 }
-
+                
                 timePickerContainer.appendChild(btn);
             });
-            console.timeEnd('   ⏱️ render_24_time_buttons');
-
-            console.time('   ⏱️ show_time_field');
-            timeSelectionField.style.display = 'block';
-            console.timeEnd('   ⏱️ show_time_field');
-
-            console.timeEnd('   ⏱️ loadTimeSlots_TOTAL');
-            console.log('   ✅ loadTimeSlots() complete');
         } catch (error) {
-            console.timeEnd('   ⏱️ loadTimeSlots_TOTAL');
-            console.error('❌ Error loading time slots:', error);
+            console.error('Error loading time slots:', error);
+            timePickerContainer.innerHTML = '<p style="color: rgba(255,255,255,0.7); text-align: center;">Error loading times. Please try again.</p>';
         }
     }
 
     // Toggle date picker
     dateDisplay.addEventListener('click', function() {
-        console.log('📅 ========== DATE PICKER CLICKED ==========');
-        console.time('⏱️ TOTAL_CLICK_TO_RENDER');
-
-        console.time('⏱️ visibility_check');
         const isVisible = datePicker.style.display !== 'none';
-        console.timeEnd('⏱️ visibility_check');
-        console.log('   Is currently visible:', isVisible);
-
-        console.time('⏱️ toggle_display');
         datePicker.style.display = isVisible ? 'none' : 'block';
-        console.timeEnd('⏱️ toggle_display');
-
-        if (!isVisible && !currentWeekStart) {
-            console.log('   🔄 First time opening - initializing week');
-
-            console.time('⏱️ calculate_tomorrow');
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
-            console.timeEnd('⏱️ calculate_tomorrow');
-
-            console.time('⏱️ get_monday');
-            currentWeekStart = getMonday(tomorrow);
-            console.timeEnd('⏱️ get_monday');
-            console.log('   Week starts on:', currentWeekStart.toISOString().split('T')[0]);
-
-            console.time('⏱️ render_week');
-            renderWeek(currentWeekStart);
-            console.timeEnd('⏱️ render_week');
-        }
-        console.timeEnd('⏱️ TOTAL_CLICK_TO_RENDER');
-        console.log('✅ ========== DATE PICKER READY ==========');
-    });
-
-    // Week navigation
-    prevWeekBtn.addEventListener('click', function() {
-        if (!this.disabled && !isRendering) {
-            const newWeekStart = new Date(currentWeekStart);
-            newWeekStart.setDate(newWeekStart.getDate() - 7);
-            currentWeekStart = newWeekStart;
-            renderWeek(currentWeekStart);
+        
+        if (!isVisible) {
+            renderCalendar();
         }
     });
 
-    nextWeekBtn.addEventListener('click', function() {
-        if (!this.disabled && !isRendering) {
-            const newWeekStart = new Date(currentWeekStart);
-            newWeekStart.setDate(newWeekStart.getDate() + 7);
-            currentWeekStart = newWeekStart;
-            renderWeek(currentWeekStart);
+    // Month navigation
+    prevMonthBtn.addEventListener('click', function() {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
         }
+        renderCalendar();
+    });
+
+    nextMonthBtn.addEventListener('click', function() {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        renderCalendar();
     });
 
     // Handle occupation dropdown selection
@@ -872,16 +757,5 @@
         }
     };
 
-    // Warm up database connection on page load
-    console.time('DB_WARMUP');
-    fetch('/api/warmup')
-        .then(response => {
-            console.timeEnd('DB_WARMUP');
-            console.log('✅ Database connection warmed up');
-        })
-        .catch(err => {
-            console.timeEnd('DB_WARMUP');
-            console.log('❌ Warmup failed:', err);
-        });
 })();
 </script>
