@@ -840,8 +840,8 @@ function setupSunglassesAnimation() {
     });
 }
 
-// Initialize everything
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize everything immediately when script loads (DOM is already ready)
+(function() {
     // Generate calendar
     generateCalendar();
 
@@ -876,8 +876,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error('Failed to initialize Three.js - canvas not found');
     }
-
-});
+})();
 
 // Facebook event tracking helpers
 function trackEvent(endpoint, data = {}) {

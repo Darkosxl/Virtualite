@@ -148,39 +148,35 @@
         <!-- Date Selection -->
         <div class="form-field">
             <label data-tr="Tarih Seçin *" data-en="Select Date *" data-it="Seleziona Data *">Tarih Seçin *</label>
-            <input type="date" name="selected_date" id="selected-date" required>
+            <div id="date-display" style="padding: 0.75rem 1rem; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 0.5rem; background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.5); display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.3s;">
+                <span id="date-display-text" data-tr="Tarih seçmek için tıklayın" data-en="Click to select date" data-it="Clicca per selezionare la data">Tarih seçmek için tıklayın</span>
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <input type="hidden" name="selected_date" id="selected-date" required>
+
+            <!-- Custom Date Picker -->
+            <div id="custom-date-picker" style="display: none; margin-top: 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0.75rem; padding: 1rem; backdrop-filter: blur(10px);">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                    <button type="button" id="prev-week-btn" style="background: linear-gradient(45deg, #F2522E, #F24535); color: white; border: none; border-radius: 0.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; font-size: 1.25rem; flex-shrink: 0;">
+                        ←
+                    </button>
+                    <div id="week-dates-container" style="display: flex; gap: 0.5rem; flex: 1; overflow-x: auto; justify-content: center;"></div>
+                    <button type="button" id="next-week-btn" style="background: linear-gradient(45deg, #F2522E, #F24535); color: white; border: none; border-radius: 0.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; font-size: 1.25rem; flex-shrink: 0;">
+                        →
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Time Selection -->
-        <div class="form-field">
+        <div class="form-field" id="time-selection-field" style="display: none;">
             <label data-tr="Saat Seçin *" data-en="Select Time *" data-it="Seleziona Ora *">Saat Seçin *</label>
-            <select name="selected_time" id="selected-time" required>
-                <option value="" data-tr="Saat seçin..." data-en="Select time..." data-it="Seleziona ora...">Saat seçin...</option>
-                <option value="10:00">10:00</option>
-                <option value="10:30">10:30</option>
-                <option value="11:00">11:00</option>
-                <option value="11:30">11:30</option>
-                <option value="12:00">12:00</option>
-                <option value="12:30">12:30</option>
-                <option value="13:00">13:00</option>
-                <option value="13:30">13:30</option>
-                <option value="14:00">14:00</option>
-                <option value="14:30">14:30</option>
-                <option value="15:00">15:00</option>
-                <option value="15:30">15:30</option>
-                <option value="16:00">16:00</option>
-                <option value="16:30">16:30</option>
-                <option value="17:00">17:00</option>
-                <option value="17:30">17:30</option>
-                <option value="18:00">18:00</option>
-                <option value="18:30">18:30</option>
-                <option value="19:00">19:00</option>
-                <option value="19:30">19:30</option>
-                <option value="20:00">20:00</option>
-                <option value="20:30">20:30</option>
-                <option value="21:00">21:00</option>
-                <option value="21:30">21:30</option>
-            </select>
+            <input type="hidden" name="selected_time" id="selected-time" required>
+
+            <!-- Custom Time Picker -->
+            <div id="custom-time-picker" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem; max-height: 300px; overflow-y: auto; padding: 0.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 0.5rem;"></div>
         </div>
 
         <!-- Name -->
@@ -318,92 +314,295 @@
 </form>
 
 <script>
-// Form validation and interactions
+// Custom Date and Time Picker
 document.addEventListener('DOMContentLoaded', function() {
-    // Set date constraints
     const dateInput = document.getElementById('selected-date');
+    const dateDisplay = document.getElementById('date-display');
+    const dateDisplayText = document.getElementById('date-display-text');
+    const datePicker = document.getElementById('custom-date-picker');
+    const weekContainer = document.getElementById('week-dates-container');
+    const prevWeekBtn = document.getElementById('prev-week-btn');
+    const nextWeekBtn = document.getElementById('next-week-btn');
+    const timeSelectionField = document.getElementById('time-selection-field');
+    const timePickerContainer = document.getElementById('custom-time-picker');
+    const timeInput = document.getElementById('selected-time');
+
     const today = new Date();
+    const maxBookingDate = new Date(today);
+    maxBookingDate.setDate(today.getDate() + 35); // 5 weeks
 
-    // Minimum date: tomorrow
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    dateInput.min = tomorrow.toISOString().split('T')[0];
+    let currentWeekStart = null;
+    let selectedDate = null;
+    const allTimeSlots = ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30'];
 
-    // Maximum date: 1 month + 1 week from today (approximately 5 weeks)
-    const maxDate = new Date(today);
-    maxDate.setDate(today.getDate() + 35); // 5 weeks = 35 days
-    dateInput.max = maxDate.toISOString().split('T')[0];
-
-    // Block Sundays - validate on change and input
-    function validateDateSelection() {
-        const selectedDate = dateInput.value;
-        if (!selectedDate) return;
-
-        const date = new Date(selectedDate + 'T12:00:00'); // Use noon to avoid timezone issues
-        const dayOfWeek = date.getDay();
-
-        // If Sunday (0), clear the selection and alert
-        if (dayOfWeek === 0) {
-            dateInput.value = '';
-            const lang = localStorage.getItem('selectedLanguage') || 'tr';
-            const messages = {
-                tr: 'Pazar günleri rezervasyon kabul edilmemektedir. Lütfen başka bir gün seçin.',
-                en: 'Bookings are not accepted on Sundays. Please select another day.',
-                it: 'Le prenotazioni non sono accettate la domenica. Si prega di selezionare un altro giorno.'
-            };
-            alert(messages[lang] || messages.tr);
-            return false;
-        }
-        return true;
+    // Get start of week (Monday)
+    function getMonday(d) {
+        const date = new Date(d);
+        const day = date.getDay();
+        const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+        return new Date(date.setDate(diff));
     }
 
-    dateInput.addEventListener('input', validateDateSelection);
+    // Format date for display
+    function formatDateDisplay(date) {
+        const days = {tr: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'], en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], it: ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']};
+        const lang = localStorage.getItem('selectedLanguage') || 'tr';
+        return `${days[lang][date.getDay()]} ${date.getDate()}`;
+    }
 
-    // Handle date selection - fetch available time slots
-    dateInput.addEventListener('change', async function() {
-        if (!validateDateSelection()) {
-            return;
+    // Format full date display
+    function formatFullDate(date) {
+        const months = {
+            tr: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
+            en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            it: ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
+        };
+        const lang = localStorage.getItem('selectedLanguage') || 'tr';
+        return `${date.getDate()} ${months[lang][date.getMonth()]} ${date.getFullYear()}`;
+    }
+
+    // Check if date is valid for booking
+    function isDateValid(date) {
+        const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        return dateOnly > todayOnly && dateOnly <= maxBookingDate && date.getDay() !== 0;
+    }
+
+    // Render week dates
+    async function renderWeek(weekStart) {
+        weekContainer.innerHTML = '';
+        const dates = [];
+
+        // Generate 7 days starting from Monday
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(weekStart);
+            date.setDate(weekStart.getDate() + i);
+            dates.push(date);
         }
 
-        const selectedDate = this.value;
-        const timeSelect = document.getElementById('selected-time');
+        // Fetch booked status for all dates in the week
+        const bookedStatusPromises = dates.map(async (date) => {
+            if (!isDateValid(date) || date.getDay() === 0) return { date, fullyBooked: false };
 
-        try {
-            const response = await fetch(`/api/available-slots/${selectedDate}`);
-            const data = await response.json();
+            try {
+                const dateStr = date.toISOString().split('T')[0];
+                const response = await fetch(`/api/available-slots/${dateStr}`);
+                const data = await response.json();
+                const fullyBooked = data.booked_slots && data.booked_slots.length >= allTimeSlots.length;
+                return { date, fullyBooked };
+            } catch (error) {
+                console.error('Error checking date:', error);
+                return { date, fullyBooked: false };
+            }
+        });
 
-            // Re-enable all options first and reset text
-            Array.from(timeSelect.options).forEach(option => {
-                if (option.value) {
-                    option.disabled = false;
-                    option.textContent = option.value;
-                    option.style.color = '';
-                    option.style.backgroundColor = '';
-                    option.style.textDecoration = '';
-                }
-            });
+        const bookedStatuses = await Promise.all(bookedStatusPromises);
 
-            // Disable booked slots with VERY VISIBLE styling
-            if (data.booked_slots && data.booked_slots.length > 0) {
-                data.booked_slots.forEach(bookedTime => {
-                    const option = Array.from(timeSelect.options).find(opt => opt.value === bookedTime);
-                    if (option) {
-                        option.disabled = true;
-                        option.textContent = `${bookedTime} ❌ DOLU / BOOKED`;
-                        option.style.color = '#ff4444';
-                        option.style.backgroundColor = '#330000';
-                        option.style.textDecoration = 'line-through';
-                        option.style.fontWeight = 'bold';
+        // Render date buttons
+        bookedStatuses.forEach(({ date, fullyBooked }) => {
+            const isValid = isDateValid(date);
+            const isSunday = date.getDay() === 0;
+            const isDisabled = !isValid || isSunday || fullyBooked;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = formatDateDisplay(date);
+            btn.dataset.date = date.toISOString().split('T')[0];
+
+            // Styling
+            if (isDisabled) {
+                btn.style.cssText = `
+                    background: rgba(255, 255, 255, 0.05);
+                    color: rgba(255, 255, 255, 0.3);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 0.5rem;
+                    padding: 0.75rem 0.5rem;
+                    cursor: not-allowed;
+                    font-size: 0.875rem;
+                    flex: 1;
+                    min-width: 70px;
+                    text-align: center;
+                    transition: all 0.3s;
+                `;
+                btn.disabled = true;
+            } else {
+                btn.style.cssText = `
+                    background: rgba(255, 255, 255, 0.1);
+                    color: white;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 0.5rem;
+                    padding: 0.75rem 0.5rem;
+                    cursor: pointer;
+                    font-size: 0.875rem;
+                    flex: 1;
+                    min-width: 70px;
+                    text-align: center;
+                    transition: all 0.3s;
+                `;
+
+                btn.addEventListener('mouseenter', function() {
+                    if (!this.classList.contains('selected')) {
+                        this.style.background = 'rgba(242, 82, 46, 0.3)';
+                        this.style.borderColor = '#F2522E';
                     }
+                });
+
+                btn.addEventListener('mouseleave', function() {
+                    if (!this.classList.contains('selected')) {
+                        this.style.background = 'rgba(255, 255, 255, 0.1)';
+                        this.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                    }
+                });
+
+                btn.addEventListener('click', async function() {
+                    selectedDate = date;
+                    dateInput.value = this.dataset.date;
+                    dateDisplayText.textContent = formatFullDate(date);
+                    dateDisplay.style.color = 'white';
+                    datePicker.style.display = 'none';
+
+                    // Mark as selected
+                    weekContainer.querySelectorAll('button').forEach(b => {
+                        b.classList.remove('selected');
+                        if (!b.disabled) {
+                            b.style.background = 'rgba(255, 255, 255, 0.1)';
+                            b.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                        }
+                    });
+                    this.classList.add('selected');
+                    this.style.background = 'linear-gradient(45deg, #F2522E, #F24535)';
+                    this.style.borderColor = '#F24535';
+
+                    // Load time slots
+                    await loadTimeSlots(this.dataset.date);
+                    validateUnifiedForm();
                 });
             }
 
-            timeSelect.disabled = false;
-        } catch (error) {
-            console.error('Error fetching available slots:', error);
-        }
+            weekContainer.appendChild(btn);
+        });
 
-        validateUnifiedForm();
+        // Update navigation buttons
+        const firstWeekMonday = getMonday(new Date(today.getTime() + 86400000)); // Tomorrow's week
+        prevWeekBtn.disabled = weekStart <= firstWeekMonday;
+        prevWeekBtn.style.opacity = prevWeekBtn.disabled ? '0.3' : '1';
+        prevWeekBtn.style.cursor = prevWeekBtn.disabled ? 'not-allowed' : 'pointer';
+
+        const lastValidMonday = getMonday(maxBookingDate);
+        nextWeekBtn.disabled = weekStart >= lastValidMonday;
+        nextWeekBtn.style.opacity = nextWeekBtn.disabled ? '0.3' : '1';
+        nextWeekBtn.style.cursor = nextWeekBtn.disabled ? 'not-allowed' : 'pointer';
+    }
+
+    // Load time slots for selected date
+    async function loadTimeSlots(dateStr) {
+        try {
+            const response = await fetch(`/api/available-slots/${dateStr}`);
+            const data = await response.json();
+
+            timePickerContainer.innerHTML = '';
+
+            allTimeSlots.forEach(time => {
+                const isBooked = data.booked_slots && data.booked_slots.includes(time);
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = time;
+                btn.dataset.time = time;
+
+                if (isBooked) {
+                    btn.style.cssText = `
+                        background: rgba(255, 68, 68, 0.2);
+                        color: rgba(255, 68, 68, 0.5);
+                        border: 1px solid rgba(255, 68, 68, 0.3);
+                        border-radius: 0.5rem;
+                        padding: 0.75rem 0.5rem;
+                        cursor: not-allowed;
+                        font-size: 0.875rem;
+                        text-decoration: line-through;
+                        transition: all 0.3s;
+                    `;
+                    btn.disabled = true;
+                } else {
+                    btn.style.cssText = `
+                        background: rgba(255, 255, 255, 0.1);
+                        color: white;
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        border-radius: 0.5rem;
+                        padding: 0.75rem 0.5rem;
+                        cursor: pointer;
+                        font-size: 0.875rem;
+                        transition: all 0.3s;
+                    `;
+
+                    btn.addEventListener('mouseenter', function() {
+                        if (!this.classList.contains('selected')) {
+                            this.style.background = 'rgba(242, 82, 46, 0.3)';
+                            this.style.borderColor = '#F2522E';
+                        }
+                    });
+
+                    btn.addEventListener('mouseleave', function() {
+                        if (!this.classList.contains('selected')) {
+                            this.style.background = 'rgba(255, 255, 255, 0.1)';
+                            this.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                        }
+                    });
+
+                    btn.addEventListener('click', function() {
+                        timeInput.value = this.dataset.time;
+
+                        timePickerContainer.querySelectorAll('button').forEach(b => {
+                            b.classList.remove('selected');
+                            if (!b.disabled) {
+                                b.style.background = 'rgba(255, 255, 255, 0.1)';
+                                b.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                            }
+                        });
+                        this.classList.add('selected');
+                        this.style.background = 'linear-gradient(45deg, #F2522E, #F24535)';
+                        this.style.borderColor = '#F24535';
+
+                        validateUnifiedForm();
+                    });
+                }
+
+                timePickerContainer.appendChild(btn);
+            });
+
+            timeSelectionField.style.display = 'block';
+        } catch (error) {
+            console.error('Error loading time slots:', error);
+        }
+    }
+
+    // Toggle date picker
+    dateDisplay.addEventListener('click', function() {
+        const isVisible = datePicker.style.display !== 'none';
+        datePicker.style.display = isVisible ? 'none' : 'block';
+
+        if (!isVisible && !currentWeekStart) {
+            // Initialize to current week (starting Monday after today)
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            currentWeekStart = getMonday(tomorrow);
+            renderWeek(currentWeekStart);
+        }
+    });
+
+    // Week navigation
+    prevWeekBtn.addEventListener('click', function() {
+        if (!this.disabled) {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            renderWeek(currentWeekStart);
+        }
+    });
+
+    nextWeekBtn.addEventListener('click', function() {
+        if (!this.disabled) {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            renderWeek(currentWeekStart);
+        }
     });
 
     // Handle occupation dropdown selection
