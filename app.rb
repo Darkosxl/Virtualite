@@ -97,14 +97,30 @@ get '/pictures/*' do |filename|
   send_file "pictures/#{filename}"
 end
 
+# Warm up database connection (called on page load)
+get '/api/warmup' do
+  puts "🔥 [WARMUP] Request received at #{Time.now}"
+  start_time = Time.now
+  content_type :json
+  $db.ensure_connection
+  duration = ((Time.now - start_time) * 1000).round(2)
+  puts "✅ [WARMUP] Completed in #{duration}ms"
+  { status: 'ready', duration_ms: duration }.to_json
+end
+
 # Check available time slots for a specific date
 get '/api/available-slots/:date' do
+  puts "📅 [API] /api/available-slots/#{params[:date]} - Request received at #{Time.now}"
+  request_start = Time.now
   content_type :json
 
   date = params[:date]
 
   # Get existing bookings for this date
+  db_start = Time.now
   existing_bookings = $db.get_bookings_for_date(date)
+  db_duration = ((Time.now - db_start) * 1000).round(2)
+  puts "   💾 [DB] get_bookings_for_date took #{db_duration}ms"
 
   # All possible time slots
   # Time slots from 10:00 AM to 9:30 PM
@@ -131,6 +147,9 @@ get '/api/available-slots/:date' do
 
   # Return available slots
   available_slots = all_slots - booked_slots
+
+  total_duration = ((Time.now - request_start) * 1000).round(2)
+  puts "✅ [API] /api/available-slots/#{params[:date]} completed in #{total_duration}ms"
 
   {
     date: date,

@@ -25,12 +25,17 @@ class Database
 
   def ensure_connection
     # Only reconnect if connection is actually dead, don't test every time
+    start_time = Time.now
     begin
-      return if @connection && !@connection.finished?
-      puts "Connection lost, reconnecting..."
+      if @connection && !@connection.finished?
+        duration = ((Time.now - start_time) * 1000).round(2)
+        puts "      🔌 [DB] Connection check: ALIVE (#{duration}ms)"
+        return
+      end
+      puts "      ⚠️ [DB] Connection lost, reconnecting..."
       reconnect
     rescue => e
-      puts "Connection check failed: #{e.message}, reconnecting..."
+      puts "      ❌ [DB] Connection check failed: #{e.message}, reconnecting..."
       reconnect
     end
   end
