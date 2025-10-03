@@ -391,7 +391,7 @@
     }
 
     // Render week dates
-    async function renderWeek(weekStart) {
+    function renderWeek(weekStart) {
         // Prevent simultaneous renders
         if (isRendering) {
             console.log('Already rendering, skipping...');
@@ -414,54 +414,11 @@
             weekContainer.innerHTML = '';
         }
 
-        // Fetch booked status ONLY for valid dates (skip Sundays and invalid dates)
-        const bookedStatusPromises = dates.map(async (date, index) => {
+        // NO API CALLS - just render based on date validity
+        dates.forEach((date, index) => {
             const isValid = isDateValid(date);
             const isSunday = date.getDay() === 0;
-            
-            // Skip API call for invalid dates
-            if (!isValid || isSunday) {
-                return { date, fullyBooked: false, index };
-            }
-
-            const dateStr = date.toISOString().split('T')[0];
-            
-            // Check cache first
-            const cached = apiCache.get(dateStr);
-            if (cached) {
-                const fullyBooked = cached.booked_slots && cached.booked_slots.length >= allTimeSlots.length;
-                return { date, fullyBooked, index };
-            }
-
-            // Make API call only if not cached
-            try {
-                const response = await fetch(`/api/available-slots/${dateStr}`);
-
-                if (!response.ok) {
-                    console.warn(`API returned ${response.status} for ${dateStr}`);
-                    return { date, fullyBooked: false, index };
-                }
-
-                const data = await response.json();
-                
-                // Cache the response
-                apiCache.set(dateStr, data);
-                
-                const fullyBooked = data.booked_slots && data.booked_slots.length >= allTimeSlots.length;
-                return { date, fullyBooked, index };
-            } catch (error) {
-                console.warn(`Error checking date ${date.toISOString().split('T')[0]}:`, error.message);
-                return { date, fullyBooked: false, index };
-            }
-        });
-
-        const bookedStatuses = await Promise.all(bookedStatusPromises);
-
-        // Render or update date buttons
-        bookedStatuses.forEach(({ date, fullyBooked, index }) => {
-            const isValid = isDateValid(date);
-            const isSunday = date.getDay() === 0;
-            const isDisabled = !isValid || isSunday || fullyBooked;
+            const isDisabled = !isValid || isSunday;
 
             let btn;
             
@@ -672,7 +629,7 @@
     }
 
     // Toggle date picker
-    dateDisplay.addEventListener('click', async function() {
+    dateDisplay.addEventListener('click', function() {
         const isVisible = datePicker.style.display !== 'none';
         datePicker.style.display = isVisible ? 'none' : 'block';
 
@@ -681,26 +638,26 @@
             const tomorrow = new Date(today);
             tomorrow.setDate(today.getDate() + 1);
             currentWeekStart = getMonday(tomorrow);
-            await renderWeek(currentWeekStart);
+            renderWeek(currentWeekStart);
         }
     });
 
     // Week navigation
-    prevWeekBtn.addEventListener('click', async function() {
+    prevWeekBtn.addEventListener('click', function() {
         if (!this.disabled && !isRendering) {
             const newWeekStart = new Date(currentWeekStart);
             newWeekStart.setDate(newWeekStart.getDate() - 7);
             currentWeekStart = newWeekStart;
-            await renderWeek(currentWeekStart);
+            renderWeek(currentWeekStart);
         }
     });
 
-    nextWeekBtn.addEventListener('click', async function() {
+    nextWeekBtn.addEventListener('click', function() {
         if (!this.disabled && !isRendering) {
             const newWeekStart = new Date(currentWeekStart);
             newWeekStart.setDate(newWeekStart.getDate() + 7);
             currentWeekStart = newWeekStart;
-            await renderWeek(currentWeekStart);
+            renderWeek(currentWeekStart);
         }
     });
 

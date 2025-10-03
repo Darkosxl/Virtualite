@@ -24,10 +24,13 @@ class Database
   end
 
   def ensure_connection
+    # Only reconnect if connection is actually dead, don't test every time
     begin
-      @connection.exec('SELECT 1')
-    rescue PG::Error => e
-      puts "Connection test failed: #{e.message}, reconnecting..."
+      return if @connection && !@connection.finished?
+      puts "Connection lost, reconnecting..."
+      reconnect
+    rescue => e
+      puts "Connection check failed: #{e.message}, reconnecting..."
       reconnect
     end
   end
