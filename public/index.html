@@ -13,6 +13,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: #262626;
@@ -1145,15 +1149,33 @@
     <!-- Footer -->
     <div id="footer-container"></div>
     <script>
-        // Load sections
-        fetch('/hero-section').then(r => r.text()).then(html => document.getElementById('hero-container').innerHTML = html);
-        fetch('/content-section').then(r => r.text()).then(html => document.getElementById('content-container').innerHTML = html);
-        fetch('/footer-section').then(r => r.text()).then(html => document.getElementById('footer-container').innerHTML = html);
-    </script>
-    <script src="/js/app.js"></script>
+        // Load all sections first, THEN load app.js
+        Promise.all([
+            fetch('/hero-section').then(r => r.text()).then(html => {
+                document.getElementById('hero-container').innerHTML = html;
+            }),
+            fetch('/content-section').then(r => r.text()).then(html => {
+                document.getElementById('content-container').innerHTML = html;
+            }),
+            fetch('/footer-section').then(r => r.text()).then(html => {
+                document.getElementById('footer-container').innerHTML = html;
+            })
+        ]).then(() => {
+            // All sections loaded - NOW initialize everything
 
-    <!-- Language switching -->
-    <script>
+            // 1. Initialize language switching
+            initLanguageSwitching();
+
+            // 2. Initialize video-lite system
+            initVideoLite();
+
+            // 3. Load app.js
+            const appScript = document.createElement('script');
+            appScript.src = '/js/app.js';
+            document.body.appendChild(appScript);
+        }).catch(error => console.error('Error loading sections:', error));
+
+        // Language switching functions
         function switchLanguage(selectedLang) {
             document.querySelectorAll('[data-tr]').forEach(element => {
                 const text = element.getAttribute('data-' + selectedLang);
@@ -1171,10 +1193,14 @@
             });
         }
 
-        // Custom dropdown functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        function initLanguageSwitching() {
             const selectedLanguage = document.getElementById('selectedLanguage');
             const languageOptions = document.getElementById('languageOptions');
+
+            if (!selectedLanguage || !languageOptions) {
+                console.error('Language dropdown elements not found');
+                return;
+            }
 
             // Toggle dropdown
             selectedLanguage.addEventListener('click', function() {
@@ -1186,7 +1212,6 @@
                 option.addEventListener('click', function() {
                     const selectedLang = this.getAttribute('data-lang');
                     const flagSrc = this.querySelector('.flag-icon').src;
-                    const langText = this.textContent.trim();
 
                     // Update selected language display (only flag)
                     selectedLanguage.querySelector('.flag-icon').src = flagSrc;
@@ -1215,63 +1240,55 @@
                 selectedLanguage.querySelector('.flag-icon').src = flagSrc;
             }
             switchLanguage(savedLang);
-        });
 
-        // Watch for dynamically loaded content
-        const observer = new MutationObserver(function(mutations) {
-            const selectedLang = localStorage.getItem('selectedLanguage') || 'tr';
-            mutations.forEach(function(mutation) {
-                mutation.addedNodes.forEach(function(node) {
-                    if (node.nodeType === 1) { // Element node
-                        // Handle text translations
-                        const elementsWithTranslations = node.querySelectorAll ? node.querySelectorAll('[data-tr]') : [];
-                        elementsWithTranslations.forEach(element => {
-                            const text = element.getAttribute('data-' + selectedLang);
-                            if (text) {
-                                element.textContent = text;
+            // Watch for dynamically loaded content
+            const observer = new MutationObserver(function(mutations) {
+                const selectedLang = localStorage.getItem('selectedLanguage') || 'tr';
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) {
+                            const elementsWithTranslations = node.querySelectorAll ? node.querySelectorAll('[data-tr]') : [];
+                            elementsWithTranslations.forEach(element => {
+                                const text = element.getAttribute('data-' + selectedLang);
+                                if (text) {
+                                    element.textContent = text;
+                                }
+                            });
+
+                            const elementsWithPlaceholders = node.querySelectorAll ? node.querySelectorAll('input[data-placeholder-tr]') : [];
+                            elementsWithPlaceholders.forEach(input => {
+                                const placeholderText = input.getAttribute('data-placeholder-' + selectedLang);
+                                if (placeholderText) {
+                                    input.placeholder = placeholderText;
+                                }
+                            });
+
+                            if (node.getAttribute && node.getAttribute('data-tr')) {
+                                const text = node.getAttribute('data-' + selectedLang);
+                                if (text) {
+                                    node.textContent = text;
+                                }
                             }
-                        });
 
-                        // Handle placeholder translations
-                        const elementsWithPlaceholders = node.querySelectorAll ? node.querySelectorAll('input[data-placeholder-tr]') : [];
-                        elementsWithPlaceholders.forEach(input => {
-                            const placeholderText = input.getAttribute('data-placeholder-' + selectedLang);
-                            if (placeholderText) {
-                                input.placeholder = placeholderText;
-                            }
-                        });
-
-                        // Also check if the node itself has translations
-                        if (node.getAttribute && node.getAttribute('data-tr')) {
-                            const text = node.getAttribute('data-' + selectedLang);
-                            if (text) {
-                                node.textContent = text;
-                            }
-                        }
-
-                        // Check if the node itself has placeholder translations
-                        if (node.tagName === 'INPUT' && node.getAttribute && node.getAttribute('data-placeholder-tr')) {
-                            const placeholderText = node.getAttribute('data-placeholder-' + selectedLang);
-                            if (placeholderText) {
-                                node.placeholder = placeholderText;
+                            if (node.tagName === 'INPUT' && node.getAttribute && node.getAttribute('data-placeholder-tr')) {
+                                const placeholderText = node.getAttribute('data-placeholder-' + selectedLang);
+                                if (placeholderText) {
+                                    node.placeholder = placeholderText;
+                                }
                             }
                         }
-                    }
+                    });
                 });
             });
-        });
 
-        observer.observe(document.body, { childList: true, subtree: true });
-    </script>
-    
-    <!-- Simple video-lite loading system -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+
+        function initVideoLite() {
             document.querySelectorAll('.video-lite').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const src = btn.dataset.src;
 
-                    // Create video element directly - no container
                     const video = document.createElement('video');
                     video.src = src;
                     video.controls = true;
@@ -1287,19 +1304,17 @@
                     video.controlsList = 'nodownload nofullscreen noremoteplayback';
                     video.title = 'Bu videonun sesi yoktur';
 
-                    // Force video to stay muted
                     video.addEventListener('volumechange', () => {
                         if (!video.muted) {
                             video.muted = true;
                         }
                     });
 
-                    // Replace button directly with video
                     btn.replaceWith(video);
                     video.play();
                 });
             });
-        });
+        }
     </script>
     
 </body>

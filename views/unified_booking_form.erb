@@ -316,6 +316,56 @@
 <script>
 // Form validation and interactions
 document.addEventListener('DOMContentLoaded', function() {
+    // Set minimum date to tomorrow
+    const dateInput = document.getElementById('selected-date');
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowString = tomorrow.toISOString().split('T')[0];
+    dateInput.min = tomorrowString;
+
+    // Handle date selection - fetch available time slots
+    dateInput.addEventListener('change', async function() {
+        const selectedDate = this.value;
+        const timeSelect = document.getElementById('selected-time');
+
+        try {
+            const response = await fetch(`/api/available-slots/${selectedDate}`);
+            const data = await response.json();
+
+            // Re-enable all options first
+            Array.from(timeSelect.options).forEach(option => {
+                if (option.value) {
+                    option.disabled = false;
+                    option.textContent = option.value;
+                }
+            });
+
+            // Disable booked slots
+            if (data.booked_slots && data.booked_slots.length > 0) {
+                data.booked_slots.forEach(bookedTime => {
+                    const option = Array.from(timeSelect.options).find(opt => opt.value === bookedTime);
+                    if (option) {
+                        option.disabled = true;
+                        option.textContent = `${bookedTime} (Dolu)`;
+                    }
+                });
+            }
+
+            // Check if it's Sunday
+            const date = new Date(selectedDate);
+            if (date.getDay() === 0) {
+                timeSelect.disabled = true;
+                alert('Pazar günleri rezervasyon kabul edilmemektedir.');
+            } else {
+                timeSelect.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error fetching available slots:', error);
+        }
+
+        validateUnifiedForm();
+    });
+
     // Handle occupation dropdown selection
     const occupationSelect = document.getElementById('occupation-select');
     const customOccupationInput = document.getElementById('custom-occupation-input');

@@ -164,7 +164,7 @@ get '/content-section' do
 end
 
 get '/footer-section' do
-  erb :footer
+  erb :footer_section
 end
 # Social media fields partial - no longer needed but keeping for compatibility
 get '/social-fields' do
