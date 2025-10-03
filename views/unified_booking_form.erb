@@ -145,8 +145,8 @@
     </div>
 
     <div class="booking-form">
-        <!-- Date Selection -->
-        <div class="form-field">
+        <!-- Date & Time Selection Container -->
+        <div class="form-field full-width">
             <label data-tr="Tarih Seçin *" data-en="Select Date *" data-it="Seleziona Data *">Tarih Seçin *</label>
             <div id="date-display" style="padding: 0.75rem 1rem; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 0.5rem; background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.5); display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.3s;">
                 <span id="date-display-text" data-tr="Tarih seçmek için tıklayın" data-en="Click to select date" data-it="Clicca per selezionare la data">Tarih seçmek için tıklayın</span>
@@ -168,15 +168,15 @@
                     </button>
                 </div>
             </div>
-        </div>
 
-        <!-- Time Selection -->
-        <div class="form-field" id="time-selection-field" style="display: none;">
-            <label data-tr="Saat Seçin *" data-en="Select Time *" data-it="Seleziona Ora *">Saat Seçin *</label>
-            <input type="hidden" name="selected_time" id="selected-time" required>
+            <!-- Time Selection (nested inside date field) -->
+            <div id="time-selection-field" style="display: none; margin-top: 1rem;">
+                <label data-tr="Saat Seçin *" data-en="Select Time *" data-it="Seleziona Ora *">Saat Seçin *</label>
+                <input type="hidden" name="selected_time" id="selected-time" required>
 
-            <!-- Custom Time Picker -->
-            <div id="custom-time-picker" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem; max-height: 300px; overflow-y: auto; padding: 0.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 0.5rem;"></div>
+                <!-- Custom Time Picker -->
+                <div id="custom-time-picker" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem; max-height: 300px; overflow-y: auto; padding: 0.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 0.5rem; margin-top: 0.5rem;"></div>
+            </div>
         </div>
 
         <!-- Name -->
@@ -371,8 +371,17 @@
     // Render week dates
     async function renderWeek(weekStart) {
         // Prevent simultaneous renders
-        if (isRendering) return;
+        if (isRendering) {
+            console.log('Already rendering, skipping...');
+            return;
+        }
         isRendering = true;
+
+        // Disable navigation buttons during render
+        prevWeekBtn.disabled = true;
+        nextWeekBtn.disabled = true;
+        prevWeekBtn.style.opacity = '0.3';
+        nextWeekBtn.style.opacity = '0.3';
 
         weekContainer.innerHTML = '';
         const dates = [];
@@ -492,16 +501,20 @@
             weekContainer.appendChild(btn);
         });
 
-        // Update navigation buttons
+        // Update navigation buttons state
         const firstWeekMonday = getMonday(new Date(today.getTime() + 86400000)); // Tomorrow's week
-        prevWeekBtn.disabled = weekStart <= firstWeekMonday;
-        prevWeekBtn.style.opacity = prevWeekBtn.disabled ? '0.3' : '1';
-        prevWeekBtn.style.cursor = prevWeekBtn.disabled ? 'not-allowed' : 'pointer';
-
         const lastValidMonday = getMonday(maxBookingDate);
-        nextWeekBtn.disabled = weekStart >= lastValidMonday;
-        nextWeekBtn.style.opacity = nextWeekBtn.disabled ? '0.3' : '1';
-        nextWeekBtn.style.cursor = nextWeekBtn.disabled ? 'not-allowed' : 'pointer';
+        
+        const isPrevDisabled = weekStart <= firstWeekMonday;
+        const isNextDisabled = weekStart >= lastValidMonday;
+        
+        prevWeekBtn.disabled = isPrevDisabled;
+        prevWeekBtn.style.opacity = isPrevDisabled ? '0.3' : '1';
+        prevWeekBtn.style.cursor = isPrevDisabled ? 'not-allowed' : 'pointer';
+
+        nextWeekBtn.disabled = isNextDisabled;
+        nextWeekBtn.style.opacity = isNextDisabled ? '0.3' : '1';
+        nextWeekBtn.style.cursor = isNextDisabled ? 'not-allowed' : 'pointer';
 
         // Unlock rendering
         isRendering = false;
@@ -590,7 +603,7 @@
     }
 
     // Toggle date picker
-    dateDisplay.addEventListener('click', function() {
+    dateDisplay.addEventListener('click', async function() {
         const isVisible = datePicker.style.display !== 'none';
         datePicker.style.display = isVisible ? 'none' : 'block';
 
@@ -599,22 +612,26 @@
             const tomorrow = new Date(today);
             tomorrow.setDate(today.getDate() + 1);
             currentWeekStart = getMonday(tomorrow);
-            renderWeek(currentWeekStart);
+            await renderWeek(currentWeekStart);
         }
     });
 
     // Week navigation
-    prevWeekBtn.addEventListener('click', function() {
-        if (!this.disabled) {
-            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-            renderWeek(currentWeekStart);
+    prevWeekBtn.addEventListener('click', async function() {
+        if (!this.disabled && !isRendering) {
+            const newWeekStart = new Date(currentWeekStart);
+            newWeekStart.setDate(newWeekStart.getDate() - 7);
+            currentWeekStart = newWeekStart;
+            await renderWeek(currentWeekStart);
         }
     });
 
-    nextWeekBtn.addEventListener('click', function() {
-        if (!this.disabled) {
-            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-            renderWeek(currentWeekStart);
+    nextWeekBtn.addEventListener('click', async function() {
+        if (!this.disabled && !isRendering) {
+            const newWeekStart = new Date(currentWeekStart);
+            newWeekStart.setDate(newWeekStart.getDate() + 7);
+            currentWeekStart = newWeekStart;
+            await renderWeek(currentWeekStart);
         }
     });
 
@@ -639,6 +656,12 @@
     // Handle custom occupation input changes
     if (customOccupationInput) {
         customOccupationInput.addEventListener('input', validateUnifiedForm);
+    }
+
+    // Handle budget dropdown selection
+    const budgetSelect = document.getElementById('budget-select');
+    if (budgetSelect) {
+        budgetSelect.addEventListener('change', validateUnifiedForm);
     }
 
     // Handle social platform checkbox selection
@@ -677,16 +700,20 @@
         const submitBtn = document.getElementById('submit-booking-btn');
         const occupationSelect = document.getElementById('occupation-select');
         const customOccupationInput = document.getElementById('custom-occupation-input');
+        const budgetSelect = document.getElementById('budget-select');
 
         // Check occupation validation
         let hasValidOccupation = false;
-        if (occupationSelect.value && occupationSelect.value !== '') {
+        if (occupationSelect && occupationSelect.value && occupationSelect.value !== '') {
             if (occupationSelect.value === 'custom') {
-                hasValidOccupation = customOccupationInput.value.trim() !== '';
+                hasValidOccupation = customOccupationInput && customOccupationInput.value.trim() !== '';
             } else {
                 hasValidOccupation = true;
             }
         }
+
+        // Check budget/reason validation
+        let hasValidBudget = budgetSelect && budgetSelect.value && budgetSelect.value !== '';
 
         // Check social media selection validation
         let hasValidSocialSelection = false;
@@ -700,8 +727,8 @@
             }
         });
 
-        // Both occupation and at least one social platform must be valid
-        if (hasValidOccupation && hasValidSocialSelection) {
+        // All three validations must pass: occupation, budget, and at least one social platform
+        if (hasValidOccupation && hasValidBudget && hasValidSocialSelection) {
             submitBtn.disabled = false;
             submitBtn.style.opacity = '1';
             submitBtn.style.cursor = 'pointer';
