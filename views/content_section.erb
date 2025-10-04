@@ -154,6 +154,7 @@
     transform: translateY(2.5rem);
     transition: all 0.3s ease;
     z-index: 20;
+    text-decoration: none;
 }
 
 .bento-card:hover .bento-cta {
@@ -458,8 +459,37 @@ video[title]:hover::after {
     width: 100%;
     max-width: 1400px;
     margin: 6vh auto;
-    padding: 0 4vw;
+    padding: 0 2vw;
+}
+
+/* Stage Card - Bento Tile Frame for Carousel */
+.carousel-stage-card {
+    position: relative;
+    width: 100%;
     min-height: 500px;
+    padding: 3rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #F2522E, #F24535);
+    box-shadow: 0 4px 12px rgba(242, 69, 53, 0.3), 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.carousel-stage-card:hover {
+    box-shadow: 0 8px 20px rgba(242, 69, 53, 0.4), 0 16px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Interior Stage - Darker background for contrast */
+.carousel-stage-interior {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+    padding: 2rem;
+    overflow: hidden;
 }
 
 .carousel-3d-container {
@@ -468,7 +498,7 @@ video[title]:hover::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    perspective: 1500px;
+    perspective: 1100px;
     perspective-origin: 50% 50%;
     position: relative;
     overflow: visible;
@@ -482,7 +512,7 @@ video[title]:hover::after {
     height: 100%;
     transform-style: preserve-3d;
     cursor: grab;
-    transition: transform 0.1s ease-out;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     will-change: transform;
     transform: rotateY(0deg);
 }
@@ -515,15 +545,15 @@ video[title]:hover::after {
     background: #000;
     cursor: pointer;
     position: relative;
-    border-radius: 16px;
+    border-radius: 12px;
     overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .carousel-3d-face button:hover {
-    transform: scale(1.08);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+    transform: scale(1.05);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .carousel-3d-face img {
@@ -559,6 +589,17 @@ video[title]:hover::after {
     background: rgba(255, 255, 255, 0.9);
     color: black;
     transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Hide and disable volume controls on all videos */
+video::-webkit-media-controls-volume-slider,
+video::-webkit-media-controls-mute-button {
+    display: none !important;
+}
+
+video::-moz-volume-slider,
+video::-moz-mute-button {
+    display: none !important;
 }
 
 /* Video Modal/Overlay */
@@ -775,14 +816,23 @@ video[title]:hover::after {
     }
 }
 
-@media (max-width: 480px) {
+    @media (max-width: 480px) {
     .short-videos-grid {
         grid-template-columns: 1fr;
         gap: 2vh;
     }
 
+    .carousel-stage-card {
+        padding: 1.5rem;
+        min-height: 400px;
+    }
+
+    .carousel-stage-interior {
+        padding: 1rem;
+    }
+
     .carousel-3d-container {
-        height: 400px;
+        height: 350px;
     }
 
     .video-modal-content.aspect-9-16 video {
@@ -809,13 +859,13 @@ video[title]:hover::after {
                         <h3 class="bento-title" data-tr="Sayılarla Amoredit!" data-en="Amoredit by the numbers!" data-it="Amoredit in numeri!">Sayılarla Amoredit!</h3>
                         <p class="bento-description" data-tr="Aşk ve edit bir araya gelirse ne mi olur?" data-en="What happens when love and editing come together?" data-it="Cosa succede quando amore e editing si uniscono?">Aşk ve edit bir araya gelirse ne mi olur?</p>
                     </div>
-                    <button class="bento-cta" onclick="scrollToBooking()">
+                    <a href="#contact" class="bento-cta">
                         <span data-tr="Daha fazla bilgi" data-en="Learn more" data-it="Scopri di più">Daha fazla bilgi</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
-                    </button>
+                    </a>
                     <div class="bento-hover-effect"></div>
                 </div>
 
@@ -831,13 +881,13 @@ video[title]:hover::after {
                         <h3 class="bento-title">200+</h3>
                         <p class="bento-description" data-tr="Video" data-en="Videos" data-it="Video">Video</p>
                     </div>
-                    <button class="bento-cta" onclick="scrollToBooking()">
+                    <a href="#contact" class="bento-cta">
                         <span data-tr="Daha fazla bilgi" data-en="Learn more" data-it="Scopri di più">Daha fazla bilgi</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
-                    </button>
+                    </a>
                     <div class="bento-hover-effect"></div>
                 </div>
 
@@ -852,13 +902,13 @@ video[title]:hover::after {
                         <h3 class="bento-title" data-tr="15 Milyon" data-en="15 Million" data-it="15 Milioni">15 Milyon</h3>
                         <p class="bento-description" data-tr="izlenme" data-en="views" data-it="visualizzazioni">izlenme</p>
                     </div>
-                    <button class="bento-cta" onclick="scrollToBooking()">
+                    <a href="#contact" class="bento-cta">
                         <span data-tr="Daha fazla bilgi" data-en="Learn more" data-it="Scopri di più">Daha fazla bilgi</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
-                    </button>
+                    </a>
                     <div class="bento-hover-effect"></div>
                 </div>
 
@@ -877,13 +927,13 @@ video[title]:hover::after {
                         <h3 class="bento-title">20+</h3>
                         <p class="bento-description" data-tr="İçerik üretici" data-en="Content creators" data-it="Content creator">İçerik üretici</p>
                     </div>
-                    <button class="bento-cta" onclick="scrollToBooking()">
+                    <a href="#contact" class="bento-cta">
                         <span data-tr="Daha fazla bilgi" data-en="Learn more" data-it="Scopri di più">Daha fazla bilgi</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
-                    </button>
+                    </a>
                     <div class="bento-hover-effect"></div>
                 </div>
 
@@ -900,22 +950,26 @@ video[title]:hover::after {
                         <h3 class="bento-title" data-tr="5 Milyon TL" data-en="100,000+ USD" data-it="100.000+ EUR">5 Milyon TL</h3>
                         <p class="bento-description" data-tr="kazandırıldı" data-en="earned" data-it="guadagnati">kazandırıldı</p>
                     </div>
-                    <button class="bento-cta" onclick="scrollToBooking()">
+                    <a href="#contact" class="bento-cta">
                         <span data-tr="Daha fazla bilgi" data-en="Learn more" data-it="Scopri di più">Daha fazla bilgi</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
-                    </button>
+                    </a>
                     <div class="bento-hover-effect"></div>
                 </div>
             </div>
 
-            <!-- 3D Video Carousel -->
+            <!-- 3D Video Carousel - Housed in Bento Stage Card -->
             <div class="video-carousel-wrapper">
-                <div class="carousel-3d-container">
-                    <div class="carousel-3d-cylinder" id="carousel-3d">
-                        <!-- Carousel faces will be generated by JavaScript -->
+                <div class="carousel-stage-card">
+                    <div class="carousel-stage-interior">
+                        <div class="carousel-3d-container">
+                            <div class="carousel-3d-cylinder" id="carousel-3d">
+                                <!-- Carousel faces will be generated by JavaScript -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -924,7 +978,7 @@ video[title]:hover::after {
             <div class="video-modal-overlay" id="videoModal">
                 <div class="video-modal-content" id="videoModalContent">
                     <button class="video-modal-close" id="videoModalClose" aria-label="Close video">×</button>
-                    <video id="modalVideo" controls autoplay></video>
+                    <video id="modalVideo" controls autoplay muted></video>
                 </div>
             </div>
 

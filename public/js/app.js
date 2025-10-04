@@ -575,7 +575,7 @@ function startShaderAnimation() {
     if (!isShaderActive) {
         isShaderActive = true;
         startTime = Date.now();
-        animateShader();
+        animationId = requestAnimationFrame(animateShader);
     }
 }
 
@@ -915,9 +915,17 @@ function init3DCarousel() {
     // Video modal functions
     function openVideoModal(videoSrc, aspectRatio) {
         modalVideo.src = videoSrc;
+        modalVideo.muted = true;
         modalContent.className = 'video-modal-content aspect-' + aspectRatio;
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+        
+        // Prevent unmuting
+        modalVideo.addEventListener('volumechange', function forceVideoMute() {
+            if (!modalVideo.muted) {
+                modalVideo.muted = true;
+            }
+        });
         
         modalVideo.play().catch(e => {
             console.log('Video autoplay prevented:', e);
@@ -927,6 +935,7 @@ function init3DCarousel() {
     function closeVideoModal() {
         modal.classList.remove('active');
         modalVideo.pause();
+        modalVideo.muted = true;
         modalVideo.src = '';
         document.body.style.overflow = '';
     }
