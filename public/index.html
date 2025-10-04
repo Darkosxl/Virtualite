@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' blob: https://www.google.com https://www.gstatic.com https://connect.facebook.net https://static.cloudflareinsights.com https://infird.com; frame-src https://studio.unicorn.studio; object-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' blob: https://www.google.com https://www.gstatic.com https://connect.facebook.net https://static.cloudflareinsights.com https://infird.com https://cdn.jsdelivr.net; frame-src https://www.google.com https://www.gstatic.com; object-src 'none';">
     <link rel="icon" type="image/x-icon" href="/pictures/amoreditlogo.png">
     <title>Amoredit - Kaydırmayı Durduran İçerikler</title>
     <style>
@@ -75,7 +75,7 @@
             }
         }
 
-        /* Ensure content appears above UnicornStudio iframe */
+        /* Ensure content appears above shader animation */
         section, header, main, footer, .hero, .contact-section {
             position: relative;
             z-index: 10;
@@ -84,6 +84,9 @@
 
     <!-- HTMX for reactive forms (local) -->
     <script src="/js/htmx.min.js"></script>
+
+    <!-- Three.js for 3D shader animation -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
     <!-- Google reCAPTCHA v3 - Replace YOUR_SITE_KEY with your actual site key -->
     <script src="https://www.google.com/recaptcha/api.js?render=6LfyocYrAAAAAAO2wxWMTCTxNWrbS-qVSU_woJjU"></script>
@@ -122,14 +125,8 @@
     <!-- End Meta Pixel Code -->
 </head>
 <body>
-    <!-- UnicornStudio Animation (iframe embed) -->
-    <iframe 
-        id="unicorn-animation" 
-        src="https://studio.unicorn.studio/embed/1grEuiVDSVmyvEMAYhA6"
-        frameborder="0"
-        allowfullscreen
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; pointer-events: none; z-index: 0; border: none;">
-    </iframe>
+    <!-- Shader Animation Canvas -->
+    <div id="shader-animation" style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; pointer-events: none; z-index: 0; background: #000; overflow: hidden;"></div>
     <div class="cursor"></div>
     <div id="hero-container"></div>
 
@@ -278,6 +275,108 @@
                 });
             });
         }).catch(error => console.error('Error loading sections:', error));
+
+        // Shader Animation - Initialize immediately
+        (function initShaderAnimation() {
+            const container = document.getElementById('shader-animation');
+            if (!container || typeof THREE === 'undefined') {
+                console.error('❌ Shader animation failed: Container or THREE.js not found');
+                return;
+            }
+
+            // Vertex shader
+            const vertexShader = `
+                void main() {
+                    gl_Position = vec4( position, 1.0 );
+                }
+            `;
+
+            // Fragment shader
+            const fragmentShader = `
+                #define TWO_PI 6.2831853072
+                #define PI 3.14159265359
+
+                precision highp float;
+                uniform vec2 resolution;
+                uniform float time;
+
+                void main(void) {
+                    vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+                    float t = time*0.05;
+                    float lineWidth = 0.002;
+
+                    vec3 color = vec3(0.0);
+                    for(int j = 0; j < 3; j++){
+                        for(int i=0; i < 5; i++){
+                            color[j] += lineWidth*float(i*i) / abs(fract(t - 0.01*float(j)+float(i)*0.01)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
+                        }
+                    }
+                    
+                    gl_FragColor = vec4(color[0],color[1],color[2],1.0);
+                }
+            `;
+
+            // Initialize Three.js scene
+            const camera = new THREE.Camera();
+            camera.position.z = 1;
+
+            const scene = new THREE.Scene();
+            const geometry = new THREE.PlaneGeometry(2, 2);
+
+            const uniforms = {
+                time: { type: "f", value: 1.0 },
+                resolution: { type: "v2", value: new THREE.Vector2() }
+            };
+
+            const material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: vertexShader,
+                fragmentShader: fragmentShader
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            container.appendChild(renderer.domElement);
+
+            // Handle window resize
+            const onWindowResize = () => {
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                renderer.setSize(width, height);
+                uniforms.resolution.value.x = renderer.domElement.width;
+                uniforms.resolution.value.y = renderer.domElement.height;
+            };
+
+            // Initial resize
+            onWindowResize();
+            window.addEventListener("resize", onWindowResize, false);
+
+            // Animation loop
+            let animationId;
+            const animate = () => {
+                animationId = requestAnimationFrame(animate);
+                uniforms.time.value += 0.05;
+                renderer.render(scene, camera);
+            };
+
+            // Start animation
+            animate();
+
+            console.log('✅ Shader animation initialized successfully');
+
+            // Cleanup on page unload
+            window.addEventListener('beforeunload', () => {
+                cancelAnimationFrame(animationId);
+                window.removeEventListener("resize", onWindowResize);
+                renderer.dispose();
+                geometry.dispose();
+                material.dispose();
+            });
+        })();
 
         // Language switching functions
         function switchLanguage(selectedLang) {
