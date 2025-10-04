@@ -789,7 +789,7 @@ function init3DCarousel() {
     console.log('✅ Carousel cylinder element found:', cylinder);
 
     const isMobile = window.innerWidth < 640;
-    const cylinderWidth = isMobile ? 1200 : 2000;
+    const cylinderWidth = isMobile ? 600 : 1000; // Reduced to fit smaller cards
     const faceCount = carouselVideos.length;
     const faceWidth = cylinderWidth / faceCount;
     const radius = cylinderWidth / (2 * Math.PI);
