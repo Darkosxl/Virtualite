@@ -57,13 +57,18 @@ function getTomorrowDate() {
 
 // Calendar functionality
 function generateCalendar() {
-    const calendar = document.getElementById('calendar');
+    const calendar = document.getElementById('calendar-grid');
+    if (!calendar) {
+        console.warn('Calendar element not found, skipping calendar generation');
+        return;
+    }
+
     const today = new Date();
     const todayDateOnly = getDateOnly(today);
     const tomorrowDate = getTomorrowDate();
     const currentMonth = today.getMonth();
     const currentYear = today.getFullYear();
-    
+
     // Clear existing calendar
     calendar.innerHTML = '';
     
@@ -643,9 +648,9 @@ function setupPerformanceMonitoring() {
 
 // Sunglasses animation removed (previously used Three.js)
 
-// Initialize everything immediately when script loads (DOM is already ready)
-(function() {
-    console.log('app.js loaded and executing...');
+// Main initialization function - called explicitly from index.html
+function initializeApp() {
+    console.log('app.js initializeApp() called...');
 
     // Generate calendar
     generateCalendar();
@@ -677,7 +682,7 @@ function setupPerformanceMonitoring() {
     } else {
         console.error('❌ Failed to initialize shader animation - see errors above');
     }
-})();
+}
 
 // Facebook event tracking helpers
 function trackEvent(endpoint, data = {}) {

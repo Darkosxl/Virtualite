@@ -245,9 +245,21 @@
             const event = new Event('DOMContentLoaded');
             document.dispatchEvent(event);
 
-            // 5. Load app.js
+            // 5. Load app.js and then explicitly initialize
             const appScript = document.createElement('script');
             appScript.src = '/js/app.js';
+            appScript.onload = function() {
+                console.log('✅ app.js loaded, now initializing...');
+                // Explicitly call initialization after script is fully loaded
+                if (typeof initializeApp === 'function') {
+                    initializeApp();
+                } else {
+                    console.error('❌ initializeApp function not found in app.js');
+                }
+            };
+            appScript.onerror = function() {
+                console.error('❌ Failed to load app.js');
+            };
             document.body.appendChild(appScript);
         }).catch(error => console.error('Error loading sections:', error));
 
