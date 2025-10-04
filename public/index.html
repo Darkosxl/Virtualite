@@ -179,17 +179,7 @@
         box-shadow: 0 1.5625vw 3.125vw rgba(0, 0, 0, 0.1);
     }
 
-    /* Sunglasses animation canvas for calendar section */
-    #sunglasses-canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 1;
-        opacity: 0.8;
-    }
+    /* Sunglasses animation canvas REMOVED - was causing black rectangle issue */
 
     @media (max-width: 1200px) {
         .booking-container {
@@ -207,8 +197,6 @@
     </style>
 
     <section class="contact-section" id="contact">
-        <!-- Sunglasses animation canvas -->
-        <canvas id="sunglasses-canvas"></canvas>
         <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
             <h2 class="contact-title" data-tr="Tanışalım mı?" data-en="Shall we meet?" data-it="Conosciamoci!">Tanışalım mı?</h2>
             <p class="contact-subtitle" data-tr="sana uygun saati seç, seni arayalım!" data-en="pick a suitable time & let us call you!" data-it="scegli un orario adatto per te, ti chiamiamo noi!">sana uygun saati seç, seni arayalım!</p>

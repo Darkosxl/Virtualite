@@ -328,7 +328,6 @@ video[title]:hover::after {
     max-width: 1400px;
     margin: 6vh auto;
     padding: 0 4vw;
-    border: 2px solid rgba(242, 82, 46, 0.5); /* DEBUG: visible border */
     min-height: 500px;
 }
 
@@ -338,11 +337,11 @@ video[title]:hover::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    perspective: 1200px;
+    perspective: 1500px;
     perspective-origin: 50% 50%;
     position: relative;
     overflow: visible;
-    background: rgba(255, 0, 0, 0.1); /* DEBUG: red tint */
+    background: transparent;
 }
 
 .carousel-3d-cylinder {
@@ -354,6 +353,7 @@ video[title]:hover::after {
     cursor: grab;
     transition: transform 0.1s ease-out;
     will-change: transform;
+    transform: rotateY(0deg);
 }
 
 .carousel-3d-cylinder:active {
@@ -367,12 +367,13 @@ video[title]:hover::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.05);
+    background: transparent;
     border-radius: 20px;
     overflow: visible;
     padding: 8px;
     transform-style: preserve-3d;
     backface-visibility: visible;
+    transform-origin: center center;
 }
 
 .carousel-3d-face button {
@@ -704,6 +705,7 @@ video[title]:hover::after {
                 if (!cylinder) {
                     console.error('❌ Carousel cylinder element not found');
                 } else {
+                    console.log('✅ Carousel cylinder element found:', cylinder);
 
                     const isMobile = window.innerWidth < 640;
                     const cylinderWidth = isMobile ? 1200 : 2000;
@@ -715,7 +717,9 @@ video[title]:hover::after {
                         cylinderWidth,
                         radius,
                         faceCount,
-                        isMobile
+                        faceWidth,
+                        isMobile,
+                        videoCount: carouselVideos.length
                     });
 
                     let rotation = 0;
@@ -739,6 +743,14 @@ video[title]:hover::after {
                             translateZ(${radius}px)
                         `;
 
+                        console.log(`🎴 Creating carousel face ${index + 1}/${faceCount}:`, {
+                            name: video.name,
+                            angle: angle,
+                            width: video.width,
+                            height: video.height,
+                            transform: face.style.transform
+                        });
+
                         const button = document.createElement('button');
                         button.setAttribute('aria-label', `Play ${video.name} video`);
                         button.dataset.videoSrc = video.videoSrc;
@@ -759,6 +771,8 @@ video[title]:hover::after {
                             openVideoModal(video.videoSrc, video.aspectRatio);
                         });
                     });
+
+                    console.log(`✅ Created ${faceCount} carousel faces successfully`);
 
                     // Apply initial rotation
                     function updateRotation() {

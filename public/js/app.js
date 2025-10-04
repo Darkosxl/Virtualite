@@ -339,11 +339,24 @@ function initShaderAnimation() {
         return false;
     }
 
-    gl = shaderCanvas.getContext('webgl', { antialias: false }) || shaderCanvas.getContext('experimental-webgl', { antialias: false });
+    console.log('✅ Shader canvas found:', shaderCanvas);
+
+    gl = shaderCanvas.getContext('webgl', { 
+        antialias: false,
+        alpha: true,
+        premultipliedAlpha: false
+    }) || shaderCanvas.getContext('experimental-webgl', { 
+        antialias: false,
+        alpha: true,
+        premultipliedAlpha: false
+    });
+    
     if (!gl) {
-        console.error('❌ WebGL not supported!');
+        console.error('❌ WebGL not supported in this browser!');
         return false;
     }
+
+    console.log('✅ WebGL context obtained successfully');
 
     // Device pixel ratio for sharp rendering (capped at 2 for performance)
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -357,6 +370,10 @@ function initShaderAnimation() {
     }
 
     sizeCanvasToViewport();
+    
+    // Set clear color to transparent black
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Calculate fixed document-space center from hero element
     function getDocCenter(el) {
@@ -649,7 +666,7 @@ function setupPerformanceMonitoring() {
             lastTime = currentTime;
         }
         
-        if (is3DActive) {
+        if (isShaderActive) {
             requestAnimationFrame(measureFPS);
         }
     }
