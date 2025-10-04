@@ -21,56 +21,160 @@
 
 .stats-subtitle {
     font-size: clamp(1rem, 1.2vw, 1.4rem);
-    margin-bottom: 3vh;
+    margin-bottom: 4vh;
     opacity: 0.9;
     color: white;
     font-style: italic;
     text-align: center;
 }
 
-.stats-grid {
+/* Bento Grid Styles */
+.bento-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5vw;
-    max-width: 85%;
-    margin: 0 auto 5vh auto;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 22rem;
+    gap: 1rem;
+    max-width: 90%;
+    margin: 0 auto 6vh auto;
 }
 
-.stat-item {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 0.9375vw;
-    padding: 1.5vh 0.8vw;
-    border: 0.0625vw solid rgba(255, 255, 255, 0.2);
-    transition: transform 0.3s ease;
-    text-align: center;
+.bento-card {
+    position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    min-width: 0;
-}
-
-.stat-item:hover {
-    transform: translateY(-0.31vw);
-}
-
-.stat-number {
-    font-size: clamp(1.5rem, 1.8vw, 2.2rem);
-    font-weight: 900;
-    color: white;
-    margin-bottom: 0.5vh;
-    white-space: nowrap;
+    justify-content: space-between;
     overflow: hidden;
-    text-overflow: ellipsis;
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.05), 0 12px 24px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-.stat-label {
-    font-size: clamp(0.8rem, 0.9vw, 1.1rem);
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.bento-card:hover {
+    transform: translateY(-0.5rem);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Grid Layout Classes */
+.bento-card-large {
+    grid-column: span 1;
+    grid-row: span 3;
+}
+
+.bento-card-medium {
+    grid-column: span 1;
+    grid-row: span 2;
+}
+
+.bento-card-small {
+    grid-column: span 1;
+    grid-row: span 1;
+}
+
+.bento-card-medium-alt {
+    grid-column: span 1;
+    grid-row: span 2;
+}
+
+/* Bento Card Content */
+.bento-content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.bento-card:hover .bento-content {
+    transform: translateY(-2.5rem);
+}
+
+.bento-icon {
+    width: 3rem;
+    height: 3rem;
+    color: #333;
+    transition: all 0.3s ease;
+    transform-origin: left;
+}
+
+.bento-card:hover .bento-icon {
+    transform: scale(0.75);
+}
+
+.bento-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.bento-title {
+    font-size: clamp(1.75rem, 2.5vw, 3rem);
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.bento-description {
+    font-size: clamp(0.9rem, 1vw, 1.1rem);
+    color: #666;
+    margin: 0;
+    max-width: 90%;
+}
+
+/* Call to Action Button */
+.bento-cta {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: #333;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(2.5rem);
+    transition: all 0.3s ease;
+    z-index: 20;
+}
+
+.bento-card:hover .bento-cta {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.bento-cta:hover {
+    color: #F24535;
+}
+
+.bento-cta svg {
+    transition: transform 0.3s ease;
+}
+
+.bento-cta:hover svg {
+    transform: translateX(0.25rem);
+}
+
+/* Hover Effect Overlay */
+.bento-hover-effect {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.3s ease;
+    pointer-events: none;
+}
+
+.bento-card:hover .bento-hover-effect {
+    background: rgba(0, 0, 0, 0.03);
 }
 
 .container {
@@ -526,8 +630,18 @@ video[title]:hover::after {
         gap: 3vw;
     }
 
-    .stats-grid {
+    .bento-grid {
         grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: 18rem;
+        gap: 1rem;
+    }
+
+    .bento-card-large,
+    .bento-card-medium,
+    .bento-card-small,
+    .bento-card-medium-alt {
+        grid-column: span 1;
+        grid-row: span 1;
     }
 }
 
@@ -537,32 +651,43 @@ video[title]:hover::after {
         gap: 3vw;
     }
 
-    .stats-grid {
+    .bento-grid {
         grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: 16rem;
     }
 }
 
 @media (max-width: 768px) {
-    .stat-item {
-        padding: 2vh 2vw;
-        border-radius: 3vw;
-        min-height: 12vh;
+    .bento-grid {
+        grid-template-columns: 1fr;
+        grid-auto-rows: 14rem;
+        gap: 1rem;
+        max-width: 95%;
     }
 
-    .stat-number {
-        font-size: clamp(1.2rem, 4vw, 1.8rem);
-        white-space: normal;
-        overflow: visible;
-        text-overflow: unset;
-        line-height: 1.1;
+    .bento-card-large,
+    .bento-card-medium,
+    .bento-card-small,
+    .bento-card-medium-alt {
+        grid-column: span 1;
+        grid-row: span 1;
     }
 
-    .stat-label {
-        font-size: clamp(0.9rem, 3vw, 1.2rem);
-        white-space: normal;
-        overflow: visible;
-        text-overflow: unset;
-        line-height: 1.2;
+    .bento-card {
+        padding: 1.25rem;
+    }
+
+    .bento-title {
+        font-size: clamp(1.5rem, 5vw, 2rem);
+    }
+
+    .bento-description {
+        font-size: clamp(0.85rem, 3vw, 1rem);
+    }
+
+    .bento-icon {
+        width: 2.5rem;
+        height: 2.5rem;
     }
 
     /* Switch to mobile layout */
@@ -615,25 +740,97 @@ video[title]:hover::after {
             <h2 class="stats-title" data-tr="Sayılarla Amoredit!" data-en="Amoredit by the numbers!" data-it="Amoredit in numeri!">Sayılarla Amoredit!</h2>
             <p class="stats-subtitle" data-tr="Aşk ve edit bir araya gelirse ne mi olur?" data-en="What happens when love and editing come together?" data-it="Cosa succede quando amore e editing si uniscono?">Aşk ve edit bir araya gelirse ne mi olur?</p>
             
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number">200+</div>
-                    <div class="stat-label" data-tr="Video" data-en="Videos" data-it="Video">Video</div>
+            <!-- Bento Grid -->
+            <div class="bento-grid">
+                <!-- 200+ Videos Card -->
+                <div class="bento-card bento-card-large">
+                    <div class="bento-content">
+                        <div class="bento-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="23 7 16 12 23 17 23 7"/>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                            </svg>
+                        </div>
+                        <h3 class="bento-title">200+</h3>
+                        <p class="bento-description" data-tr="Video" data-en="Videos" data-it="Video">Video</p>
+                    </div>
+                    <button class="bento-cta" onclick="scrollToBooking()">
+                        <span data-tr="Daha fazla bilgi" data-en="Learn more" data-it="Scopri di più">Daha fazla bilgi</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                    <div class="bento-hover-effect"></div>
                 </div>
-                
-                <div class="stat-item">
-                    <div class="stat-number" data-tr="15 Milyon" data-en="15 Million" data-it="15 Milioni">15 Milyon</div>
-                    <div class="stat-label" data-tr="izlenme" data-en="views" data-it="visualizzazioni">izlenme</div>
+
+                <!-- 15 Million Views Card -->
+                <div class="bento-card bento-card-medium">
+                    <div class="bento-content">
+                        <div class="bento-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                        </div>
+                        <h3 class="bento-title" data-tr="15 Milyon" data-en="15 Million" data-it="15 Milioni">15 Milyon</h3>
+                        <p class="bento-description" data-tr="izlenme" data-en="views" data-it="visualizzazioni">izlenme</p>
+                    </div>
+                    <button class="bento-cta" onclick="scrollToBooking()">
+                        <span data-tr="Daha fazla bilgi" data-en="Learn more" data-it="Scopri di più">Daha fazla bilgi</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                    <div class="bento-hover-effect"></div>
                 </div>
-                
-                <div class="stat-item">
-                    <div class="stat-number">20+</div>
-                    <div class="stat-label" data-tr="İçerik üretici" data-en="Content creators" data-it="Content creator">İçerik üretici</div>
+
+                <!-- 20+ Content Creators Card -->
+                <div class="bento-card bento-card-small">
+                    <div class="bento-content">
+                        <div class="bento-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="6" cy="6" r="3"/>
+                                <circle cx="6" cy="18" r="3"/>
+                                <line x1="20" y1="4" x2="8.12" y2="15.88"/>
+                                <line x1="14.47" y1="14.48" x2="20" y2="20"/>
+                                <line x1="8.12" y1="8.12" x2="12" y2="12"/>
+                            </svg>
+                        </div>
+                        <h3 class="bento-title">20+</h3>
+                        <p class="bento-description" data-tr="İçerik üretici" data-en="Content creators" data-it="Content creator">İçerik üretici</p>
+                    </div>
+                    <button class="bento-cta" onclick="scrollToBooking()">
+                        <span data-tr="Daha fazla bilgi" data-en="Learn more" data-it="Scopri di più">Daha fazla bilgi</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                    <div class="bento-hover-effect"></div>
                 </div>
-                
-                <div class="stat-item">
-                    <div class="stat-number" data-tr="5 Milyon TL" data-en="100,000+ USD" data-it="100.000+ EUR">5 Milyon TL</div>
-                    <div class="stat-label" data-tr="kazandırıldı" data-en="earned" data-it="guadagnati">kazandırıldı</div>
+
+                <!-- 100,000+ USD Earned Card -->
+                <div class="bento-card bento-card-medium-alt">
+                    <div class="bento-content">
+                        <div class="bento-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <h3 class="bento-title" data-tr="5 Milyon TL" data-en="100,000+ USD" data-it="100.000+ EUR">5 Milyon TL</h3>
+                        <p class="bento-description" data-tr="kazandırıldı" data-en="earned" data-it="guadagnati">kazandırıldı</p>
+                    </div>
+                    <button class="bento-cta" onclick="scrollToBooking()">
+                        <span data-tr="Daha fazla bilgi" data-en="Learn more" data-it="Scopri di più">Daha fazla bilgi</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                    <div class="bento-hover-effect"></div>
                 </div>
             </div>
 

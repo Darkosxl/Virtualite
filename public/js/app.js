@@ -42,6 +42,17 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// Function to scroll to booking form
+function scrollToBooking() {
+    const bookingForm = document.getElementById('unified-booking-form');
+    if (bookingForm) {
+        bookingForm.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+    }
+}
+
 // Helper function to get date without time component
 function getDateOnly(date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -638,7 +649,7 @@ function setupVideoHoverControls() {
 
 // Smart animation pausing based on visibility
 function setupSmartAnimations() {
-    const animatedElements = document.querySelectorAll('.hero, .hero h1, .scroll-indicator');
+    const animatedElements = document.querySelectorAll('.hero, .hero h1');
     
     const animationObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
