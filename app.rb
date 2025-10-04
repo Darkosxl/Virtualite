@@ -19,10 +19,11 @@ set :sessions, true
 set :host_authorization, { permitted_hosts: [] }
 
 # Puma configuration - single process mode to avoid fork issues
+# max_threads should match or be <= DB pool size to prevent connection exhaustion
 set :server_settings, {
   workers: 0,  # No worker processes (single process mode)
   min_threads: 0,
-  max_threads: 5
+  max_threads: 2  # Match DB pool size (2)
 }
 
 # Production optimizations
@@ -42,6 +43,23 @@ $fb_tracker = FacebookTracker.new
 $google_sheets = GoogleSheetsIntegration.new
 configure :development do
   set :host_authorization, { permitted_hosts: [] }
+end
+
+# Graceful shutdown handlers - close DB connections when container stops
+at_exit do
+  $db.shutdown if $db
+end
+
+Signal.trap("SIGTERM") do
+  puts "⚠️  SIGTERM received - shutting down gracefully..."
+  $db.shutdown if $db
+  exit(0)
+end
+
+Signal.trap("SIGINT") do
+  puts "⚠️  SIGINT received - shutting down gracefully..."
+  $db.shutdown if $db
+  exit(0)
 end
 # Mail configuration - configure once at startup
 begin

@@ -9,13 +9,17 @@ class Database
   def initialize
     # Create connection pool with size limit
     # Pool size should be <= your Postgres pooler's max_clients
-    @pool = ConnectionPool.new(size: 5, timeout: 5) do
+    # Using size: 2 for free tier Supabase (conservative to avoid MaxClients error)
+    @pool = ConnectionPool.new(size: 2, timeout: 5) do
       PG.connect(ENV['POSTGRES_URL'])
     end
-    
+
     # Setup table using a connection from the pool
     with_connection { |conn| setup_table(conn) }
-    puts "✅ Database connection pool initialized (size: 5)"
+    puts "✅ Database connection pool initialized (size: 2)"
+
+    # Start connection reaper thread to prevent stale connections
+    start_connection_reaper
   end
 
   # Execute block with a connection from the pool
@@ -58,6 +62,31 @@ class Database
     conn.exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS special_note TEXT DEFAULT ''")
   rescue PG::Error => e
     puts "Table setup: #{e.message}" unless e.message.include?('already exists')
+  end
+
+  # Graceful shutdown - close all pool connections
+  def shutdown
+    puts "🛑 Shutting down database connection pool..."
+    @reaper_thread.kill if @reaper_thread
+    @pool.shutdown { |conn| conn.close rescue nil }
+    puts "✅ Database pool closed"
+  end
+
+  # Connection reaper - pings connections periodically to prevent stale/idle timeouts
+  def start_connection_reaper
+    @reaper_thread = Thread.new do
+      loop do
+        sleep 300 # Every 5 minutes
+        begin
+          with_connection { |conn| conn.exec('SELECT 1') }
+          puts "🔄 Connection reaper: pool health check OK"
+        rescue => e
+          puts "⚠️  Connection reaper error: #{e.message}"
+        end
+      end
+    rescue => e
+      puts "❌ Reaper thread died: #{e.message}"
+    end
   end
 
   public
