@@ -320,245 +320,148 @@ document.querySelectorAll('.time-slot').forEach(slot => {
 });
 
 
-// Three.js Scene for floating GLB models
-let canvas, scene, camera, renderer, loader, floatingModels = [];
-let is3DActive = false;
-let animationId = null;
+// WebGL Shader Animation for hero section
+let shaderCanvas, gl, shaderProgram, animationId = null;
+let isShaderActive = false;
+let startTime = Date.now();
 
-function initThreeJS() {
-    // Check if THREE is loaded
-    if (typeof THREE === 'undefined') {
-        console.error('❌ THREE.js library not loaded!');
+function initShaderAnimation() {
+    shaderCanvas = document.getElementById('shader-canvas');
+    if (!shaderCanvas) {
+        console.error('❌ Shader canvas not found!');
         return false;
     }
-    console.log('✅ THREE.js library loaded');
 
-    canvas = document.getElementById('three-canvas');
-    if (!canvas) {
-        console.error('❌ Three.js canvas not found! Canvas element with id="three-canvas" does not exist in DOM');
-        console.log('Available elements with "canvas" in id:', 
-            Array.from(document.querySelectorAll('[id*="canvas"]')).map(el => el.id));
+    gl = shaderCanvas.getContext('webgl') || shaderCanvas.getContext('experimental-webgl');
+    if (!gl) {
+        console.error('❌ WebGL not supported!');
         return false;
     }
-    console.log('✅ Canvas element found:', canvas);
 
-    console.log('🎨 Initializing Three.js scene...');
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+    // Set canvas size
+    shaderCanvas.width = window.innerWidth;
+    shaderCanvas.height = window.innerHeight;
+    gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
 
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000000, 0);
+    // Vertex shader
+    const vertexShaderSource = `
+        attribute vec2 position;
+        void main() {
+            gl_Position = vec4(position, 0.0, 1.0);
+        }
+    `;
 
-    // Add lighting to show textures properly
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
+    // Fragment shader - the colorful animation
+    const fragmentShaderSource = `
+        #ifdef GL_ES
+        precision highp float;
+        #endif
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(10, 10, 5);
-    scene.add(directionalLight);
+        #define TWO_PI 6.2831853072
+        #define PI 3.14159265359
 
-    // GLTFLoader for loading .glb files
-    loader = new THREE.GLTFLoader();
+        uniform vec2 resolution;
+        uniform float time;
 
-    // Set camera position
-    camera.position.z = 15;
+        void main(void) {
+            vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+            float t = time * 0.05;
+            float lineWidth = 0.002;
 
+            vec3 color = vec3(0.0);
+            for(int j = 0; j < 3; j++){
+                for(int i = 0; i < 5; i++){
+                    color[j] += lineWidth * float(i * i) / abs(fract(t - 0.01 * float(j) + float(i) * 0.01) * 5.0 - length(uv) + mod(uv.x + uv.y, 0.2));
+                }
+            }
+
+            gl_FragColor = vec4(color[0], color[1], color[2], 1.0);
+        }
+    `;
+
+    // Compile shaders
+    const vertexShader = compileShader(gl.VERTEX_SHADER, vertexShaderSource);
+    const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
+
+    if (!vertexShader || !fragmentShader) {
+        return false;
+    }
+
+    // Create and link program
+    shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+        console.error('❌ Program link error:', gl.getProgramInfoLog(shaderProgram));
+        return false;
+    }
+
+    gl.useProgram(shaderProgram);
+
+    // Set up geometry (full-screen quad)
+    const positions = new Float32Array([
+        -1, -1,
+         1, -1,
+        -1,  1,
+         1,  1
+    ]);
+
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+    const positionLocation = gl.getAttribLocation(shaderProgram, 'position');
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+    console.log('✅ Shader animation initialized');
     return true;
 }
 
-// Load available GLB models from server
-async function loadAvailableModels() {
-    console.log('📦 Fetching available models from /api/models...');
-    try {
-        const response = await fetch('/api/models');
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const models = await response.json();
-        
-        console.log('📦 Available models:', models);
-        console.log(`📦 Found ${models.length} model(s)`);
-        
-        // Define specific model-to-position mapping
-        const modelPositions = [
-            { name: 'tiktok', position: 0 },      // Top left
-            { name: 'davinci', position: 1 },     // Top right
-            { name: 'insta', position: 2 },       // Center left
-            { name: 'premiere', position: 3 },    // Center right
-            { name: 'youtube', position: 4 },     // Bottom left
-            { name: 'capcut', position: 5 }       // Bottom right
-        ];
-        
-        // Load models in specific positions
-        for (const modelInfo of models) {
-            const modelMapping = modelPositions.find(mapping => 
-                modelInfo.name.toLowerCase().includes(mapping.name)
-            );
-            
-            if (modelMapping) {
-                await loadAndCreateFloatingModel(modelInfo.url, modelInfo.name, modelMapping.position, 6);
-            }
-        }
-        
-        // If no models found, create a fallback
-        if (models.length === 0) {
-            console.log('No GLB models found in assets folder');
-        }
-        
-    } catch (error) {
-        console.error('Failed to load models list:', error);
+function compileShader(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error('❌ Shader compile error:', gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+    }
+
+    return shader;
+}
+
+function animateShader() {
+    if (!isShaderActive) return;
+
+    animationId = requestAnimationFrame(animateShader);
+
+    const currentTime = (Date.now() - startTime) * 0.001; // Convert to seconds
+
+    // Set uniforms
+    const resolutionLocation = gl.getUniformLocation(shaderProgram, 'resolution');
+    const timeLocation = gl.getUniformLocation(shaderProgram, 'time');
+
+    gl.uniform2f(resolutionLocation, shaderCanvas.width, shaderCanvas.height);
+    gl.uniform1f(timeLocation, currentTime);
+
+    // Draw
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+function startShaderAnimation() {
+    if (!isShaderActive) {
+        isShaderActive = true;
+        startTime = Date.now();
+        animateShader();
     }
 }
 
-// Load GLB model and create floating instances
-async function loadAndCreateFloatingModel(modelUrl, modelName, modelIndex, totalModels) {
-    return new Promise((resolve, reject) => {
-        loader.load(
-            modelUrl,
-            (gltf) => {
-                console.log(`Successfully loaded model: ${modelName}`);
-                
-                // Get specific position for this model
-                const position = getModelPosition(modelIndex);
-                
-                // Skip duck model
-                if (modelName.includes('duck')) {
-                    resolve(gltf);
-                    return;
-                }
-                
-                // All models same volume - adjust scale based on model type
-                let scale = 1.5; // Base scale for consistent volume
-                if (modelName.includes('tiktok')) scale = 0.7; // TikTok is naturally larger
-                else if (modelName.includes('youtube')) scale = 18.0; // YouTube is naturally smaller
-                else if (modelName.includes('davinci')) scale = 1.8; // DaVinci medium size
-                else if (modelName.includes('capcut')) scale = 1.6; // CapCut medium size
-                else if (modelName.includes('premiere')) scale = 1.4; // Premiere Pro medium size
-                else if (modelName.includes('insta')) scale = 1.7; // Instagram medium size
-                else return;
-                
-                const modelClone = gltf.scene.clone();
-                
-                // Fixed positions
-                modelClone.position.set(
-                    position.x,
-                    position.y,
-                    position.z
-                );
-                
-                // All models face toward screen with slight variations
-                let rotationY = 0;
-                let rotationX = 0;
-                let rotationZ = 0;
-                
-                if (modelName.includes('tiktok')) {
-                    rotationY = Math.PI * 0.1; // Slight turn toward viewer
-                    rotationX = Math.PI * 0.05; // Very slight tilt
-                } else if (modelName.includes('youtube')) {
-                    rotationY = Math.PI * 0.2; // Turn toward viewer
-                    rotationX = Math.PI * 0.1; // Slight upward tilt
-                } else if (modelName.includes('davinci')) {
-                    rotationY = Math.PI * 0.15; // Face viewer
-                    rotationX = Math.PI * -0.05; // Slight downward tilt
-                } else if (modelName.includes('capcut')) {
-                    rotationY = Math.PI * -0.15; // Face viewer
-                    rotationX = Math.PI * 0.06; // Slight tilt
-                } else if (modelName.includes('premiere')) {
-                    rotationY = Math.PI * 0.06; // Face viewer
-                    rotationX = Math.PI * 0.03; // Very slight tilt
-                } else if (modelName.includes('insta')) {
-                    rotationY = Math.PI * 0.37; // Face viewer
-                    rotationX = Math.PI * 0.04; // Slight tilt
-                } else {
-                    return;
-                }
-                
-                modelClone.rotation.set(rotationX, rotationY, rotationZ);
-                
-                modelClone.scale.set(scale, scale, scale);
-                
-                // Store animation data for gentle bobbing
-                modelClone.userData = {
-                    originalY: modelClone.position.y,
-                    originalRotY: modelClone.rotation.y,
-                    floatSpeed: 1.0 + (modelIndex * 0.2),
-                    rotateSpeed: 0.3 + (modelIndex * 0.1),
-                    fixedPosition: { ...position },
-                    modelName: modelName
-                };
-                
-                scene.add(modelClone);
-                floatingModels.push(modelClone);
-                
-                resolve(gltf);
-            },
-            (progress) => {
-                console.log(`Loading progress for ${modelName}:`, (progress.loaded / progress.total * 100) + '%');
-            },
-            (error) => {
-                console.error(`Failed to load model ${modelName}:`, error);
-                reject(error);
-            }
-        );
-    });
-}
-
-// Get specific position for each model by index - 6 positions in zigzag pattern
-function getModelPosition(modelIndex) {
-    // Fixed positions for 6 models in zigzag pattern at consistent depth
-    const positions = [
-        { x: -14, y: 8, z: -4 },   // Top left (model 0)
-        { x: 14, y: 8, z: -4 },    // Top right (model 1)  
-        { x: -18, y: 1, z: -4 },   // Center left (model 2) - more left
-        { x: 18, y: 1, z: -4 },    // Center right (model 3) - more right
-        { x: -14, y: -6, z: -4 },  // Bottom left (model 4)
-        { x: 14, y: -6, z: -4 }    // Bottom right (model 5)
-    ];
-    
-    // Return position based on model index, with fallback
-    return positions[modelIndex % positions.length];
-}
-
-// Animation loop
-function animate() {
-    if (!is3DActive) return; // Only animate when 3D scene is active
-    
-    animationId = requestAnimationFrame(animate);
-    
-    const time = Date.now() * 0.001;
-    
-    floatingModels.forEach((model, index) => {
-        // Gentle bobbing motion up and down (60fps smooth)
-        const bobOffset = Math.sin(time * model.userData.floatSpeed + index * 1.5) * 1.2;
-        model.position.y = model.userData.originalY + bobOffset;
-        
-        // Keep fixed horizontal position
-        model.position.x = model.userData.fixedPosition.x;
-        model.position.z = model.userData.fixedPosition.z;
-        
-        // Gentle rotation left and right
-        const rotationOffset = Math.sin(time * model.userData.rotateSpeed + index * 2) * 0.15;
-        model.rotation.y = model.userData.originalRotY + rotationOffset;
-        
-        // Very subtle tilt during bobbing
-        model.rotation.z = Math.sin(time * model.userData.floatSpeed * 0.8 + index) * 0.08;
-    });
-    
-    renderer.render(scene, camera);
-}
-
-// Start 3D animation
-function start3DAnimation() {
-    if (!is3DActive) {
-        is3DActive = true;
-        animate();
-    }
-}
-
-// Stop 3D animation  
-function stop3DAnimation() {
-    is3DActive = false;
+function stopShaderAnimation() {
+    isShaderActive = false;
     if (animationId) {
         cancelAnimationFrame(animationId);
         animationId = null;
@@ -568,37 +471,33 @@ function stop3DAnimation() {
 // Handle window resize - OPTIMIZED
 let resizeTimeout;
 window.addEventListener('resize', () => {
-    // Debounce resize events for better performance
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        if (shaderCanvas && gl) {
+            shaderCanvas.width = window.innerWidth;
+            shaderCanvas.height = window.innerHeight;
+            gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
+        }
     }, 100);
 });
 
-// Models stay in fixed positions
-
-// Intersection Observer for smart 3D loading
+// Intersection Observer for smart shader loading
 function setupIntersectionObserver() {
     const heroSection = document.querySelector('.hero');
-    
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                // Hero is visible - start 3D animations at 60fps
-                start3DAnimation();
+                startShaderAnimation();
             } else {
-                // Hero not visible - pause 3D animations
-                stop3DAnimation();
+                stopShaderAnimation();
             }
         });
     }, {
-        threshold: 0.1, // Trigger when 10% of hero is visible
-        rootMargin: '100px' // Start loading slightly before entering viewport
+        threshold: 0.1,
+        rootMargin: '100px'
     });
-    
+
     if (heroSection) {
         observer.observe(heroSection);
     }
@@ -718,21 +617,21 @@ function setupPerformanceMonitoring() {
         }
     }
     
-    // Start FPS monitoring when 3D scene is active
-    if (is3DActive) {
+    // Start FPS monitoring when shader animation is active
+    if (isShaderActive) {
         requestAnimationFrame(measureFPS);
     }
     
     // Memory cleanup on page unload
     window.addEventListener('beforeunload', () => {
-        // Stop all animations
-        stop3DAnimation();
-        
-        // Clean up 3D resources
-        if (renderer) {
-            renderer.dispose();
+        // Stop shader animation
+        stopShaderAnimation();
+
+        // Clean up WebGL resources
+        if (gl && shaderProgram) {
+            gl.deleteProgram(shaderProgram);
         }
-        
+
         // Clean up video elements
         document.querySelectorAll('.lazy-video').forEach(video => {
             video.pause();
@@ -742,119 +641,7 @@ function setupPerformanceMonitoring() {
     });
 }
 
-// Sunglasses animation in calendar section
-function setupSunglassesAnimation() {
-    const canvas = document.getElementById('sunglasses-canvas');
-    if (!canvas) return;
-    
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
-    
-    renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
-    renderer.setClearColor(0x000000, 0);
-    
-    // Add lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
-    
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(10, 10, 5);
-    scene.add(directionalLight);
-    
-    let sunglassesModel = null;
-    let isAnimating = false;
-    
-    // Load sunglasses model
-    const loader = new THREE.GLTFLoader();
-    loader.load('/assets/sunglasses.glb', (gltf) => {
-        sunglassesModel = gltf.scene;
-        sunglassesModel.scale.set(0.05, 0.05, 0.05); // Half the size - even tinier sunglasses
-        sunglassesModel.position.set(35, 0, 0); // Start wayyy more to the right
-        sunglassesModel.visible = false; // Hidden by default
-        scene.add(sunglassesModel);
-        
-        console.log('Tiny sunglasses model loaded');
-    }, undefined, (error) => {
-        console.error('Error loading sunglasses model:', error);
-    });
-    
-    camera.position.z = 10;
-    
-    // Animation function
-    function animateSunglasses() {
-        if (!sunglassesModel || isAnimating) return;
-        
-        isAnimating = true;
-        sunglassesModel.visible = true;
-        sunglassesModel.position.x = 15; // Start from RIGHT (off-screen)
-        
-        const startTime = Date.now();
-        const duration = 4500; // 4.5 seconds flight time
-        
-        function flyAnimation() {
-            const elapsed = Date.now() - startTime;
-            const progress = elapsed / duration;
-            
-            if (progress < 1) {
-                // Simple RIGHT to LEFT movement - extended 20 units more left
-                sunglassesModel.position.x = 15 - (50 * progress); // +15 to -35 
-                sunglassesModel.rotation.y += 0.1; // Smooth rotation
-                
-                renderer.render(scene, camera);
-                requestAnimationFrame(flyAnimation);
-            } else {
-                // Simply hide it - no complex removal
-                sunglassesModel.visible = false;
-                sunglassesModel.position.x = 15; // Reset position for next time
-                isAnimating = false;
-            }
-        }
-        
-        flyAnimation();
-    }
-    
-    // Setup intersection observer to only animate when calendar is visible
-    let animationInterval = null;
-    
-    const calendarSection = document.querySelector('.contact-section');
-    const calendarObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                // Calendar is visible - start sunglasses animation
-                if (!animationInterval) {
-                    animationInterval = setInterval(animateSunglasses, 12000);
-                    // Start first animation immediately
-                    setTimeout(animateSunglasses, 1000);
-                }
-            } else {
-                // Calendar not visible - stop sunglasses animation
-                if (animationInterval) {
-                    clearInterval(animationInterval);
-                    animationInterval = null;
-                }
-            }
-        });
-    }, {
-        threshold: 0.3 // Trigger when 30% of calendar section is visible
-    });
-    
-    if (calendarSection) {
-        calendarObserver.observe(calendarSection);
-    }
-    
-    // Initial render
-    renderer.render(scene, camera);
-    
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        if (canvas.offsetWidth > 0 && canvas.offsetHeight > 0) {
-            camera.aspect = canvas.offsetWidth / canvas.offsetHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
-        }
-    });
-}
+// Sunglasses animation removed (previously used Three.js)
 
 // Initialize everything immediately when script loads (DOM is already ready)
 (function() {
@@ -880,23 +667,15 @@ function setupSunglassesAnimation() {
     // Setup hover-based video controls for 60fps performance
     setupVideoHoverControls();
 
-    // Setup sunglasses animation in calendar section
-    setupSunglassesAnimation();
-
-    // Initialize Three.js scene first, then load 3D models
-    console.log('🚀 Starting Three.js initialization...');
-    if (initThreeJS()) {
-        console.log('✅ Three.js initialized successfully, loading models...');
-        loadAvailableModels().then(() => {
-            console.log('✅ All models loaded, setting up smart loading');
-            setupIntersectionObserver();
-            // Start immediately since hero is likely visible on load
-            start3DAnimation();
-        }).catch(err => {
-            console.error('❌ Error loading models:', err);
-        });
+    // Initialize WebGL shader animation
+    console.log('🚀 Starting shader animation initialization...');
+    if (initShaderAnimation()) {
+        console.log('✅ Shader animation initialized successfully');
+        setupIntersectionObserver();
+        // Start immediately since hero is likely visible on load
+        startShaderAnimation();
     } else {
-        console.error('❌ Failed to initialize Three.js - see errors above');
+        console.error('❌ Failed to initialize shader animation - see errors above');
     }
 })();
 
