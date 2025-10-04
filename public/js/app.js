@@ -343,32 +343,34 @@ function initShaderAnimation() {
         return false;
     }
 
-    // Calculate hero center and radius for perfect circle
-    const viewportHeight = window.innerHeight;
-    const heroCenterY = viewportHeight * 0.5; // Hero center is at 50vh from top
+    // FIXED center point approach - doesn't follow viewport
+    // Define a FIXED position on the page for circle center (e.g., 50vh from document top)
+    const fixedCenterY = window.innerHeight * 0.5; // Fixed at 50vh of initial viewport
     const pageHeight = document.documentElement.scrollHeight;
     
-    // Radius = distance from hero center to bottom of page
-    const radius = pageHeight - heroCenterY;
+    // Make canvas cover entire page
+    shaderCanvas.width = window.innerWidth;
+    shaderCanvas.height = pageHeight;
     
-    // Canvas is a SQUARE with dimensions 2R x 2R (diameter)
-    const canvasSize = radius * 2;
-    shaderCanvas.width = canvasSize;
-    shaderCanvas.height = canvasSize;
-    
-    // Position canvas so its CENTER aligns with hero section center
-    // Canvas top = hero center Y - radius
-    shaderCanvas.style.top = `${heroCenterY - radius}px`;
-    shaderCanvas.style.left = `${(window.innerWidth - canvasSize) / 2}px`;
+    // Position canvas to cover entire page (fixed position)
+    shaderCanvas.style.top = '0px';
+    shaderCanvas.style.left = '0px';
+    shaderCanvas.style.width = '100%';
+    shaderCanvas.style.height = `${pageHeight}px`;
     
     gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
     
-    console.log('📐 Canvas Setup:', {
-        heroCenterY,
-        radius,
-        canvasSize,
-        canvasTop: heroCenterY - radius,
-        pageHeight
+    // Store fixed center for shader to use
+    window.shaderFixedCenter = {
+        x: window.innerWidth / 2,
+        y: fixedCenterY
+    };
+    
+    console.log('📐 Canvas Setup (FIXED CENTER):', {
+        fixedCenterY,
+        canvasWidth: shaderCanvas.width,
+        canvasHeight: shaderCanvas.height,
+        fixedCenter: window.shaderFixedCenter
     });
 
     // Vertex shader
@@ -379,7 +381,7 @@ function initShaderAnimation() {
         }
     `;
 
-    // Fragment shader - simple circle centered at canvas center
+    // Fragment shader - FIXED center point
     const fragmentShaderSource = `
         #ifdef GL_ES
         precision highp float;
@@ -389,16 +391,16 @@ function initShaderAnimation() {
         #define PI 3.14159265359
 
         uniform vec2 resolution;
+        uniform vec2 fixedCenter;  // Fixed center point in pixel coordinates
         uniform float time;
 
         void main(void) {
-            // Canvas center is our circle center (perfect and simple!)
-            vec2 center = resolution * 0.5;
-            vec2 pixelPos = gl_FragCoord.xy - center;
+            // Use FIXED center point (not canvas center)
+            vec2 pixelPos = gl_FragCoord.xy - fixedCenter;
 
-            // Normalize by radius (half of canvas size) to keep perfect circle
-            float radius = resolution.x * 0.5; // Width = Height, so either works
-            vec2 uv = pixelPos / radius;
+            // Normalize by viewport width to keep aspect ratio
+            float normalizeRadius = resolution.x * 0.5;
+            vec2 uv = pixelPos / normalizeRadius;
             
             float t = time * 0.05;
             float lineWidth = 0.002;
@@ -478,9 +480,11 @@ function animateShader() {
 
     // Set uniforms
     const resolutionLocation = gl.getUniformLocation(shaderProgram, 'resolution');
+    const fixedCenterLocation = gl.getUniformLocation(shaderProgram, 'fixedCenter');
     const timeLocation = gl.getUniformLocation(shaderProgram, 'time');
 
     gl.uniform2f(resolutionLocation, shaderCanvas.width, shaderCanvas.height);
+    gl.uniform2f(fixedCenterLocation, window.shaderFixedCenter.x, window.shaderFixedCenter.y);
     gl.uniform1f(timeLocation, currentTime);
 
     // Draw
@@ -503,23 +507,26 @@ function stopShaderAnimation() {
     }
 }
 
-// Handle window resize - OPTIMIZED
+// Handle window resize - OPTIMIZED with FIXED CENTER
 let resizeTimeout;
 window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
         if (shaderCanvas && gl) {
-            // Recalculate canvas size and position
-            const viewportHeight = window.innerHeight;
-            const heroCenterY = viewportHeight * 0.5;
+            // Recalculate for new dimensions but keep center FIXED
+            const fixedCenterY = window.innerHeight * 0.5; // Fixed at 50vh
             const pageHeight = document.documentElement.scrollHeight;
-            const radius = pageHeight - heroCenterY;
-            const canvasSize = radius * 2;
             
-            shaderCanvas.width = canvasSize;
-            shaderCanvas.height = canvasSize;
-            shaderCanvas.style.top = `${heroCenterY - radius}px`;
-            shaderCanvas.style.left = `${(window.innerWidth - canvasSize) / 2}px`;
+            shaderCanvas.width = window.innerWidth;
+            shaderCanvas.height = pageHeight;
+            shaderCanvas.style.width = '100%';
+            shaderCanvas.style.height = `${pageHeight}px`;
+            
+            // Update fixed center coordinates
+            window.shaderFixedCenter = {
+                x: window.innerWidth / 2,
+                y: fixedCenterY
+            };
             
             gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
         }
