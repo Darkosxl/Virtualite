@@ -75,14 +75,12 @@
             }
         }
 
-        /* WebGL Shader Canvas - fixed to viewport, behind all content */
+        /* WebGL Shader Canvas - absolute positioned, sized and centered on hero */
         #shader-canvas {
-            position: fixed;
-            inset: 0;
-            width: 100vw;
-            height: 100vh;
+            position: absolute;
             pointer-events: none;
             z-index: 0;
+            /* Size and position set by JavaScript */
         }
 
         /* Ensure content appears above shader */
@@ -502,7 +500,6 @@
         let shaderCanvas, gl, shaderProgram, shaderAnimationId = null;
         let isShaderActive = false;
         let fixedCenter = { x: 0, y: 0 };
-        let scrollX = 0, scrollY = 0;
 
         function initShaderAnimation() {
             console.log('🚀 Starting shader animation initialization in index.html...');
@@ -543,48 +540,69 @@
 
             const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-            function sizeCanvasToViewport() {
-                shaderCanvas.width = Math.floor(window.innerWidth * dpr);
-                shaderCanvas.height = Math.floor(window.innerHeight * dpr);
-                gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
-                console.log('📐 Canvas sized:', shaderCanvas.width, 'x', shaderCanvas.height);
+            // Get hero element first to calculate canvas size and position
+            const hero = document.querySelector('.hero');
+            if (!hero) {
+                console.warn('⚠️ Hero element not found');
+                return false;
             }
 
-            sizeCanvasToViewport();
+            function sizeAndPositionCanvas() {
+                // Get document height
+                const docHeight = Math.max(
+                    document.body.scrollHeight,
+                    document.body.offsetHeight,
+                    document.documentElement.clientHeight,
+                    document.documentElement.scrollHeight,
+                    document.documentElement.offsetHeight
+                );
+
+                // Canvas is square: 2 * document height
+                const canvasSize = docHeight * 2;
+
+                // Get hero center in page coordinates (not viewport)
+                const heroRect = hero.getBoundingClientRect();
+                const heroCenterX = window.scrollX + heroRect.left + heroRect.width / 2;
+                const heroCenterY = window.scrollY + heroRect.top + heroRect.height / 2;
+
+                // Position canvas so its center aligns with hero center
+                const canvasLeft = heroCenterX - (canvasSize / 2);
+                const canvasTop = heroCenterY - (canvasSize / 2);
+
+                // Set canvas CSS positioning
+                shaderCanvas.style.width = canvasSize + 'px';
+                shaderCanvas.style.height = canvasSize + 'px';
+                shaderCanvas.style.left = canvasLeft + 'px';
+                shaderCanvas.style.top = canvasTop + 'px';
+
+                // Set canvas resolution (with device pixel ratio)
+                shaderCanvas.width = Math.floor(canvasSize * dpr);
+                shaderCanvas.height = Math.floor(canvasSize * dpr);
+                
+                gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
+
+                // Set fixed center to canvas center (in canvas coordinates)
+                fixedCenter = {
+                    x: shaderCanvas.width / 2,
+                    y: shaderCanvas.height / 2
+                };
+
+                console.log('📐 Canvas sized and positioned:', {
+                    cssSize: canvasSize,
+                    resolution: `${shaderCanvas.width} x ${shaderCanvas.height}`,
+                    position: `left: ${canvasLeft}px, top: ${canvasTop}px`,
+                    heroCenter: `${heroCenterX}, ${heroCenterY}`,
+                    canvasCenter: fixedCenter
+                });
+            }
+
+            sizeAndPositionCanvas();
             gl.clearColor(0.0, 0.0, 0.0, 1.0);
             gl.clear(gl.COLOR_BUFFER_BIT);
 
-            function getDocCenter(el) {
-                const rect = el.getBoundingClientRect();
-                const docX = (window.scrollX + rect.left + rect.width / 2) * dpr;
-                const docY = (window.scrollY + rect.top + rect.height / 2) * dpr;
-                return { x: docX, y: docY };
-            }
-
-            const hero = document.querySelector('.hero');
-            if (hero) {
-                fixedCenter = getDocCenter(hero);
-                console.log('🎯 Fixed center set to hero:', fixedCenter);
-
-                new ResizeObserver(() => {
-                    fixedCenter = getDocCenter(hero);
-                }).observe(hero);
-            } else {
-                console.warn('⚠️ Hero element not found, using viewport center');
-                fixedCenter = { x: (window.innerWidth / 2) * dpr, y: (window.innerHeight / 2) * dpr };
-            }
-
-            function updateScrollPosition() {
-                scrollX = window.scrollX * dpr;
-                scrollY = window.scrollY * dpr;
-            }
-            updateScrollPosition();
-
-            window.addEventListener('scroll', updateScrollPosition, { passive: true });
+            // Resize handler
             window.addEventListener('resize', () => {
-                sizeCanvasToViewport();
-                if (hero) fixedCenter = getDocCenter(hero);
-                updateScrollPosition();
+                sizeAndPositionCanvas();
             });
 
             // Vertex shader
@@ -595,7 +613,7 @@
                 }
             `;
 
-            // Fragment shader with BRIGHT colors
+            // Fragment shader with BRIGHT colors - canvas centered on hero
             const fragmentShaderSource = `
                 #ifdef GL_ES
                 precision highp float;
@@ -603,15 +621,17 @@
 
                 #define PI 3.14159265359
 
-                uniform vec2 viewportRes;
-                uniform vec2 fixedCenter;
-                uniform vec2 scrollPx;
+                uniform vec2 canvasRes;    // Canvas resolution
+                uniform vec2 center;       // Center of canvas (where hero is)
                 uniform float time;
 
                 void main(void) {
-                    vec2 fragDoc = gl_FragCoord.xy + scrollPx;
-                    vec2 delta = fragDoc - fixedCenter;
-                    vec2 uv = delta / viewportRes.x;
+                    // Fragment is already in canvas coordinates
+                    // Calculate distance from canvas center (hero position)
+                    vec2 delta = gl_FragCoord.xy - center;
+                    
+                    // Normalize by canvas width for consistent scaling
+                    vec2 uv = delta / canvasRes.x;
 
                     float t = time * 0.05;
                     float lineWidth = 0.008;
@@ -683,14 +703,13 @@
             gl.useProgram(shaderProgram);
             gl.clear(gl.COLOR_BUFFER_BIT);
 
-            const viewportResLocation = gl.getUniformLocation(shaderProgram, 'viewportRes');
-            const fixedCenterLocation = gl.getUniformLocation(shaderProgram, 'fixedCenter');
-            const scrollPxLocation = gl.getUniformLocation(shaderProgram, 'scrollPx');
+            // Set uniforms
+            const canvasResLocation = gl.getUniformLocation(shaderProgram, 'canvasRes');
+            const centerLocation = gl.getUniformLocation(shaderProgram, 'center');
             const timeLocation = gl.getUniformLocation(shaderProgram, 'time');
 
-            gl.uniform2f(viewportResLocation, shaderCanvas.width, shaderCanvas.height);
-            gl.uniform2f(fixedCenterLocation, fixedCenter.x, fixedCenter.y);
-            gl.uniform2f(scrollPxLocation, scrollX, scrollY);
+            gl.uniform2f(canvasResLocation, shaderCanvas.width, shaderCanvas.height);
+            gl.uniform2f(centerLocation, fixedCenter.x, fixedCenter.y);
             gl.uniform1f(timeLocation, currentTime);
 
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
