@@ -380,10 +380,18 @@ function initShaderAnimation() {
         const rect = el.getBoundingClientRect();
         const docX = (window.scrollX + rect.left + rect.width / 2) * dpr;
         const docY = (window.scrollY + rect.top + rect.height / 2) * dpr;
+        console.log('📍 Calculating center from element:', {
+            elementClass: el.className,
+            rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+            scroll: { x: window.scrollX, y: window.scrollY },
+            center: { x: docX, y: docY }
+        });
         return { x: docX, y: docY };
     }
 
     const hero = document.querySelector('.hero');
+    console.log('🔍 Searching for .hero element...', hero ? 'FOUND ✅' : 'NOT FOUND ❌');
+    
     if (hero) {
         fixedCenter = getDocCenter(hero);
         console.log('🎯 Fixed center set to hero:', fixedCenter);
@@ -394,8 +402,10 @@ function initShaderAnimation() {
             console.log('🔄 Fixed center updated:', fixedCenter);
         }).observe(hero);
     } else {
-        console.warn('⚠️ Hero element not found, using viewport center');
+        console.error('❌ CRITICAL: Hero element not found in DOM!');
+        console.log('🔍 Available elements:', document.body.innerHTML.substring(0, 500));
         fixedCenter = { x: (window.innerWidth / 2) * dpr, y: (window.innerHeight / 2) * dpr };
+        console.warn('⚠️ Using fallback viewport center:', fixedCenter);
     }
 
     // Track scroll position in device pixels
@@ -697,6 +707,229 @@ function setupPerformanceMonitoring() {
 
 // Sunglasses animation removed (previously used Three.js)
 
+// Initialize 3D Video Carousel
+function init3DCarousel() {
+    console.log('🎡 Starting 3D carousel initialization...');
+    
+    // 3D Carousel Video Data
+    const carouselVideos = [
+        {
+            id: 'umut',
+            name: 'Umut',
+            thumbnail: '/pictures/umutthumbnail.png',
+            videoSrc: '/videos/umut.mov',
+            aspectRatio: '9-16',
+            width: 250,
+            height: 444
+        },
+        {
+            id: 'baran',
+            name: 'Baran',
+            thumbnail: '/pictures/baranthumbnail.png',
+            videoSrc: '/videos/baran.mov',
+            aspectRatio: '9-16',
+            width: 250,
+            height: 444
+        },
+        {
+            id: 'gulizar',
+            name: 'Gülizar',
+            thumbnail: '/pictures/gulizarthumbnail.png',
+            videoSrc: '/videos/gulizar.mov',
+            aspectRatio: '9-16',
+            width: 250,
+            height: 444
+        },
+        {
+            id: 'ceyda',
+            name: 'Ceyda',
+            thumbnail: '/pictures/ceydathumbnail.png',
+            videoSrc: '/videos/ceyda.mov',
+            aspectRatio: '16-9',
+            width: 350,
+            height: 197
+        }
+    ];
+
+    // Initialize 3D Carousel
+    const cylinder = document.getElementById('carousel-3d');
+    const modal = document.getElementById('videoModal');
+    const modalContent = document.getElementById('videoModalContent');
+    const modalVideo = document.getElementById('modalVideo');
+    const closeBtn = document.getElementById('videoModalClose');
+
+    if (!cylinder) {
+        console.error('❌ Carousel cylinder element not found');
+        return false;
+    }
+    
+    console.log('✅ Carousel cylinder element found:', cylinder);
+
+    const isMobile = window.innerWidth < 640;
+    const cylinderWidth = isMobile ? 1200 : 2000;
+    const faceCount = carouselVideos.length;
+    const faceWidth = cylinderWidth / faceCount;
+    const radius = cylinderWidth / (2 * Math.PI);
+    
+    console.log('🎡 Carousel Setup:', {
+        cylinderWidth,
+        radius,
+        faceCount,
+        faceWidth,
+        isMobile,
+        videoCount: carouselVideos.length
+    });
+
+    let rotation = 0;
+    let isDragging = false;
+    let startX = 0;
+    let currentX = 0;
+    let velocity = 0;
+    let animationId = null;
+
+    // Generate carousel faces
+    carouselVideos.forEach((video, index) => {
+        const face = document.createElement('div');
+        face.className = 'carousel-3d-face';
+        face.style.width = `${video.width}px`;
+        face.style.height = `${video.height}px`;
+        
+        const angle = (index * 360) / faceCount;
+        face.style.transform = `
+            translate(-50%, -50%)
+            rotateY(${angle}deg)
+            translateZ(${radius}px)
+        `;
+
+        console.log(`🎴 Creating carousel face ${index + 1}/${faceCount}:`, {
+            name: video.name,
+            angle: angle,
+            width: video.width,
+            height: video.height,
+            transform: face.style.transform
+        });
+
+        const button = document.createElement('button');
+        button.setAttribute('aria-label', `Play ${video.name} video`);
+        button.dataset.videoSrc = video.videoSrc;
+        button.dataset.aspectRatio = video.aspectRatio;
+
+        const img = document.createElement('img');
+        img.src = video.thumbnail;
+        img.alt = `${video.name} video thumbnail`;
+        img.loading = 'lazy';
+
+        button.appendChild(img);
+        face.appendChild(button);
+        cylinder.appendChild(face);
+
+        // Click to play video in modal
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openVideoModal(video.videoSrc, video.aspectRatio);
+        });
+    });
+
+    console.log(`✅ Created ${faceCount} carousel faces successfully`);
+
+    // Apply initial rotation
+    function updateRotation() {
+        cylinder.style.transform = `rotateY(${rotation}deg)`;
+    }
+
+    // Drag handlers
+    function onDragStart(e) {
+        isDragging = true;
+        startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        currentX = startX;
+        velocity = 0;
+        cylinder.style.transition = 'none';
+        
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+    }
+
+    function onDrag(e) {
+        if (!isDragging) return;
+        
+        e.preventDefault();
+        const x = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        const deltaX = x - currentX;
+        
+        rotation += deltaX * 0.3;
+        velocity = deltaX * 0.3;
+        currentX = x;
+        
+        updateRotation();
+    }
+
+    function onDragEnd() {
+        if (!isDragging) return;
+        
+        isDragging = false;
+        cylinder.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        
+        // Apply momentum
+        if (Math.abs(velocity) > 0.5) {
+            rotation += velocity * 15;
+            updateRotation();
+        }
+    }
+
+    // Event listeners for drag
+    cylinder.addEventListener('mousedown', onDragStart);
+    cylinder.addEventListener('mousemove', onDrag);
+    cylinder.addEventListener('mouseup', onDragEnd);
+    cylinder.addEventListener('mouseleave', onDragEnd);
+
+    // Touch events
+    cylinder.addEventListener('touchstart', onDragStart, { passive: false });
+    cylinder.addEventListener('touchmove', onDrag, { passive: false });
+    cylinder.addEventListener('touchend', onDragEnd);
+
+    // Video modal functions
+    function openVideoModal(videoSrc, aspectRatio) {
+        modalVideo.src = videoSrc;
+        modalContent.className = 'video-modal-content aspect-' + aspectRatio;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        modalVideo.play().catch(e => {
+            console.log('Video autoplay prevented:', e);
+        });
+    }
+
+    function closeVideoModal() {
+        modal.classList.remove('active');
+        modalVideo.pause();
+        modalVideo.src = '';
+        document.body.style.overflow = '';
+    }
+
+    // Close modal handlers
+    closeBtn.addEventListener('click', closeVideoModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeVideoModal();
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeVideoModal();
+        }
+    });
+
+    // Initialize rotation
+    updateRotation();
+    
+    console.log('✅ 3D carousel initialized successfully');
+    return true;
+}
+
 // Main initialization function - called explicitly from index.html
 function initializeApp() {
     console.log('app.js initializeApp() called...');
@@ -729,6 +962,13 @@ function initializeApp() {
         startShaderAnimation();
     } else {
         console.error('❌ Failed to initialize shader animation - see errors above');
+    }
+    
+    // Initialize 3D Carousel
+    if (init3DCarousel()) {
+        console.log('✅ 3D Carousel initialization complete');
+    } else {
+        console.error('❌ Failed to initialize 3D carousel');
     }
 }
 

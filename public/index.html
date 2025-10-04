@@ -225,51 +225,61 @@
                 document.getElementById('footer-container').innerHTML = html;
             })
         ]).then(() => {
-            // All sections loaded - NOW initialize everything
+            // All sections loaded - NOW wait for browser to render before initializing
+            console.log('📦 All sections fetched, waiting for DOM to render...');
+            
+            // Use double requestAnimationFrame to ensure DOM is fully rendered
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    console.log('✅ DOM rendered, starting initialization...');
+                    
+                    // 1. Initialize language switching
+                    initLanguageSwitching();
 
-            // 1. Initialize language switching
-            initLanguageSwitching();
+                    // 2. Initialize video carousel
+                    initVideoCarousel();
 
-            // 2. Initialize video carousel
-            initVideoCarousel();
+                    // 3. Initialize video-lite system
+                    initVideoLite();
 
-            // 3. Initialize video-lite system
-            initVideoLite();
+                    // 4. Execute inline scripts from loaded sections (innerHTML doesn't auto-execute scripts)
+                    const bookingFormContainer = document.getElementById('booking-form-container');
+                    const inlineScripts = bookingFormContainer.querySelectorAll('script');
+                    inlineScripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        if (oldScript.src) {
+                            newScript.src = oldScript.src;
+                        } else {
+                            newScript.textContent = oldScript.textContent;
+                        }
+                        document.body.appendChild(newScript);
+                        oldScript.remove();
+                    });
 
-            // 3. Execute inline scripts from loaded sections (innerHTML doesn't auto-execute scripts)
-            const bookingFormContainer = document.getElementById('booking-form-container');
-            const inlineScripts = bookingFormContainer.querySelectorAll('script');
-            inlineScripts.forEach(oldScript => {
-                const newScript = document.createElement('script');
-                if (oldScript.src) {
-                    newScript.src = oldScript.src;
-                } else {
-                    newScript.textContent = oldScript.textContent;
-                }
-                document.body.appendChild(newScript);
-                oldScript.remove();
+                    // 5. Trigger DOMContentLoaded for booking form scripts
+                    const event = new Event('DOMContentLoaded');
+                    document.dispatchEvent(event);
+
+                    // 6. Load app.js and then explicitly initialize
+                    const appScript = document.createElement('script');
+                    appScript.src = '/js/app.js';
+                    appScript.onload = function() {
+                        console.log('✅ app.js loaded, now initializing...');
+                        // Give browser one more frame to ensure app.js functions are ready
+                        requestAnimationFrame(() => {
+                            if (typeof initializeApp === 'function') {
+                                initializeApp();
+                            } else {
+                                console.error('❌ initializeApp function not found in app.js');
+                            }
+                        });
+                    };
+                    appScript.onerror = function() {
+                        console.error('❌ Failed to load app.js');
+                    };
+                    document.body.appendChild(appScript);
+                });
             });
-
-            // 4. Trigger DOMContentLoaded for booking form scripts
-            const event = new Event('DOMContentLoaded');
-            document.dispatchEvent(event);
-
-            // 5. Load app.js and then explicitly initialize
-            const appScript = document.createElement('script');
-            appScript.src = '/js/app.js';
-            appScript.onload = function() {
-                console.log('✅ app.js loaded, now initializing...');
-                // Explicitly call initialization after script is fully loaded
-                if (typeof initializeApp === 'function') {
-                    initializeApp();
-                } else {
-                    console.error('❌ initializeApp function not found in app.js');
-                }
-            };
-            appScript.onerror = function() {
-                console.error('❌ Failed to load app.js');
-            };
-            document.body.appendChild(appScript);
         }).catch(error => console.error('Error loading sections:', error));
 
         // Language switching functions
