@@ -352,18 +352,20 @@ function initShaderAnimation() {
 
     console.log('✅ Shader canvas found:', shaderCanvas);
 
-    // WebGL2 with ideal settings per best practices
-    gl = shaderCanvas.getContext('webgl2', { 
-        alpha: false,                    // Opaque canvas for compositor optimization
+    // WebGL2 with alpha blending enabled for transparency
+    gl = shaderCanvas.getContext('webgl2', {
+        alpha: true,                     // Enable alpha channel for transparency
+        premultipliedAlpha: false,       // Better color blending
         antialias: true,                 // Smooth edges
         preserveDrawingBuffer: false,    // Better throughput (default but explicit)
         powerPreference: 'high-performance'
     });
-    
+
     // Fallback to WebGL1 if WebGL2 not available
     if (!gl) {
         gl = shaderCanvas.getContext('webgl', {
-            alpha: false,
+            alpha: true,
+            premultipliedAlpha: false,
             antialias: true,
             preserveDrawingBuffer: false,
             powerPreference: 'high-performance'
@@ -389,10 +391,14 @@ function initShaderAnimation() {
     }
 
     sizeCanvasToViewport();
-    
-    // Set clear color to black (opaque canvas)
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+    // Set clear color to transparent
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // Enable blending for transparency
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     // Calculate fixed document-space center from hero element
     function getDocCenter(el) {
@@ -453,7 +459,7 @@ function initShaderAnimation() {
         }
     `;
 
-    // Fragment shader - Document-space anchored
+    // Fragment shader - Document-space anchored with enhanced visibility
     const fragmentShaderSource = `
         #ifdef GL_ES
         precision highp float;
@@ -477,7 +483,7 @@ function initShaderAnimation() {
             vec2 uv = delta / viewportRes.x;
 
             float t = time * 0.05;
-            float lineWidth = 0.002;
+            float lineWidth = 0.004; // Increased from 0.002 for more visibility
 
             vec3 color = vec3(0.0);
             for(int j = 0; j < 3; j++){
@@ -486,6 +492,11 @@ function initShaderAnimation() {
                 }
             }
 
+            // Amplify colors and add subtle glow effect for better visibility
+            color = pow(color, vec3(0.8)); // Brighten
+            color *= 1.5; // Increase intensity
+
+            // Output with full opacity
             gl_FragColor = vec4(color[0], color[1], color[2], 1.0);
         }
     `;
@@ -552,6 +563,9 @@ function animateShader(timestamp) {
 
     // Use timestamp parameter for smooth animation (rAF best practice)
     const currentTime = timestamp * 0.001; // Convert ms to seconds
+
+    // Ensure our shader program is active
+    gl.useProgram(shaderProgram);
 
     // Clear before drawing
     gl.clear(gl.COLOR_BUFFER_BIT);
