@@ -343,20 +343,33 @@ function initShaderAnimation() {
         return false;
     }
 
-    // Set canvas size - tall enough for rings to reach footer
-    // Store viewport height for shader calculations
+    // Calculate hero center and radius for perfect circle
     const viewportHeight = window.innerHeight;
-    const pageHeight = Math.max(
-        document.documentElement.scrollHeight,
-        window.innerHeight * 4 // Ensure at least 4x viewport height for expanding circles
-    );
+    const heroCenterY = viewportHeight * 0.5; // Hero center is at 50vh from top
+    const pageHeight = document.documentElement.scrollHeight;
     
-    shaderCanvas.width = window.innerWidth;
-    shaderCanvas.height = pageHeight;
+    // Radius = distance from hero center to bottom of page
+    const radius = pageHeight - heroCenterY;
+    
+    // Canvas is a SQUARE with dimensions 2R x 2R (diameter)
+    const canvasSize = radius * 2;
+    shaderCanvas.width = canvasSize;
+    shaderCanvas.height = canvasSize;
+    
+    // Position canvas so its CENTER aligns with hero section center
+    // Canvas top = hero center Y - radius
+    shaderCanvas.style.top = `${heroCenterY - radius}px`;
+    shaderCanvas.style.left = `${(window.innerWidth - canvasSize) / 2}px`;
+    
     gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
-
-    // Pass viewport height to shader
-    shaderCanvas.dataset.viewportHeight = viewportHeight;
+    
+    console.log('📐 Canvas Setup:', {
+        heroCenterY,
+        radius,
+        canvasSize,
+        canvasTop: heroCenterY - radius,
+        pageHeight
+    });
 
     // Vertex shader
     const vertexShaderSource = `
@@ -366,7 +379,7 @@ function initShaderAnimation() {
         }
     `;
 
-    // Fragment shader - rings centered at hero, visible throughout page
+    // Fragment shader - simple circle centered at canvas center
     const fragmentShaderSource = `
         #ifdef GL_ES
         precision highp float;
@@ -377,17 +390,16 @@ function initShaderAnimation() {
 
         uniform vec2 resolution;
         uniform float time;
-        uniform float viewportHeight;
 
         void main(void) {
-            // Center point at hero section center (50% of viewport height from bottom of canvas)
-            // Since gl_FragCoord.xy starts from bottom-left, we need to account for this
-            float heroYFromBottom = resolution.y - (viewportHeight * 0.5);
-            vec2 heroCenter = vec2(resolution.x * 0.5, heroYFromBottom);
-            vec2 pixelPos = gl_FragCoord.xy - heroCenter;
+            // Canvas center is our circle center (perfect and simple!)
+            vec2 center = resolution * 0.5;
+            vec2 pixelPos = gl_FragCoord.xy - center;
 
-            // Normalize to keep circles circular (use width as reference)
-            vec2 uv = pixelPos / (resolution.x * 0.5);
+            // Normalize by radius (half of canvas size) to keep perfect circle
+            float radius = resolution.x * 0.5; // Width = Height, so either works
+            vec2 uv = pixelPos / radius;
+            
             float t = time * 0.05;
             float lineWidth = 0.002;
 
@@ -467,11 +479,9 @@ function animateShader() {
     // Set uniforms
     const resolutionLocation = gl.getUniformLocation(shaderProgram, 'resolution');
     const timeLocation = gl.getUniformLocation(shaderProgram, 'time');
-    const viewportHeightLocation = gl.getUniformLocation(shaderProgram, 'viewportHeight');
 
     gl.uniform2f(resolutionLocation, shaderCanvas.width, shaderCanvas.height);
     gl.uniform1f(timeLocation, currentTime);
-    gl.uniform1f(viewportHeightLocation, parseFloat(shaderCanvas.dataset.viewportHeight));
 
     // Draw
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -499,15 +509,18 @@ window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
         if (shaderCanvas && gl) {
+            // Recalculate canvas size and position
             const viewportHeight = window.innerHeight;
-            const pageHeight = Math.max(
-                document.documentElement.scrollHeight,
-                window.innerHeight * 4 // Ensure at least 4x viewport height for expanding circles
-            );
+            const heroCenterY = viewportHeight * 0.5;
+            const pageHeight = document.documentElement.scrollHeight;
+            const radius = pageHeight - heroCenterY;
+            const canvasSize = radius * 2;
             
-            shaderCanvas.width = window.innerWidth;
-            shaderCanvas.height = pageHeight;
-            shaderCanvas.dataset.viewportHeight = viewportHeight;
+            shaderCanvas.width = canvasSize;
+            shaderCanvas.height = canvasSize;
+            shaderCanvas.style.top = `${heroCenterY - radius}px`;
+            shaderCanvas.style.left = `${(window.innerWidth - canvasSize) / 2}px`;
+            
             gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
         }
     }, 100);
