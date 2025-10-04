@@ -289,14 +289,7 @@
     60% { transform: translateX(-50%) translateY(-0.3125vw); }
 }
 
-/* WebGL Shader Canvas - absolute positioning, square canvas centered at hero */
-#shader-canvas {
-    position: absolute;
-    /* Top and left set dynamically by JavaScript */
-    /* Width and height set dynamically (2R x 2R square) */
-    z-index: 0;
-    pointer-events: none;
-}
+/* WebGL Shader Canvas - now in index.html with fixed positioning */
 
 /* Responsive navbar */
 @media (max-width: 1024px) {
@@ -360,7 +353,6 @@
     </nav>
 
     <section class="hero" id="home">
-        <canvas id="shader-canvas"></canvas>
         <div class="hero-content">
             <div class="hero-text">
                 <h1 data-tr="Edit: ayda 40 saatini alan o baş belası!" data-en="Editing: that 40-hour monthly headache!" data-it="Editing: quel mal di testa di 40 ore al mese!">Edit: ayda 40 saatini alan o baş belası!</h1>

@@ -74,6 +74,22 @@
                 display: none !important;
             }
         }
+
+        /* WebGL Shader Canvas - fixed to viewport */
+        #shader-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Ensure content appears above shader */
+        section, header, main, footer, .hero, .contact-section {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 
     <!-- HTMX for reactive forms (local) -->
@@ -116,6 +132,7 @@
     <!-- End Meta Pixel Code -->
 </head>
 <body>
+    <canvas id="shader-canvas"></canvas>
     <div class="cursor"></div>
     <div id="hero-container"></div>
 

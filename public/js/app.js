@@ -325,10 +325,12 @@ document.querySelectorAll('.time-slot').forEach(slot => {
 });
 
 
-// WebGL Shader Animation for hero section
+// WebGL Shader Animation for hero section - Document-space anchored
 let shaderCanvas, gl, shaderProgram, animationId = null;
-let isShaderActive = false;
+let isShaderActive = true; // Always active
 let startTime = Date.now();
+let fixedCenter = { x: 0, y: 0 }; // Will be calculated from hero
+let scrollX = 0, scrollY = 0;
 
 function initShaderAnimation() {
     shaderCanvas = document.getElementById('shader-canvas');
@@ -337,40 +339,64 @@ function initShaderAnimation() {
         return false;
     }
 
-    gl = shaderCanvas.getContext('webgl') || shaderCanvas.getContext('experimental-webgl');
+    gl = shaderCanvas.getContext('webgl', { antialias: false }) || shaderCanvas.getContext('experimental-webgl', { antialias: false });
     if (!gl) {
         console.error('❌ WebGL not supported!');
         return false;
     }
 
-    // FIXED center point approach - doesn't follow viewport
-    // Define a FIXED position on the page for circle center (e.g., 50vh from document top)
-    const fixedCenterY = window.innerHeight * 0.5; // Fixed at 50vh of initial viewport
-    const pageHeight = document.documentElement.scrollHeight;
-    
-    // Make canvas cover entire page
-    shaderCanvas.width = window.innerWidth;
-    shaderCanvas.height = pageHeight;
-    
-    // Position canvas to cover entire page (fixed position)
-    shaderCanvas.style.top = '0px';
-    shaderCanvas.style.left = '0px';
-    shaderCanvas.style.width = '100%';
-    shaderCanvas.style.height = `${pageHeight}px`;
-    
-    gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
-    
-    // Store fixed center for shader to use
-    window.shaderFixedCenter = {
-        x: window.innerWidth / 2,
-        y: fixedCenterY
-    };
-    
-    console.log('📐 Canvas Setup (FIXED CENTER):', {
-        fixedCenterY,
-        canvasWidth: shaderCanvas.width,
-        canvasHeight: shaderCanvas.height,
-        fixedCenter: window.shaderFixedCenter
+    // Device pixel ratio for sharp rendering (capped at 2 for performance)
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    // Size canvas to viewport (not full page)
+    function sizeCanvasToViewport() {
+        shaderCanvas.width = Math.floor(window.innerWidth * dpr);
+        shaderCanvas.height = Math.floor(window.innerHeight * dpr);
+        gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
+        console.log('📐 Canvas sized to viewport:', shaderCanvas.width, 'x', shaderCanvas.height, `(dpr: ${dpr})`);
+    }
+
+    sizeCanvasToViewport();
+
+    // Calculate fixed document-space center from hero element
+    function getDocCenter(el) {
+        const rect = el.getBoundingClientRect();
+        const docX = (window.scrollX + rect.left + rect.width / 2) * dpr;
+        const docY = (window.scrollY + rect.top + rect.height / 2) * dpr;
+        return { x: docX, y: docY };
+    }
+
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        fixedCenter = getDocCenter(hero);
+        console.log('🎯 Fixed center set to hero:', fixedCenter);
+
+        // Recompute center if hero resizes (fonts/images load)
+        new ResizeObserver(() => {
+            fixedCenter = getDocCenter(hero);
+            console.log('🔄 Fixed center updated:', fixedCenter);
+        }).observe(hero);
+    } else {
+        console.warn('⚠️ Hero element not found, using viewport center');
+        fixedCenter = { x: (window.innerWidth / 2) * dpr, y: (window.innerHeight / 2) * dpr };
+    }
+
+    // Track scroll position in device pixels
+    function updateScrollPosition() {
+        scrollX = window.scrollX * dpr;
+        scrollY = window.scrollY * dpr;
+    }
+    updateScrollPosition();
+
+    window.addEventListener('scroll', updateScrollPosition, { passive: true });
+
+    // Handle resize - update viewport size and recalculate positions
+    window.addEventListener('resize', () => {
+        sizeCanvasToViewport();
+        if (hero) {
+            fixedCenter = getDocCenter(hero);
+        }
+        updateScrollPosition();
     });
 
     // Vertex shader
@@ -381,27 +407,29 @@ function initShaderAnimation() {
         }
     `;
 
-    // Fragment shader - FIXED center point
+    // Fragment shader - Document-space anchored
     const fragmentShaderSource = `
         #ifdef GL_ES
         precision highp float;
         #endif
 
-        #define TWO_PI 6.2831853072
         #define PI 3.14159265359
 
-        uniform vec2 resolution;
-        uniform vec2 fixedCenter;  // Fixed center point in pixel coordinates
+        uniform vec2 viewportRes;   // Viewport size in device pixels
+        uniform vec2 fixedCenter;   // Hero center in document space (device px)
+        uniform vec2 scrollPx;      // Current scroll offset (device px)
         uniform float time;
 
         void main(void) {
-            // Use FIXED center point (not canvas center)
-            vec2 pixelPos = gl_FragCoord.xy - fixedCenter;
+            // Map fragment from viewport coords to document coords
+            vec2 fragDoc = gl_FragCoord.xy + scrollPx;
 
-            // Normalize by viewport width to keep aspect ratio
-            float normalizeRadius = resolution.x * 0.5;
-            vec2 uv = pixelPos / normalizeRadius;
-            
+            // Distance from fixed center in document space
+            vec2 delta = fragDoc - fixedCenter;
+
+            // Normalize by viewport width for consistent scaling
+            vec2 uv = delta / viewportRes.x;
+
             float t = time * 0.05;
             float lineWidth = 0.002;
 
@@ -478,13 +506,15 @@ function animateShader() {
 
     const currentTime = (Date.now() - startTime) * 0.001; // Convert to seconds
 
-    // Set uniforms
-    const resolutionLocation = gl.getUniformLocation(shaderProgram, 'resolution');
+    // Set uniforms - document-space approach
+    const viewportResLocation = gl.getUniformLocation(shaderProgram, 'viewportRes');
     const fixedCenterLocation = gl.getUniformLocation(shaderProgram, 'fixedCenter');
+    const scrollPxLocation = gl.getUniformLocation(shaderProgram, 'scrollPx');
     const timeLocation = gl.getUniformLocation(shaderProgram, 'time');
 
-    gl.uniform2f(resolutionLocation, shaderCanvas.width, shaderCanvas.height);
-    gl.uniform2f(fixedCenterLocation, window.shaderFixedCenter.x, window.shaderFixedCenter.y);
+    gl.uniform2f(viewportResLocation, shaderCanvas.width, shaderCanvas.height);
+    gl.uniform2f(fixedCenterLocation, fixedCenter.x, fixedCenter.y);
+    gl.uniform2f(scrollPxLocation, scrollX, scrollY);
     gl.uniform1f(timeLocation, currentTime);
 
     // Draw
@@ -507,53 +537,8 @@ function stopShaderAnimation() {
     }
 }
 
-// Handle window resize - OPTIMIZED with FIXED CENTER
-let resizeTimeout;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-        if (shaderCanvas && gl) {
-            // Recalculate for new dimensions but keep center FIXED
-            const fixedCenterY = window.innerHeight * 0.5; // Fixed at 50vh
-            const pageHeight = document.documentElement.scrollHeight;
-            
-            shaderCanvas.width = window.innerWidth;
-            shaderCanvas.height = pageHeight;
-            shaderCanvas.style.width = '100%';
-            shaderCanvas.style.height = `${pageHeight}px`;
-            
-            // Update fixed center coordinates
-            window.shaderFixedCenter = {
-                x: window.innerWidth / 2,
-                y: fixedCenterY
-            };
-            
-            gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
-        }
-    }, 100);
-});
-
-// Intersection Observer for smart shader loading
-function setupIntersectionObserver() {
-    const heroSection = document.querySelector('.hero');
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                startShaderAnimation();
-            } else {
-                stopShaderAnimation();
-            }
-        });
-    }, {
-        threshold: 0.1,
-        rootMargin: '100px'
-    });
-
-    if (heroSection) {
-        observer.observe(heroSection);
-    }
-}
+// Resize handler moved into initShaderAnimation() - no longer needed here
+// IntersectionObserver removed - shader runs continuously with document-space anchoring
 
 // Hover-based video loading and playback with 60fps performance
 function setupVideoHoverControls() {
@@ -719,12 +704,11 @@ function initializeApp() {
     // Setup hover-based video controls for 60fps performance
     setupVideoHoverControls();
 
-    // Initialize WebGL shader animation
+    // Initialize WebGL shader animation (document-space anchored, always running)
     console.log('🚀 Starting shader animation initialization...');
     if (initShaderAnimation()) {
         console.log('✅ Shader animation initialized successfully');
-        setupIntersectionObserver();
-        // Start immediately since hero is likely visible on load
+        // Start animation immediately - runs continuously
         startShaderAnimation();
     } else {
         console.error('❌ Failed to initialize shader animation - see errors above');
