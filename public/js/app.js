@@ -336,7 +336,7 @@ document.querySelectorAll('.time-slot').forEach(slot => {
 });
 
 
-// Shader animation moved to index.html for better initialization timing
+// UnicornStudio animation is now initialized in index.html (replaces old WebGL shader)
 
 // Hover-based video loading and playback with 60fps performance
 function setupVideoHoverControls() {
@@ -447,26 +447,14 @@ function setupPerformanceMonitoring() {
             lastTime = currentTime;
         }
         
-        if (isShaderActive) {
-            requestAnimationFrame(measureFPS);
-        }
-    }
-    
-    // Start FPS monitoring when shader animation is active
-    if (isShaderActive) {
         requestAnimationFrame(measureFPS);
     }
     
+    // Start FPS monitoring
+    requestAnimationFrame(measureFPS);
+    
     // Memory cleanup on page unload
     window.addEventListener('beforeunload', () => {
-        // Stop shader animation
-        stopShaderAnimation();
-
-        // Clean up WebGL resources
-        if (gl && shaderProgram) {
-            gl.deleteProgram(shaderProgram);
-        }
-
         // Clean up video elements
         document.querySelectorAll('.lazy-video').forEach(video => {
             video.pause();
@@ -815,7 +803,7 @@ function initializeApp() {
     // Setup hover-based video controls for 60fps performance
     setupVideoHoverControls();
 
-    // Shader animation now initialized in index.html before app.js loads
+    // UnicornStudio animation is initialized in index.html before app.js loads
     
     // Initialize 3D Carousel
     if (init3DCarousel()) {

@@ -75,15 +75,18 @@
             }
         }
 
-        /* WebGL Shader Canvas - absolute positioned, sized and centered on hero */
-        #shader-canvas {
-            position: absolute;
+        /* UnicornStudio Animation Container */
+        #unicorn-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
             pointer-events: none;
             z-index: 0;
-            /* Size and position set by JavaScript */
         }
 
-        /* Ensure content appears above shader */
+        /* Ensure content appears above animation */
         section, header, main, footer, .hero, .contact-section {
             position: relative;
             z-index: 10;
@@ -96,6 +99,9 @@
     <!-- Google reCAPTCHA v3 - Replace YOUR_SITE_KEY with your actual site key -->
     <script src="https://www.google.com/recaptcha/api.js?render=6LfyocYrAAAAAAO2wxWMTCTxNWrbS-qVSU_woJjU"></script>
     
+    <!-- UnicornStudio SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/unicornstudio-sdk@1.0.0/dist/unicornstudio.min.js"></script>
+
     <!-- Meta Pixel Code -->
     <script>
     !function(f,b,e,v,n,t,s)
@@ -130,7 +136,7 @@
     <!-- End Meta Pixel Code -->
 </head>
 <body>
-    <canvas id="shader-canvas"></canvas>
+    <div id="unicorn-animation"></div>
     <div class="cursor"></div>
     <div id="hero-container"></div>
 
@@ -240,13 +246,8 @@
                     // 3. Initialize video-lite system
                     initVideoLite();
 
-                    // 4. Initialize shader animation
-                    if (initShaderAnimation()) {
-                        startShaderAnimation();
-                        console.log('✅ Shader animation running from index.html');
-                    } else {
-                        console.error('❌ Shader animation failed to initialize');
-                    }
+                    // 4. Initialize UnicornStudio animation
+                    initUnicornAnimation();
 
                     // 5. Execute inline scripts from loaded sections (innerHTML doesn't auto-execute scripts)
                     const bookingFormContainer = document.getElementById('booking-form-container');
@@ -496,241 +497,46 @@
             });
         }
 
-        // SHADER ANIMATION - Moved from app.js to index.html
-        let shaderCanvas, gl, shaderProgram, shaderAnimationId = null;
-        let isShaderActive = false;
-        let fixedCenter = { x: 0, y: 0 };
-
-        function initShaderAnimation() {
-            console.log('🚀 Starting shader animation initialization in index.html...');
+        // UNICORNSTUDIO ANIMATION - Clean vanilla JavaScript integration
+        function initUnicornAnimation() {
+            console.log('🦄 Starting UnicornStudio animation initialization...');
             
-            shaderCanvas = document.getElementById('shader-canvas');
-            if (!shaderCanvas) {
-                console.error('❌ Shader canvas not found!');
+            const container = document.getElementById('unicorn-animation');
+            if (!container) {
+                console.error('❌ UnicornStudio container not found!');
                 return false;
             }
 
-            console.log('✅ Shader canvas found:', shaderCanvas);
+            console.log('✅ UnicornStudio container found:', container);
 
-            // WebGL2 with optimal settings
-            gl = shaderCanvas.getContext('webgl2', {
-                alpha: false,
-                premultipliedAlpha: false,
-                antialias: true,
-                preserveDrawingBuffer: false,
-                powerPreference: 'high-performance'
-            });
+            try {
+                // Check if UnicornStudio SDK is loaded
+                if (typeof UnicornStudio === 'undefined') {
+                    console.error('❌ UnicornStudio SDK not loaded. Animation will not display.');
+                    return false;
+                }
 
-            if (!gl) {
-                gl = shaderCanvas.getContext('webgl', {
-                    alpha: false,
-                    premultipliedAlpha: false,
-                    antialias: true,
-                    preserveDrawingBuffer: false,
-                    powerPreference: 'high-performance'
+                // Initialize UnicornStudio scene
+                const scene = new UnicornStudio.Scene(container, {
+                    projectId: '1grEuiVDSVmyvEMAYhA6', // Same project ID from React component
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                    production: true,
+                    fps: 60
                 });
-            }
-            
-            if (!gl) {
-                console.error('❌ WebGL not supported!');
-                return false;
-            }
 
-            console.log('✅ WebGL context obtained');
+                scene.init();
+                console.log('✅ UnicornStudio animation initialized successfully');
 
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-            // Get hero element first to calculate canvas size and position
-            const hero = document.querySelector('.hero');
-            if (!hero) {
-                console.warn('⚠️ Hero element not found');
-                return false;
-            }
-
-            function sizeAndPositionCanvas() {
-                // Get document dimensions
-                const docWidth = Math.max(
-                    document.body.scrollWidth,
-                    document.body.offsetWidth,
-                    document.documentElement.clientWidth,
-                    document.documentElement.scrollWidth,
-                    document.documentElement.offsetWidth
-                );
-                
-                const docHeight = Math.max(
-                    document.body.scrollHeight,
-                    document.body.offsetHeight,
-                    document.documentElement.clientHeight,
-                    document.documentElement.scrollHeight,
-                    document.documentElement.offsetHeight
-                );
-
-                // Canvas matches landing page size exactly
-                const canvasWidth = docWidth;
-                const canvasHeight = docHeight;
-
-                // Get hero center in page coordinates (not viewport)
-                const heroRect = hero.getBoundingClientRect();
-                const heroCenterX = window.scrollX + heroRect.left + heroRect.width / 2;
-                const heroCenterY = window.scrollY + heroRect.top + heroRect.height / 2;
-
-                // Position canvas at top-left of page
-                const canvasLeft = 0;
-                const canvasTop = 0;
-
-                // Set canvas CSS positioning
-                shaderCanvas.style.width = canvasWidth + 'px';
-                shaderCanvas.style.height = canvasHeight + 'px';
-                shaderCanvas.style.left = canvasLeft + 'px';
-                shaderCanvas.style.top = canvasTop + 'px';
-
-                // Set canvas resolution (with device pixel ratio)
-                shaderCanvas.width = Math.floor(canvasWidth * dpr);
-                shaderCanvas.height = Math.floor(canvasHeight * dpr);
-                
-                gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
-
-                // Set fixed center to hero position in canvas coordinates
-                fixedCenter = {
-                    x: heroCenterX * dpr,
-                    y: heroCenterY * dpr
-                };
-
-                console.log('📐 Canvas sized and positioned:', {
-                    cssSize: `${canvasWidth} x ${canvasHeight}`,
-                    resolution: `${shaderCanvas.width} x ${shaderCanvas.height}`,
-                    position: `left: ${canvasLeft}px, top: ${canvasTop}px`,
-                    heroCenter: `${heroCenterX}, ${heroCenterY}`,
-                    fixedCenter: fixedCenter
+                // Handle window resize
+                window.addEventListener('resize', () => {
+                    scene.resize(window.innerWidth, window.innerHeight);
                 });
-            }
 
-            sizeAndPositionCanvas();
-            gl.clearColor(0.0, 0.0, 0.0, 1.0);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-
-            // Resize handler
-            window.addEventListener('resize', () => {
-                sizeAndPositionCanvas();
-            });
-
-            // Vertex shader
-            const vertexShaderSource = `
-                attribute vec2 position;
-                void main() {
-                    gl_Position = vec4(position, 0.0, 1.0);
-                }
-            `;
-
-            // Fragment shader with BRIGHT colors - canvas centered on hero
-            const fragmentShaderSource = `
-                #ifdef GL_ES
-                precision highp float;
-                #endif
-
-                #define PI 3.14159265359
-
-                uniform vec2 canvasRes;    // Canvas resolution
-                uniform vec2 center;       // Center of canvas (where hero is)
-                uniform float time;
-
-                void main(void) {
-                    // Fragment is already in canvas coordinates
-                    // Calculate distance from canvas center (hero position)
-                    vec2 delta = gl_FragCoord.xy - center;
-                    
-                    // Normalize maintaining aspect ratio for perfect circles
-                    // Use the larger dimension to avoid distortion
-                    float maxDim = max(canvasRes.x, canvasRes.y);
-                    vec2 uv = delta / maxDim;
-
-                    float t = time * 0.05;
-                    float lineWidth = 0.008;
-
-                    vec3 color = vec3(0.0);
-                    for(int j = 0; j < 3; j++){
-                        for(int i = 0; i < 5; i++){
-                            color[j] += lineWidth * float(i * i) / abs(fract(t - 0.01 * float(j) + float(i) * 0.01) * 5.0 - length(uv) + mod(uv.x + uv.y, 0.2));
-                        }
-                    }
-
-                    color = pow(color, vec3(0.7));
-                    color *= 2.5;
-
-                    gl_FragColor = vec4(color[0], color[1], color[2], 1.0);
-                }
-            `;
-
-            function compileShader(type, source) {
-                const shader = gl.createShader(type);
-                gl.shaderSource(shader, source);
-                gl.compileShader(shader);
-
-                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    console.error('❌ Shader compile error:', gl.getShaderInfoLog(shader));
-                    gl.deleteShader(shader);
-                    return null;
-                }
-                return shader;
-            }
-
-            const vertexShader = compileShader(gl.VERTEX_SHADER, vertexShaderSource);
-            const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
-
-            if (!vertexShader || !fragmentShader) return false;
-
-            shaderProgram = gl.createProgram();
-            gl.attachShader(shaderProgram, vertexShader);
-            gl.attachShader(shaderProgram, fragmentShader);
-            gl.linkProgram(shaderProgram);
-
-            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-                console.error('❌ Program link error:', gl.getProgramInfoLog(shaderProgram));
+                return true;
+            } catch (error) {
+                console.error('❌ Error initializing UnicornStudio:', error);
                 return false;
-            }
-
-            gl.useProgram(shaderProgram);
-
-            const positions = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
-            const buffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-
-            const positionLocation = gl.getAttribLocation(shaderProgram, 'position');
-            gl.enableVertexAttribArray(positionLocation);
-            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-            console.log('✅ Shader initialized successfully');
-            return true;
-        }
-
-        function animateShader(timestamp) {
-            if (!isShaderActive) return;
-
-            shaderAnimationId = requestAnimationFrame(animateShader);
-
-            const currentTime = timestamp * 0.001;
-
-            gl.useProgram(shaderProgram);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-
-            // Set uniforms
-            const canvasResLocation = gl.getUniformLocation(shaderProgram, 'canvasRes');
-            const centerLocation = gl.getUniformLocation(shaderProgram, 'center');
-            const timeLocation = gl.getUniformLocation(shaderProgram, 'time');
-
-            gl.uniform2f(canvasResLocation, shaderCanvas.width, shaderCanvas.height);
-            gl.uniform2f(centerLocation, fixedCenter.x, fixedCenter.y);
-            gl.uniform1f(timeLocation, currentTime);
-
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-        }
-
-        function startShaderAnimation() {
-            if (!isShaderActive) {
-                isShaderActive = true;
-                shaderAnimationId = requestAnimationFrame(animateShader);
-                console.log('✅ Shader animation started');
             }
         }
     </script>
