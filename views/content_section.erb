@@ -2,7 +2,7 @@
 /* Content showcase section - transparent to show shader animation */
 .content-showcase {
     padding: 3vh 2vw 5vh 2vw;
-    background: rgba(0, 0, 0, 0.7);
+    background: transparent;
     position: relative;
     z-index: 1;
     border-radius: 3vh 3vh 0 0;
@@ -328,6 +328,8 @@ video[title]:hover::after {
     max-width: 1400px;
     margin: 6vh auto;
     padding: 0 4vw;
+    border: 2px solid rgba(242, 82, 46, 0.5); /* DEBUG: visible border */
+    min-height: 500px;
 }
 
 .carousel-3d-container {
@@ -340,6 +342,7 @@ video[title]:hover::after {
     perspective-origin: 50% 50%;
     position: relative;
     overflow: visible;
+    background: rgba(255, 0, 0, 0.1); /* DEBUG: red tint */
 }
 
 .carousel-3d-cylinder {
@@ -658,7 +661,7 @@ video[title]:hover::after {
                         name: 'Umut',
                         thumbnail: '/pictures/umutthumbnail.png',
                         videoSrc: '/videos/umut.mov',
-                        aspectRatio: '9-16', // Portrait
+                        aspectRatio: '9-16',
                         width: 250,
                         height: 444
                     },
@@ -667,7 +670,7 @@ video[title]:hover::after {
                         name: 'Baran',
                         thumbnail: '/pictures/baranthumbnail.png',
                         videoSrc: '/videos/baran.mov',
-                        aspectRatio: '9-16', // Portrait
+                        aspectRatio: '9-16',
                         width: 250,
                         height: 444
                     },
@@ -676,7 +679,7 @@ video[title]:hover::after {
                         name: 'Gülizar',
                         thumbnail: '/pictures/gulizarthumbnail.png',
                         videoSrc: '/videos/gulizar.mov',
-                        aspectRatio: '9-16', // Portrait
+                        aspectRatio: '9-16',
                         width: 250,
                         height: 444
                     },
@@ -685,21 +688,22 @@ video[title]:hover::after {
                         name: 'Ceyda',
                         thumbnail: '/pictures/ceydathumbnail.png',
                         videoSrc: '/videos/ceyda.mov',
-                        aspectRatio: '16-9', // Landscape
+                        aspectRatio: '16-9',
                         width: 350,
                         height: 197
                     }
                 ];
 
                 // Initialize 3D Carousel
-                (function() {
-                    const cylinder = document.getElementById('carousel-3d');
-                    const modal = document.getElementById('videoModal');
-                    const modalContent = document.getElementById('videoModalContent');
-                    const modalVideo = document.getElementById('modalVideo');
-                    const closeBtn = document.getElementById('videoModalClose');
+                const cylinder = document.getElementById('carousel-3d');
+                const modal = document.getElementById('videoModal');
+                const modalContent = document.getElementById('videoModalContent');
+                const modalVideo = document.getElementById('modalVideo');
+                const closeBtn = document.getElementById('videoModalClose');
 
-                    if (!cylinder) return;
+                if (!cylinder) {
+                    console.error('❌ Carousel cylinder element not found');
+                } else {
 
                     const isMobile = window.innerWidth < 640;
                     const cylinderWidth = isMobile ? 1200 : 2000;
@@ -849,7 +853,7 @@ video[title]:hover::after {
 
                     // Initialize rotation
                     updateRotation();
-                })();
+                }
             </script>
         </div>
     </section>
