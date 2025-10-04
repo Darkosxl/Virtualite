@@ -548,7 +548,15 @@
             }
 
             function sizeAndPositionCanvas() {
-                // Get document height
+                // Get document dimensions
+                const docWidth = Math.max(
+                    document.body.scrollWidth,
+                    document.body.offsetWidth,
+                    document.documentElement.clientWidth,
+                    document.documentElement.scrollWidth,
+                    document.documentElement.offsetWidth
+                );
+                
                 const docHeight = Math.max(
                     document.body.scrollHeight,
                     document.body.offsetHeight,
@@ -557,42 +565,43 @@
                     document.documentElement.offsetHeight
                 );
 
-                // Canvas is square: 2 * document height
-                const canvasSize = docHeight * 2;
+                // Canvas matches landing page size exactly
+                const canvasWidth = docWidth;
+                const canvasHeight = docHeight;
 
                 // Get hero center in page coordinates (not viewport)
                 const heroRect = hero.getBoundingClientRect();
                 const heroCenterX = window.scrollX + heroRect.left + heroRect.width / 2;
                 const heroCenterY = window.scrollY + heroRect.top + heroRect.height / 2;
 
-                // Position canvas so its center aligns with hero center
-                const canvasLeft = heroCenterX - (canvasSize / 2);
-                const canvasTop = heroCenterY - (canvasSize / 2);
+                // Position canvas at top-left of page
+                const canvasLeft = 0;
+                const canvasTop = 0;
 
                 // Set canvas CSS positioning
-                shaderCanvas.style.width = canvasSize + 'px';
-                shaderCanvas.style.height = canvasSize + 'px';
+                shaderCanvas.style.width = canvasWidth + 'px';
+                shaderCanvas.style.height = canvasHeight + 'px';
                 shaderCanvas.style.left = canvasLeft + 'px';
                 shaderCanvas.style.top = canvasTop + 'px';
 
                 // Set canvas resolution (with device pixel ratio)
-                shaderCanvas.width = Math.floor(canvasSize * dpr);
-                shaderCanvas.height = Math.floor(canvasSize * dpr);
+                shaderCanvas.width = Math.floor(canvasWidth * dpr);
+                shaderCanvas.height = Math.floor(canvasHeight * dpr);
                 
                 gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
 
-                // Set fixed center to canvas center (in canvas coordinates)
+                // Set fixed center to hero position in canvas coordinates
                 fixedCenter = {
-                    x: shaderCanvas.width / 2,
-                    y: shaderCanvas.height / 2
+                    x: heroCenterX * dpr,
+                    y: heroCenterY * dpr
                 };
 
                 console.log('📐 Canvas sized and positioned:', {
-                    cssSize: canvasSize,
+                    cssSize: `${canvasWidth} x ${canvasHeight}`,
                     resolution: `${shaderCanvas.width} x ${shaderCanvas.height}`,
                     position: `left: ${canvasLeft}px, top: ${canvasTop}px`,
                     heroCenter: `${heroCenterX}, ${heroCenterY}`,
-                    canvasCenter: fixedCenter
+                    fixedCenter: fixedCenter
                 });
             }
 
@@ -630,8 +639,10 @@
                     // Calculate distance from canvas center (hero position)
                     vec2 delta = gl_FragCoord.xy - center;
                     
-                    // Normalize by canvas width for consistent scaling
-                    vec2 uv = delta / canvasRes.x;
+                    // Normalize maintaining aspect ratio for perfect circles
+                    // Use the larger dimension to avoid distortion
+                    float maxDim = max(canvasRes.x, canvasRes.y);
+                    vec2 uv = delta / maxDim;
 
                     float t = time * 0.05;
                     float lineWidth = 0.008;
