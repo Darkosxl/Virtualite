@@ -606,10 +606,10 @@ function init3DCarousel() {
     console.log('✅ Carousel cylinder element found:', cylinder);
 
     const isMobile = window.innerWidth < 640;
-    const cylinderWidth = isMobile ? 1000 : 1500; // Increased for larger radius and better spacing
+    const cylinderWidth = isMobile ? 1200 : 1800; // Increased for larger radius and better spacing
     const faceCount = carouselVideos.length;
     const faceWidth = cylinderWidth / faceCount;
-    const radius = cylinderWidth / (2 * Math.PI);
+    const radius = (cylinderWidth / (2 * Math.PI)) * 1.5; // Increased radius by 1.5x
     
     console.log('🎡 Carousel Setup:', {
         cylinderWidth,

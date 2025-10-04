@@ -268,9 +268,8 @@
                 }
             </style>
 
-            <!-- Time Selection (nested inside date field) -->
+            <!-- Time Selection (nested inside date field) - HIDDEN, embedded in date display -->
             <div id="time-selection-field" style="display: none; margin-top: 1rem;">
-                <label data-tr="Saat Seçin *" data-en="Select Time *" data-it="Seleziona Ora *">Saat Seçin *</label>
                 <input type="hidden" name="selected_time" id="selected-time" required>
 
                 <!-- Custom Time Picker -->
@@ -724,8 +723,10 @@
                         this.style.background = 'linear-gradient(135deg, #F2522E, #F24535)';
                         this.style.boxShadow = '0 2px 8px rgba(242, 69, 53, 0.3)';
 
-                        // Also update the external time selection field
-                        timeSelectionField.style.display = 'block';
+                        // Update the date display to show both date AND time
+                        if (selectedDate) {
+                            dateDisplayText.textContent = `${formatFullDate(selectedDate)} - ${this.dataset.time}`;
+                        }
 
                         // Close calendar modal after time selection
                         setTimeout(() => closeCalendarModal(), 400);
@@ -972,7 +973,7 @@
             // Validate all required fields
             const requiredFields = [
                 { element: document.getElementById('selected-date'), label: document.querySelector('label[data-tr="Tarih Seçin *"]'), type: 'date' },
-                { element: document.getElementById('selected-time'), label: document.querySelector('label[data-tr="Saat Seçin *"]'), type: 'time' },
+                { element: document.getElementById('selected-time'), label: document.querySelector('label[data-tr="Tarih Seçin *"]'), type: 'time' }, // Time uses same label as date
                 { element: document.querySelector('input[name="name"]'), label: document.querySelector('label[data-tr="Adınız Soyadınız *"]'), type: 'input' },
                 { element: document.querySelector('input[name="phone_number"]'), label: document.querySelector('label[data-tr="Telefon Numaranız *"]'), type: 'input' },
                 { element: document.querySelector('input[name="email"]'), label: document.querySelector('label[data-tr="E-posta Adresiniz *"]'), type: 'input' },
