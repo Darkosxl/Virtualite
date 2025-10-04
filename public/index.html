@@ -75,7 +75,7 @@
             }
         }
 
-        /* Ensure content appears above shader animation */
+        /* Ensure content appears above backgrounds */
         section, header, main, footer, .hero, .contact-section {
             position: relative;
             z-index: 10;
@@ -125,8 +125,6 @@
     <!-- End Meta Pixel Code -->
 </head>
 <body>
-    <!-- Shader Animation Canvas -->
-    <div id="shader-animation" style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; pointer-events: none; z-index: 0; background: #000; overflow: hidden;"></div>
     <div class="cursor"></div>
     <div id="hero-container"></div>
 
@@ -227,16 +225,19 @@
                 requestAnimationFrame(() => {
                     console.log('✅ DOM rendered, starting initialization...');
                     
-                    // 1. Initialize language switching
+                    // 1. Initialize shader animation in hero section
+                    initShaderAnimation();
+
+                    // 2. Initialize language switching
                     initLanguageSwitching();
 
-                    // 2. Initialize video carousel
+                    // 3. Initialize video carousel
                     initVideoCarousel();
 
-                    // 3. Initialize video-lite system
+                    // 4. Initialize video-lite system
                     initVideoLite();
 
-                    // 4. Execute inline scripts from loaded sections (innerHTML doesn't auto-execute scripts)
+                    // 5. Execute inline scripts from loaded sections (innerHTML doesn't auto-execute scripts)
                     const bookingFormContainer = document.getElementById('booking-form-container');
                     const inlineScripts = bookingFormContainer.querySelectorAll('script');
                     inlineScripts.forEach(oldScript => {
@@ -276,13 +277,20 @@
             });
         }).catch(error => console.error('Error loading sections:', error));
 
-        // Shader Animation - Initialize immediately
-        (function initShaderAnimation() {
-            const container = document.getElementById('shader-animation');
-            if (!container || typeof THREE === 'undefined') {
-                console.error('❌ Shader animation failed: Container or THREE.js not found');
+        // Shader Animation - Initialize after hero section loads
+        function initShaderAnimation() {
+            // Wait for hero section to be loaded
+            const heroSection = document.querySelector('.hero');
+            if (!heroSection || typeof THREE === 'undefined') {
+                console.error('❌ Shader animation failed: Hero section or THREE.js not found');
                 return;
             }
+
+            // Create container div for shader animation
+            const container = document.createElement('div');
+            container.id = 'shader-animation';
+            container.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; background: #000; overflow: hidden;';
+            heroSection.insertBefore(container, heroSection.firstChild);
 
             // Vertex shader
             const vertexShader = `
@@ -376,7 +384,7 @@
                 geometry.dispose();
                 material.dispose();
             });
-        })();
+        }
 
         // Language switching functions
         function switchLanguage(selectedLang) {
