@@ -181,9 +181,9 @@
                     </button>
                 </div>
 
-                <!-- Scrollable Calendar Days (Horizontal Scroll) -->
-                <div class="scrollbar-hide" style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 1.5rem;">
-                    <div id="calendar-grid" style="display: flex; gap: 0.75rem; padding: 0.5rem 0.25rem;"></div>
+                <!-- Calendar Days Grid -->
+                <div class="scrollbar-hide" style="margin-bottom: 1.5rem;">
+                    <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; padding: 0.5rem 0.25rem;"></div>
                 </div>
 
                 <!-- Divider -->
@@ -421,22 +421,43 @@
         return dateOnly > todayOnly && date.getDay() !== 0;
     }
 
-    // Render calendar for current month (horizontal scrollable)
+    // Render calendar for current month (grid layout)
     function renderCalendar() {
         const lang = localStorage.getItem('selectedLanguage') || 'tr';
         monthYearDisplay.textContent = `${months[lang][currentMonth]} ${currentYear}`;
 
         calendarGrid.innerHTML = '';
 
-        // Get days in month
+        // Add day headers (S M T W T F S)
+        const dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+        dayLetters.forEach((letter, index) => {
+            const header = document.createElement('div');
+            header.textContent = letter;
+            header.style.cssText = `
+                text-align: center;
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: ${index === 0 ? 'rgba(242, 69, 53, 0.6)' : 'rgba(255, 255, 255, 0.5)'};
+                padding: 0.5rem 0;
+            `;
+            calendarGrid.appendChild(header);
+        });
+
+        // Get first day of month and days in month
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-        // Add day buttons horizontally
+        // Add empty cells for days before month starts
+        for (let i = 0; i < firstDay; i++) {
+            const emptyCell = document.createElement('div');
+            calendarGrid.appendChild(emptyCell);
+        }
+
+        // Add day buttons
         for (let day = 1; day <= daysInMonth; day++) {
             const date = new Date(currentYear, currentMonth, day);
             const isSunday = date.getDay() === 0;
             const isValid = isDateValid(date);
-            const dayOfWeek = date.getDay();
 
             // Create container for each day
             const dayContainer = document.createElement('div');
@@ -444,18 +465,7 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 0.5rem;
-                flex-shrink: 0;
-            `;
-
-            // Day of week letter
-            const dayLabel = document.createElement('span');
-            const dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-            dayLabel.textContent = dayLetters[dayOfWeek];
-            dayLabel.style.cssText = `
-                font-size: 0.75rem;
-                font-weight: 700;
-                color: ${isSunday ? 'rgba(242, 69, 53, 0.6)' : 'rgba(255, 255, 255, 0.5)'};
+                justify-content: center;
             `;
 
             const btn = document.createElement('button');
@@ -580,7 +590,6 @@
                 });
             }
 
-            dayContainer.appendChild(dayLabel);
             dayContainer.appendChild(btn);
             calendarGrid.appendChild(dayContainer);
         }
