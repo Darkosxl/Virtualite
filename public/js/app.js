@@ -354,7 +354,7 @@ function initShaderAnimation() {
 
     // WebGL2 with alpha blending enabled for transparency
     gl = shaderCanvas.getContext('webgl2', {
-        alpha: true,                     // Enable alpha channel for transparency
+        alpha: false,                    // Solid background (not transparent)
         premultipliedAlpha: false,       // Better color blending
         antialias: true,                 // Smooth edges
         preserveDrawingBuffer: false,    // Better throughput (default but explicit)
@@ -364,7 +364,7 @@ function initShaderAnimation() {
     // Fallback to WebGL1 if WebGL2 not available
     if (!gl) {
         gl = shaderCanvas.getContext('webgl', {
-            alpha: true,
+            alpha: false,
             premultipliedAlpha: false,
             antialias: true,
             preserveDrawingBuffer: false,
@@ -392,13 +392,9 @@ function initShaderAnimation() {
 
     sizeCanvasToViewport();
 
-    // Set clear color to transparent
-    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    // Set clear color to black (opaque)
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-
-    // Enable blending for transparency
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     // Calculate fixed document-space center from hero element
     function getDocCenter(el) {
@@ -748,7 +744,7 @@ function setupPerformanceMonitoring() {
 function init3DCarousel() {
     console.log('🎡 Starting 3D carousel initialization...');
     
-    // 3D Carousel Video Data - Half size for compact display (fits 8 videos easily)
+    // 3D Carousel Video Data - All videos from /public/videos/
     const carouselVideos = [
         {
             id: 'umut',
@@ -785,6 +781,87 @@ function init3DCarousel() {
             aspectRatio: '16-9',
             width: 140,
             height: 79
+        },
+        {
+            id: 'enis-hulli',
+            name: 'Enis Hulli',
+            thumbnail: '/pictures/enishullithumbnail.png',
+            videoSrc: '/videos/enis hulli.mov',
+            aspectRatio: '9-16',
+            width: 90,
+            height: 160
+        },
+        {
+            id: 'burcu',
+            name: 'Burcu',
+            thumbnail: '/pictures/burcuthumbnail.png',
+            videoSrc: '/videos/burcu.mp4',
+            aspectRatio: '9-16',
+            width: 90,
+            height: 160
+        },
+        {
+            id: 'zoe',
+            name: 'Zoe',
+            thumbnail: '/pictures/zoethumbnail.png',
+            videoSrc: '/videos/zoe.mp4',
+            aspectRatio: '1-1',
+            width: 120,
+            height: 120
+        },
+        {
+            id: 'vivianguo',
+            name: 'Vivian Guo',
+            thumbnail: '/pictures/vivanguothumbnail.png',
+            videoSrc: '/videos/vivianguo.mp4',
+            aspectRatio: '1-1',
+            width: 120,
+            height: 120
+        },
+        {
+            id: 'justinkan',
+            name: 'Justin Kan',
+            thumbnail: '/pictures/justinkanthumbnail.png',
+            videoSrc: '/videos/justinkan.mp4',
+            aspectRatio: '1-1',
+            width: 120,
+            height: 120
+        },
+        {
+            id: 'mirofounder',
+            name: 'Miro Founder',
+            thumbnail: '/pictures/mirofounderthumbnail.png',
+            videoSrc: '/videos/mirofounder.mp4',
+            aspectRatio: '1-1',
+            width: 120,
+            height: 120
+        },
+        {
+            id: 'naeemishaq',
+            name: 'Naeem Ishaq',
+            thumbnail: '/pictures/naeemishaqthumbnail.png',
+            videoSrc: '/videos/naeemishaq.mp4',
+            aspectRatio: '1-1',
+            width: 120,
+            height: 120
+        },
+        {
+            id: 'displaybasketball',
+            name: 'Display Basketball',
+            thumbnail: '/pictures/displaybasketballthumbnail.png',
+            videoSrc: '/videos/displaybasketball.mov',
+            aspectRatio: '9-16',
+            width: 90,
+            height: 160
+        },
+        {
+            id: 'enis',
+            name: 'Enis',
+            thumbnail: '/pictures/enisthumbnail.png',
+            videoSrc: '/videos/enis.mov',
+            aspectRatio: '1-1',
+            width: 120,
+            height: 120
         }
     ];
 

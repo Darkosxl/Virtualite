@@ -1,5 +1,5 @@
 <style>
-/* Booking form styles */
+/* Booking form styles - matching bento grid design */
 .booking-form {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -10,7 +10,7 @@
 .form-field {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
 .form-field.full-width {
@@ -18,78 +18,84 @@
 }
 
 .form-field label {
-    color: white;
-    font-weight: 600;
-    font-size: clamp(0.9rem, 1vw, 1.1rem);
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 700;
+    font-size: clamp(0.75rem, 0.9vw, 0.875rem);
+    letter-spacing: 0.02em;
 }
 
 .form-field input, .form-field select {
     width: 100%;
-    padding: 0.75rem 1rem;
-    border-radius: 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    background: rgba(20, 20, 20, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: white;
-    font-size: clamp(0.85rem, 0.95vw, 1rem);
-    transition: all 0.3s;
+    font-size: clamp(0.875rem, 0.95vw, 1rem);
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .form-field input:focus, .form-field select:focus {
     outline: none;
-    box-shadow: 0 0 0 2px #F24535;
-    border-color: transparent;
+    background: rgba(20, 20, 20, 0.6);
+    border-color: rgba(242, 69, 53, 0.5);
+    box-shadow: 0 0 0 3px rgba(242, 69, 53, 0.15), 0 4px 12px rgba(242, 69, 53, 0.2);
 }
 
 .form-field input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.45);
 }
 
 .form-field select {
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='rgba(255,255,255,0.7)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 1rem center;
-    padding-right: 2.5rem;
+    background-position: right 1.25rem center;
+    padding-right: 3rem;
 }
 
 .form-field select option {
-    background-color: #730202;
+    background-color: #1a1a1a;
     color: white;
 }
 
 .form-field select option:disabled {
-    color: #ff4444 !important;
-    background-color: #330000 !important;
+    color: rgba(242, 69, 53, 0.5) !important;
+    background-color: rgba(20, 20, 20, 0.9) !important;
     text-decoration: line-through !important;
     font-weight: bold !important;
     cursor: not-allowed !important;
 }
 
-/* Custom checkbox styling */
+/* Custom checkbox styling - matching bento design */
 .social-checkbox:checked + div .checkbox-dot {
     display: block !important;
 }
 
 .social-checkbox:checked + div {
-    border-color: #F24535 !important;
-    background-color: rgba(242, 69, 53, 0.1) !important;
+    border-color: rgba(242, 69, 53, 0.8) !important;
+    background: linear-gradient(135deg, rgba(242, 82, 46, 0.2), rgba(242, 69, 53, 0.15)) !important;
+    box-shadow: 0 2px 8px rgba(242, 69, 53, 0.2);
 }
 
 .platform-username {
     width: 100%;
-    padding: 0.75rem 1rem;
-    border-radius: 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    background: rgba(20, 20, 20, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: white;
-    font-size: clamp(0.85rem, 0.95vw, 1rem);
-    transition: all 0.3s;
+    font-size: clamp(0.875rem, 0.95vw, 1rem);
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .platform-username:focus {
     outline: none;
-    box-shadow: 0 0 0 2px #F24535;
-    border-color: transparent;
+    background: rgba(20, 20, 20, 0.6);
+    border-color: rgba(242, 69, 53, 0.5);
+    box-shadow: 0 0 0 3px rgba(242, 69, 53, 0.15), 0 4px 12px rgba(242, 69, 53, 0.2);
 }
 
 .htmx-indicator {
@@ -116,10 +122,25 @@
     75% { transform: translateX(5px); }
 }
 
-/* Button hover effects */
+/* Submit button - matching bento card style */
+#submit-booking-btn {
+    background: linear-gradient(135deg, #F2522E, #F24535) !important;
+    border-radius: 1rem !important;
+    padding: 1.25rem 2rem !important;
+    font-weight: 700 !important;
+    font-size: 1.125rem !important;
+    box-shadow: 0 4px 12px rgba(242, 69, 53, 0.3), 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s ease !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
 #submit-booking-btn:not(:disabled):hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-0.25rem) !important;
+    box-shadow: 0 6px 16px rgba(242, 69, 53, 0.4), 0 12px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+#submit-booking-btn:not(:disabled):active {
+    transform: translateY(0) !important;
 }
 
 #submit-booking-btn:not(:disabled) {
@@ -154,9 +175,9 @@
         <!-- Date & Time Selection Container -->
         <div class="form-field full-width">
             <label data-tr="Tarih Seçin *" data-en="Select Date *" data-it="Seleziona Data *">Tarih Seçin *</label>
-            <div id="date-display" style="padding: 0.75rem 1rem; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 0.5rem; background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.5); display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.3s;">
+            <div id="date-display" style="padding: 1rem 1.25rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; background: rgba(20, 20, 20, 0.4); color: rgba(255, 255, 255, 0.7); display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.15s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
                 <span id="date-display-text" data-tr="Tarih seçmek için tıklayın" data-en="Click to select date" data-it="Clicca per selezionare la data">Tarih seçmek için tıklayın</span>
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" style="opacity: 0.7;">
                     <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
                 </svg>
             </div>
@@ -285,7 +306,7 @@
                    data-placeholder-en="example@email.com"
                    data-placeholder-it="esempio@email.com"
                    placeholder="ornek@email.com">
-            <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.875rem; margin-top: 0.5rem; margin-bottom: 0;">
+            <p style="color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; margin-top: 0.5rem; margin-bottom: 0;">
                 <span data-tr="Onay e-postası hello@amoredit.com adresinden gönderilecektir." data-en="Confirmation email will be sent from hello@amoredit.com." data-it="L'email di conferma sarà inviata da hello@amoredit.com.">Onay e-postası hello@amoredit.com adresinden gönderilecektir.</span>
             </p>
         </div>
@@ -328,10 +349,10 @@
                 <div>
                     <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 0.5rem;">
                         <input type="checkbox" name="social_platforms[]" value="tiktok" class="social-checkbox" data-platform="tiktok" style="position: absolute; left: -10000px;">
-                        <div style="width: 1.25rem; height: 1.25rem; border: 2px solid white; border-radius: 0.25rem; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center;">
-                            <div class="checkbox-dot" style="width: 0.5rem; height: 0.5rem; background-color: white; border-radius: 0.125rem; display: none;"></div>
+                        <div style="width: 1.25rem; height: 1.25rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 0.375rem; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; background: rgba(20, 20, 20, 0.3);">
+                            <div class="checkbox-dot" style="width: 0.625rem; height: 0.625rem; background: linear-gradient(135deg, #F2522E, #F24535); border-radius: 0.25rem; display: none;"></div>
                         </div>
-                        <span style="color: white;">TikTok</span>
+                        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.875rem;">TikTok</span>
                     </label>
                     <input type="text" name="tiktok_username" class="platform-username" data-platform="tiktok" style="display: none;"
                            data-placeholder-tr="TikTok kullanıcı adınız"
@@ -344,10 +365,10 @@
                 <div>
                     <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 0.5rem;">
                         <input type="checkbox" name="social_platforms[]" value="instagram" class="social-checkbox" data-platform="instagram" style="position: absolute; left: -10000px;">
-                        <div style="width: 1.25rem; height: 1.25rem; border: 2px solid white; border-radius: 0.25rem; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center;">
-                            <div class="checkbox-dot" style="width: 0.5rem; height: 0.5rem; background-color: white; border-radius: 0.125rem; display: none;"></div>
+                        <div style="width: 1.25rem; height: 1.25rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 0.375rem; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; background: rgba(20, 20, 20, 0.3);">
+                            <div class="checkbox-dot" style="width: 0.625rem; height: 0.625rem; background: linear-gradient(135deg, #F2522E, #F24535); border-radius: 0.25rem; display: none;"></div>
                         </div>
-                        <span style="color: white;">Instagram</span>
+                        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.875rem;">Instagram</span>
                     </label>
                     <input type="text" name="instagram_username" class="platform-username" data-platform="instagram" style="display: none;"
                            data-placeholder-tr="Instagram kullanıcı adınız"
@@ -360,10 +381,10 @@
                 <div>
                     <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 0.5rem;">
                         <input type="checkbox" name="social_platforms[]" value="youtube" class="social-checkbox" data-platform="youtube" style="position: absolute; left: -10000px;">
-                        <div style="width: 1.25rem; height: 1.25rem; border: 2px solid white; border-radius: 0.25rem; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center;">
-                            <div class="checkbox-dot" style="width: 0.5rem; height: 0.5rem; background-color: white; border-radius: 0.125rem; display: none;"></div>
+                        <div style="width: 1.25rem; height: 1.25rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 0.375rem; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; background: rgba(20, 20, 20, 0.3);">
+                            <div class="checkbox-dot" style="width: 0.625rem; height: 0.625rem; background: linear-gradient(135deg, #F2522E, #F24535); border-radius: 0.25rem; display: none;"></div>
                         </div>
-                        <span style="color: white;">YouTube</span>
+                        <span style="color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.875rem;">YouTube</span>
                     </label>
                     <input type="text" name="youtube_username" class="platform-username" data-platform="youtube" style="display: none;"
                            data-placeholder-tr="YouTube kanal adınız"
@@ -377,7 +398,7 @@
         <!-- Submit button -->
         <div class="form-field full-width">
             <button type="submit" id="submit-booking-btn"
-                    style="width: 100%; background: linear-gradient(to right, #F2522E, #F24535); color: white; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.125rem; transition: all 0.3s; border: none; cursor: pointer; opacity: 1;">
+                    style="width: 100%; color: white; border: none; cursor: pointer; opacity: 1;">
                 <span class="htmx-indicator" id="loading" style="display: none;">
                     <svg style="animation: spin 1s linear infinite; margin-left: -0.25rem; margin-right: 0.75rem; height: 1.25rem; width: 1.25rem; color: white; display: inline;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
