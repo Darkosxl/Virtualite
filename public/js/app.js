@@ -341,22 +341,30 @@ function initShaderAnimation() {
 
     console.log('✅ Shader canvas found:', shaderCanvas);
 
-    gl = shaderCanvas.getContext('webgl', { 
-        antialias: false,
-        alpha: true,
-        premultipliedAlpha: false
-    }) || shaderCanvas.getContext('experimental-webgl', { 
-        antialias: false,
-        alpha: true,
-        premultipliedAlpha: false
+    // WebGL2 with ideal settings per best practices
+    gl = shaderCanvas.getContext('webgl2', { 
+        alpha: false,                    // Opaque canvas for compositor optimization
+        antialias: true,                 // Smooth edges
+        preserveDrawingBuffer: false,    // Better throughput (default but explicit)
+        powerPreference: 'high-performance'
     });
+    
+    // Fallback to WebGL1 if WebGL2 not available
+    if (!gl) {
+        gl = shaderCanvas.getContext('webgl', {
+            alpha: false,
+            antialias: true,
+            preserveDrawingBuffer: false,
+            powerPreference: 'high-performance'
+        });
+    }
     
     if (!gl) {
         console.error('❌ WebGL not supported in this browser!');
         return false;
     }
 
-    console.log('✅ WebGL context obtained successfully');
+    console.log('✅ WebGL context obtained:', gl instanceof WebGL2RenderingContext ? 'WebGL2' : 'WebGL1');
 
     // Device pixel ratio for sharp rendering (capped at 2 for performance)
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -371,8 +379,8 @@ function initShaderAnimation() {
 
     sizeCanvasToViewport();
     
-    // Set clear color to transparent black
-    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    // Set clear color to black (opaque canvas)
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Calculate fixed document-space center from hero element
@@ -526,12 +534,16 @@ function compileShader(type, source) {
     return shader;
 }
 
-function animateShader() {
+function animateShader(timestamp) {
     if (!isShaderActive) return;
 
     animationId = requestAnimationFrame(animateShader);
 
-    const currentTime = (Date.now() - startTime) * 0.001; // Convert to seconds
+    // Use timestamp parameter for smooth animation (rAF best practice)
+    const currentTime = timestamp * 0.001; // Convert ms to seconds
+
+    // Clear before drawing
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Set uniforms - document-space approach
     const viewportResLocation = gl.getUniformLocation(shaderProgram, 'viewportRes');
