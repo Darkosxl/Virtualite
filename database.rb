@@ -34,6 +34,14 @@ class Database
     raise
   end
 
+  # Graceful shutdown - close all pool connections
+  def shutdown
+    puts "🛑 Shutting down database connection pool..."
+    @reaper_thread.kill if @reaper_thread
+    @pool.shutdown { |conn| conn.close rescue nil }
+    puts "✅ Database pool closed"
+  end
+
   private
 
   def reconnect_connection(conn)
@@ -62,14 +70,6 @@ class Database
     conn.exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS special_note TEXT DEFAULT ''")
   rescue PG::Error => e
     puts "Table setup: #{e.message}" unless e.message.include?('already exists')
-  end
-
-  # Graceful shutdown - close all pool connections
-  def shutdown
-    puts "🛑 Shutting down database connection pool..."
-    @reaper_thread.kill if @reaper_thread
-    @pool.shutdown { |conn| conn.close rescue nil }
-    puts "✅ Database pool closed"
   end
 
   # Connection reaper - pings connections periodically to prevent stale/idle timeouts
