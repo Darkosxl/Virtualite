@@ -366,8 +366,8 @@
 
         <!-- Submit button -->
         <div class="form-field full-width">
-            <button type="submit" id="submit-booking-btn" disabled
-                    style="width: 100%; background: linear-gradient(to right, #F2522E, #F24535); color: white; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.125rem; transition: all 0.3s; border: none; cursor: pointer; opacity: 0.5;">
+            <button type="submit" id="submit-booking-btn"
+                    style="width: 100%; background: linear-gradient(to right, #F2522E, #F24535); color: white; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.125rem; transition: all 0.3s; border: none; cursor: pointer; opacity: 1;">
                 <span class="htmx-indicator" id="loading" style="display: none;">
                     <svg style="animation: spin 1s linear infinite; margin-left: -0.25rem; margin-right: 0.75rem; height: 1.25rem; width: 1.25rem; color: white; display: inline;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -877,53 +877,11 @@
         input.addEventListener('input', validateUnifiedForm);
     });
 
-    // Form validation function
+    // Form validation function (no longer disables button, just for other purposes)
     function validateUnifiedForm() {
-        const checkboxes = document.querySelectorAll('.social-checkbox');
-        const submitBtn = document.getElementById('submit-booking-btn');
-        const occupationSelect = document.getElementById('occupation-select');
-        const customOccupationInput = document.getElementById('custom-occupation-input');
-        const budgetSelect = document.getElementById('budget-select');
-
-        // Check occupation validation
-        let hasValidOccupation = false;
-        if (occupationSelect && occupationSelect.value && occupationSelect.value !== '') {
-            if (occupationSelect.value === 'custom') {
-                hasValidOccupation = customOccupationInput && customOccupationInput.value.trim() !== '';
-            } else {
-                hasValidOccupation = true;
-            }
-        }
-
-        // Check budget/reason validation
-        let hasValidBudget = budgetSelect && budgetSelect.value && budgetSelect.value !== '';
-
-        // Check social media selection validation
-        let hasValidSocialSelection = false;
-        checkboxes.forEach(checkbox => {
-            if (checkbox.checked) {
-                const platform = checkbox.getAttribute('data-platform');
-                const usernameInput = document.querySelector(`input.platform-username[data-platform="${platform}"]`);
-                if (usernameInput && usernameInput.value.trim() !== '') {
-                    hasValidSocialSelection = true;
-                }
-            }
-        });
-
-        // All three validations must pass: occupation, budget, and at least one social platform
-        if (hasValidOccupation && hasValidBudget && hasValidSocialSelection) {
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = '1';
-            submitBtn.style.cursor = 'pointer';
-        } else {
-            submitBtn.disabled = true;
-            submitBtn.style.opacity = '0.5';
-            submitBtn.style.cursor = 'not-allowed';
-        }
+        // Validation logic removed - button is always clickable
+        // Validation happens on submit
     }
-
-    // Initial validation check
-    validateUnifiedForm();
 
     // Handle form submission with reCAPTCHA
     const form = document.getElementById('unified-booking-form');
@@ -1053,10 +1011,7 @@
                 return;
             }
 
-            if (submitBtn.disabled) {
-                return;
-            }
-
+            // All fields are valid, proceed with submission
             // Check if reCAPTCHA is available
             if (typeof grecaptcha !== 'undefined') {
                 grecaptcha.ready(function() {

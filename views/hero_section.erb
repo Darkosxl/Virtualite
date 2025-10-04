@@ -289,13 +289,13 @@
     60% { transform: translateX(-50%) translateY(-0.3125vw); }
 }
 
-/* WebGL Shader Canvas - extends full viewport, goes behind all sections */
+/* WebGL Shader Canvas - fixed at hero center, rings expand throughout page */
 #shader-canvas {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 300vh; /* Tall enough for rings to reach footer */
     z-index: 0;
     pointer-events: none;
 }

@@ -1,8 +1,8 @@
 <style>
-/* Content showcase section - static gradient with more space */
+/* Content showcase section - transparent to show shader animation */
 .content-showcase {
     padding: 3vh 2vw 5vh 2vw;
-    background: linear-gradient(135deg, #F2522E 0%, #730202 100%);
+    background: rgba(0, 0, 0, 0.7);
     position: relative;
     z-index: 1;
     border-radius: 3vh 3vh 0 0;
@@ -325,15 +325,15 @@ video[title]:hover::after {
 /* Video Carousel Styles */
 .video-carousel-wrapper {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 6vh auto;
     padding: 0 4vw;
 }
 
 .video-carousel-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6vw;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 8vw;
     align-items: center;
 }
 
@@ -341,24 +341,36 @@ video[title]:hover::after {
 .video-cards-section {
     position: relative;
     width: 100%;
-    height: 500px;
-    perspective: 1000px;
+    max-width: 400px;
+    height: 600px;
+    perspective: 1500px;
+    margin: 0 auto;
 }
 
 .video-card {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-origin: center bottom;
+    top: 50%;
+    left: 50%;
+    transform-origin: center center;
     transform-style: preserve-3d;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.video-card-btn {
-    width: 100%;
-    height: 100%;
+/* Short form videos (9:16) - Umut, Baran, Gülizar */
+.video-card[data-index="0"] .video-card-btn,
+.video-card[data-index="1"] .video-card-btn,
+.video-card[data-index="2"] .video-card-btn {
+    width: 300px;
+    height: 533px; /* 9:16 ratio */
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* Long form video (16:9) - Ceyda */
+.video-card[data-index="3"] .video-card-btn {
+    width: 400px;
+    height: 225px; /* 16:9 ratio */
     border-radius: 24px;
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -375,38 +387,38 @@ video[title]:hover::after {
     z-index: 999;
     opacity: 1;
     animation: cardJumpIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: scale(1) rotateY(0deg) translateZ(0) translateY(0);
+    transform: translate(-50%, -50%) scale(1) rotateY(0deg) rotateZ(0deg);
 }
 
 .video-card.position-1 {
     z-index: 998;
     opacity: 0.7;
-    transform: scale(0.95) rotateY(-10deg) translateZ(-100px) translateX(-30px);
+    transform: translate(-50%, -50%) translateX(60px) translateZ(-50px) scale(0.95) rotateY(-8deg) rotateZ(3deg);
 }
 
 .video-card.position-2 {
     z-index: 997;
     opacity: 0.5;
-    transform: scale(0.9) rotateY(-15deg) translateZ(-200px) translateX(-50px);
+    transform: translate(-50%, -50%) translateX(100px) translateZ(-100px) scale(0.9) rotateY(-12deg) rotateZ(5deg);
 }
 
 .video-card.position-3 {
     z-index: 996;
-    opacity: 0;
-    transform: scale(0.85) rotateY(-20deg) translateZ(-300px) translateX(-70px);
+    opacity: 0.3;
+    transform: translate(-50%, -50%) translateX(130px) translateZ(-150px) scale(0.85) rotateY(-15deg) rotateZ(6deg);
     pointer-events: none;
 }
 
 /* Jump animation - triggers automatically when position-0 is applied */
 @keyframes cardJumpIn {
     0% {
-        transform: scale(1) rotateY(0deg) translateZ(0) translateY(0);
+        transform: translate(-50%, -50%) scale(1) rotateY(0deg) rotateZ(0deg);
     }
     30% {
-        transform: scale(1) rotateY(0deg) translateZ(0) translateY(-80px);
+        transform: translate(-50%, calc(-50% - 80px)) scale(1) rotateY(0deg) rotateZ(0deg);
     }
     100% {
-        transform: scale(1) rotateY(0deg) translateZ(0) translateY(0);
+        transform: translate(-50%, -50%) scale(1) rotateY(0deg) rotateZ(0deg);
     }
 }
 

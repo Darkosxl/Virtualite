@@ -343,9 +343,9 @@ function initShaderAnimation() {
         return false;
     }
 
-    // Set canvas size to full viewport (animation extends beyond hero)
+    // Set canvas size - tall enough for rings to reach footer
     shaderCanvas.width = window.innerWidth;
-    shaderCanvas.height = window.innerHeight;
+    shaderCanvas.height = window.innerHeight * 3; // 3x viewport height for full page coverage
     gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
 
     // Vertex shader
@@ -356,7 +356,7 @@ function initShaderAnimation() {
         }
     `;
 
-    // Fragment shader - the colorful animation
+    // Fragment shader - rings centered at hero, visible throughout page
     const fragmentShaderSource = `
         #ifdef GL_ES
         precision highp float;
@@ -369,7 +369,12 @@ function initShaderAnimation() {
         uniform float time;
 
         void main(void) {
-            vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+            // Fixed center at hero section (top half of viewport, not canvas)
+            vec2 heroCenter = vec2(resolution.x * 0.5, resolution.y / 6.0); // 1/6 of tall canvas = hero center
+            vec2 pixelPos = gl_FragCoord.xy - heroCenter;
+
+            // Normalize to keep circles circular (use width as reference)
+            vec2 uv = pixelPos / (resolution.x * 0.5);
             float t = time * 0.05;
             float lineWidth = 0.002;
 
@@ -480,7 +485,7 @@ window.addEventListener('resize', () => {
     resizeTimeout = setTimeout(() => {
         if (shaderCanvas && gl) {
             shaderCanvas.width = window.innerWidth;
-            shaderCanvas.height = window.innerHeight;
+            shaderCanvas.height = window.innerHeight * 3; // Match initial setup
             gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
         }
     }, 100);
