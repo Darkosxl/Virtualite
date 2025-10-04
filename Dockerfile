@@ -23,10 +23,14 @@ RUN useradd -m -u 1001 appuser && \
 
 USER appuser
 
+# Set production environment
+ENV RACK_ENV=production
+ENV PORT=4568
+
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-4568}/ || exit 1
+HEALTHCHECK --interval=15s --timeout=5s --start-period=45s --retries=5 \
+  CMD curl -fsS http://localhost:${PORT:-4568}/ || exit 1
 
 EXPOSE 4568
 
-CMD ["ruby", "app.rb"]
+CMD ["bundle", "exec", "rackup", "-o", "0.0.0.0", "-p", "4568", "config.ru"]
