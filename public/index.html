@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' blob: https://www.google.com https://www.gstatic.com https://connect.facebook.net https://static.cloudflareinsights.com; object-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' blob: https://www.google.com https://www.gstatic.com https://connect.facebook.net https://static.cloudflareinsights.com https://infird.com; object-src 'none';">
     <link rel="icon" type="image/x-icon" href="/pictures/amoreditlogo.png">
     <title>Amoredit - Kaydırmayı Durduran İçerikler</title>
     <style>
@@ -242,7 +242,15 @@
                     // 3. Initialize video-lite system
                     initVideoLite();
 
-                    // 4. Execute inline scripts from loaded sections (innerHTML doesn't auto-execute scripts)
+                    // 4. Initialize shader animation
+                    if (initShaderAnimation()) {
+                        startShaderAnimation();
+                        console.log('✅ Shader animation running from index.html');
+                    } else {
+                        console.error('❌ Shader animation failed to initialize');
+                    }
+
+                    // 5. Execute inline scripts from loaded sections (innerHTML doesn't auto-execute scripts)
                     const bookingFormContainer = document.getElementById('booking-form-container');
                     const inlineScripts = bookingFormContainer.querySelectorAll('script');
                     inlineScripts.forEach(oldScript => {
@@ -256,13 +264,13 @@
                         oldScript.remove();
                     });
 
-                    // 5. Trigger DOMContentLoaded for booking form scripts
+                    // 6. Trigger DOMContentLoaded for booking form scripts
                     const event = new Event('DOMContentLoaded');
                     document.dispatchEvent(event);
 
-                    // 6. Load app.js and then explicitly initialize
+                    // 7. Load app.js and then explicitly initialize
                     const appScript = document.createElement('script');
-                    appScript.src = '/js/app.js';
+                    appScript.src = '/js/app.js?v=' + Date.now(); // Cache bust to force reload with 13 videos
                     appScript.onload = function() {
                         console.log('✅ app.js loaded, now initializing...');
                         // Give browser one more frame to ensure app.js functions are ready
@@ -488,6 +496,212 @@
                     video.play();
                 });
             });
+        }
+
+        // SHADER ANIMATION - Moved from app.js to index.html
+        let shaderCanvas, gl, shaderProgram, shaderAnimationId = null;
+        let isShaderActive = false;
+        let fixedCenter = { x: 0, y: 0 };
+        let scrollX = 0, scrollY = 0;
+
+        function initShaderAnimation() {
+            console.log('🚀 Starting shader animation initialization in index.html...');
+            
+            shaderCanvas = document.getElementById('shader-canvas');
+            if (!shaderCanvas) {
+                console.error('❌ Shader canvas not found!');
+                return false;
+            }
+
+            console.log('✅ Shader canvas found:', shaderCanvas);
+
+            // WebGL2 with optimal settings
+            gl = shaderCanvas.getContext('webgl2', {
+                alpha: false,
+                premultipliedAlpha: false,
+                antialias: true,
+                preserveDrawingBuffer: false,
+                powerPreference: 'high-performance'
+            });
+
+            if (!gl) {
+                gl = shaderCanvas.getContext('webgl', {
+                    alpha: false,
+                    premultipliedAlpha: false,
+                    antialias: true,
+                    preserveDrawingBuffer: false,
+                    powerPreference: 'high-performance'
+                });
+            }
+            
+            if (!gl) {
+                console.error('❌ WebGL not supported!');
+                return false;
+            }
+
+            console.log('✅ WebGL context obtained');
+
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+            function sizeCanvasToViewport() {
+                shaderCanvas.width = Math.floor(window.innerWidth * dpr);
+                shaderCanvas.height = Math.floor(window.innerHeight * dpr);
+                gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
+                console.log('📐 Canvas sized:', shaderCanvas.width, 'x', shaderCanvas.height);
+            }
+
+            sizeCanvasToViewport();
+            gl.clearColor(0.0, 0.0, 0.0, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            function getDocCenter(el) {
+                const rect = el.getBoundingClientRect();
+                const docX = (window.scrollX + rect.left + rect.width / 2) * dpr;
+                const docY = (window.scrollY + rect.top + rect.height / 2) * dpr;
+                return { x: docX, y: docY };
+            }
+
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                fixedCenter = getDocCenter(hero);
+                console.log('🎯 Fixed center set to hero:', fixedCenter);
+
+                new ResizeObserver(() => {
+                    fixedCenter = getDocCenter(hero);
+                }).observe(hero);
+            } else {
+                console.warn('⚠️ Hero element not found, using viewport center');
+                fixedCenter = { x: (window.innerWidth / 2) * dpr, y: (window.innerHeight / 2) * dpr };
+            }
+
+            function updateScrollPosition() {
+                scrollX = window.scrollX * dpr;
+                scrollY = window.scrollY * dpr;
+            }
+            updateScrollPosition();
+
+            window.addEventListener('scroll', updateScrollPosition, { passive: true });
+            window.addEventListener('resize', () => {
+                sizeCanvasToViewport();
+                if (hero) fixedCenter = getDocCenter(hero);
+                updateScrollPosition();
+            });
+
+            // Vertex shader
+            const vertexShaderSource = `
+                attribute vec2 position;
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            `;
+
+            // Fragment shader with BRIGHT colors
+            const fragmentShaderSource = `
+                #ifdef GL_ES
+                precision highp float;
+                #endif
+
+                #define PI 3.14159265359
+
+                uniform vec2 viewportRes;
+                uniform vec2 fixedCenter;
+                uniform vec2 scrollPx;
+                uniform float time;
+
+                void main(void) {
+                    vec2 fragDoc = gl_FragCoord.xy + scrollPx;
+                    vec2 delta = fragDoc - fixedCenter;
+                    vec2 uv = delta / viewportRes.x;
+
+                    float t = time * 0.05;
+                    float lineWidth = 0.008;
+
+                    vec3 color = vec3(0.0);
+                    for(int j = 0; j < 3; j++){
+                        for(int i = 0; i < 5; i++){
+                            color[j] += lineWidth * float(i * i) / abs(fract(t - 0.01 * float(j) + float(i) * 0.01) * 5.0 - length(uv) + mod(uv.x + uv.y, 0.2));
+                        }
+                    }
+
+                    color = pow(color, vec3(0.7));
+                    color *= 2.5;
+
+                    gl_FragColor = vec4(color[0], color[1], color[2], 1.0);
+                }
+            `;
+
+            function compileShader(type, source) {
+                const shader = gl.createShader(type);
+                gl.shaderSource(shader, source);
+                gl.compileShader(shader);
+
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    console.error('❌ Shader compile error:', gl.getShaderInfoLog(shader));
+                    gl.deleteShader(shader);
+                    return null;
+                }
+                return shader;
+            }
+
+            const vertexShader = compileShader(gl.VERTEX_SHADER, vertexShaderSource);
+            const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
+
+            if (!vertexShader || !fragmentShader) return false;
+
+            shaderProgram = gl.createProgram();
+            gl.attachShader(shaderProgram, vertexShader);
+            gl.attachShader(shaderProgram, fragmentShader);
+            gl.linkProgram(shaderProgram);
+
+            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+                console.error('❌ Program link error:', gl.getProgramInfoLog(shaderProgram));
+                return false;
+            }
+
+            gl.useProgram(shaderProgram);
+
+            const positions = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+            const buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+            const positionLocation = gl.getAttribLocation(shaderProgram, 'position');
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+            console.log('✅ Shader initialized successfully');
+            return true;
+        }
+
+        function animateShader(timestamp) {
+            if (!isShaderActive) return;
+
+            shaderAnimationId = requestAnimationFrame(animateShader);
+
+            const currentTime = timestamp * 0.001;
+
+            gl.useProgram(shaderProgram);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            const viewportResLocation = gl.getUniformLocation(shaderProgram, 'viewportRes');
+            const fixedCenterLocation = gl.getUniformLocation(shaderProgram, 'fixedCenter');
+            const scrollPxLocation = gl.getUniformLocation(shaderProgram, 'scrollPx');
+            const timeLocation = gl.getUniformLocation(shaderProgram, 'time');
+
+            gl.uniform2f(viewportResLocation, shaderCanvas.width, shaderCanvas.height);
+            gl.uniform2f(fixedCenterLocation, fixedCenter.x, fixedCenter.y);
+            gl.uniform2f(scrollPxLocation, scrollX, scrollY);
+            gl.uniform1f(timeLocation, currentTime);
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        }
+
+        function startShaderAnimation() {
+            if (!isShaderActive) {
+                isShaderActive = true;
+                shaderAnimationId = requestAnimationFrame(animateShader);
+                console.log('✅ Shader animation started');
+            }
         }
     </script>
     
