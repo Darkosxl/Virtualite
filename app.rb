@@ -18,21 +18,17 @@ set :bind, '0.0.0.0'
 set :sessions, true
 set :host_authorization, { permitted_hosts: [] }
 
-# Puma configuration - single process mode to avoid fork issues
-# max_threads should match or be <= DB pool size to prevent connection exhaustion
-set :server_settings, {
-  workers: 0,  # No worker processes (single process mode)
-  min_threads: 0,
-  max_threads: 2  # Match DB pool size (2)
-}
+# Puma configuration is in config/puma.rb
+# Note: server_settings here are ignored when config/puma.rb exists
 
 # Production optimizations
 configure :production do
   set :server, :puma
-  
+
   # Enable gzip compression
   use Rack::Deflater
-  set :host_authorization, { permitted_hosts: ["amoredit.com"] }
+  # Allow localhost for healthchecks, plus production domain
+  set :host_authorization, { permitted_hosts: ["amoredit.com", "localhost", "127.0.0.1"] }
   # Serve static files efficiently
   set :static_cache_control, [:public, max_age: 31536000]
 end

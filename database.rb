@@ -8,15 +8,16 @@ class Database
 
   def initialize
     # Create connection pool with size limit
-    # Pool size should be <= your Postgres pooler's max_clients
-    # Using size: 2 for free tier Supabase (conservative to avoid MaxClients error)
-    @pool = ConnectionPool.new(size: 2, timeout: 5) do
+    # Pool size MUST match Puma max_threads (4) for optimal performance
+    # Using size: 4 - ensure your Supabase pooler can handle this
+    pool_size = ENV.fetch('DB_POOL', '4').to_i
+    @pool = ConnectionPool.new(size: pool_size, timeout: 5) do
       PG.connect(ENV['POSTGRES_URL'])
     end
 
     # Setup table using a connection from the pool
     with_connection { |conn| setup_table(conn) }
-    puts "✅ Database connection pool initialized (size: 2)"
+    puts "✅ Database connection pool initialized (size: #{pool_size})"
 
     # Start connection reaper thread to prevent stale connections
     start_connection_reaper
