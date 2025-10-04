@@ -166,6 +166,7 @@
     height: 100dvh;
     background: linear-gradient(135deg, #F2D194 0%, #730202 50%, #262626 100%);
     position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -288,14 +289,14 @@
     60% { transform: translateX(-50%) translateY(-0.3125vw); }
 }
 
-/* WebGL Shader Canvas - constrained to hero section */
+/* WebGL Shader Canvas - extends full viewport, goes behind all sections */
 #shader-canvas {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
     pointer-events: none;
 }
 

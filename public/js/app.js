@@ -343,7 +343,7 @@ function initShaderAnimation() {
         return false;
     }
 
-    // Set canvas size
+    // Set canvas size to full viewport (animation extends beyond hero)
     shaderCanvas.width = window.innerWidth;
     shaderCanvas.height = window.innerHeight;
     gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);

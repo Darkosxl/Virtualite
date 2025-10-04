@@ -130,6 +130,7 @@
         text-align: center;
         margin-top: 0;
         position: relative;
+        z-index: 1;
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -224,7 +225,10 @@
             // 1. Initialize language switching
             initLanguageSwitching();
 
-            // 2. Initialize video-lite system
+            // 2. Initialize video carousel
+            initVideoCarousel();
+
+            // 3. Initialize video-lite system
             initVideoLite();
 
             // 3. Execute inline scripts from loaded sections (innerHTML doesn't auto-execute scripts)
@@ -370,6 +374,59 @@
             });
 
             observer.observe(document.body, { childList: true, subtree: true });
+        }
+
+        function initVideoCarousel() {
+            const cards = document.querySelectorAll('.video-card');
+            const prevBtn = document.querySelector('.carousel-prev');
+            const nextBtn = document.querySelector('.carousel-next');
+            const creatorName = document.querySelector('.video-creator-name');
+            const creatorTag = document.querySelector('.video-creator-tag');
+            const description = document.querySelector('.video-description');
+
+            if (!cards.length || !prevBtn || !nextBtn) return;
+
+            let activeIndex = 0;
+
+            function updateCarousel() {
+                cards.forEach((card, index) => {
+                    // Remove all position classes
+                    card.classList.remove('position-0', 'position-1', 'position-2', 'position-3');
+                });
+
+                // Force reflow to ensure animation restarts
+                void cards[0].offsetWidth;
+
+                cards.forEach((card, index) => {
+                    // Calculate relative position from active index
+                    const relativePos = (index - activeIndex + cards.length) % cards.length;
+
+                    // Add position class (animation triggers automatically via CSS)
+                    card.classList.add(`position-${relativePos}`);
+                });
+
+                // Update text content
+                const activeCard = cards[activeIndex];
+                if (creatorName) creatorName.textContent = activeCard.dataset.name;
+                if (creatorTag) creatorTag.textContent = activeCard.dataset.tag;
+                if (description) description.textContent = activeCard.dataset.description;
+            }
+
+            function handleNext() {
+                activeIndex = (activeIndex + 1) % cards.length;
+                updateCarousel();
+            }
+
+            function handlePrev() {
+                activeIndex = (activeIndex - 1 + cards.length) % cards.length;
+                updateCarousel();
+            }
+
+            prevBtn.addEventListener('click', handlePrev);
+            nextBtn.addEventListener('click', handleNext);
+
+            // Initial setup
+            updateCarousel();
         }
 
         function initVideoLite() {

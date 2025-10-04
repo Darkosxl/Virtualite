@@ -4,6 +4,7 @@
     padding: 3vh 2vw 5vh 2vw;
     background: linear-gradient(135deg, #F2522E 0%, #730202 100%);
     position: relative;
+    z-index: 1;
     border-radius: 3vh 3vh 0 0;
     margin-top: -3vh;
     margin-bottom: 0;
@@ -321,6 +322,163 @@ video[title]:hover::after {
     color: #888;
 }
 
+/* Video Carousel Styles */
+.video-carousel-wrapper {
+    width: 100%;
+    max-width: 1200px;
+    margin: 6vh auto;
+    padding: 0 4vw;
+}
+
+.video-carousel-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6vw;
+    align-items: center;
+}
+
+/* Video Cards Section */
+.video-cards-section {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    perspective: 1000px;
+}
+
+.video-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center bottom;
+    transform-style: preserve-3d;
+}
+
+.video-card-btn {
+    width: 100%;
+    height: 100%;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.video-card-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Card stacking positions */
+.video-card.position-0 {
+    z-index: 999;
+    opacity: 1;
+    animation: cardJumpIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1) rotateY(0deg) translateZ(0) translateY(0);
+}
+
+.video-card.position-1 {
+    z-index: 998;
+    opacity: 0.7;
+    transform: scale(0.95) rotateY(-10deg) translateZ(-100px) translateX(-30px);
+}
+
+.video-card.position-2 {
+    z-index: 997;
+    opacity: 0.5;
+    transform: scale(0.9) rotateY(-15deg) translateZ(-200px) translateX(-50px);
+}
+
+.video-card.position-3 {
+    z-index: 996;
+    opacity: 0;
+    transform: scale(0.85) rotateY(-20deg) translateZ(-300px) translateX(-70px);
+    pointer-events: none;
+}
+
+/* Jump animation - triggers automatically when position-0 is applied */
+@keyframes cardJumpIn {
+    0% {
+        transform: scale(1) rotateY(0deg) translateZ(0) translateY(0);
+    }
+    30% {
+        transform: scale(1) rotateY(0deg) translateZ(0) translateY(-80px);
+    }
+    100% {
+        transform: scale(1) rotateY(0deg) translateZ(0) translateY(0);
+    }
+}
+
+/* Video Info Section */
+.video-info-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2vh 0;
+    color: white;
+}
+
+.video-info-content {
+    margin-bottom: 4vh;
+}
+
+.video-creator-name {
+    font-size: clamp(2rem, 2.5vw, 3rem);
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0.5vh;
+}
+
+.video-creator-tag {
+    font-size: clamp(1rem, 1.2vw, 1.4rem);
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 2vh;
+}
+
+.video-description {
+    font-size: clamp(1.1rem, 1.3vw, 1.5rem);
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+}
+
+/* Carousel Controls */
+.carousel-controls {
+    display: flex;
+    gap: 1.5vw;
+}
+
+.carousel-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.carousel-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.carousel-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.carousel-prev:hover svg {
+    transform: rotate(12deg);
+}
+
+.carousel-next:hover svg {
+    transform: rotate(-12deg);
+}
+
 /* Responsive design */
 @media (max-width: 1200px) {
     .content-grid {
@@ -393,6 +551,20 @@ video[title]:hover::after {
         grid-template-columns: 1fr;
         gap: 2vh;
     }
+
+    .video-carousel-container {
+        grid-template-columns: 1fr;
+        gap: 4vh;
+    }
+
+    .video-cards-section {
+        height: 400px;
+    }
+
+    .carousel-btn {
+        width: 40px;
+        height: 40px;
+    }
 }
 </style>
 
@@ -423,44 +595,55 @@ video[title]:hover::after {
                 </div>
             </div>
 
-            <h2 class="section-title" data-tr="Takipçilerini görsel şölene hazırla" data-en="Prepare your followers for a visual feast" data-it="Prepara i tuoi follower per una festa visiva">Takipçilerini görsel şölene hazırla</h2>
-            <p class="section-subtitle" data-tr="Sana bir sır verelim mi? Bir ekip arkadaşımızın tek görevi &quot;nasıl bu kadar hızlı yaptınız?&quot;, &quot;yapay zeka falan mı kullanıyorsunuz?&quot; gibi soruları cevaplamak." data-en="Wanna hear a secret? One of our team members' only job is to answer questions like &quot;how did you do it so fast?&quot;, &quot;are you using AI or something?&quot;" data-it="Possiamo dirti un segreto? Il compito di uno dei nostri membri del team è rispondere a domande come &quot;come avete fatto così velocemente?&quot;, &quot;usate l'intelligenza artificiale o qualcosa del genere?&quot;">Sana bir sır verelim mi? Bir ekip arkadaşımızın tek görevi "nasıl bu kadar hızlı yaptınız?", "yapay zeka falan mı kullanıyorsunuz?" gibi soruları cevaplamak.</p>
-            <!-- Short form videos -->
-            <div class="short-videos-section">
-                
-                <!-- Desktop: Show all 3 videos side by side -->
-                <div class="short-videos-grid desktop-only">
-                    <button class="video-lite short-video" data-src="/videos/umut.mov" aria-label="Play Umut video">
-                        <img src="/pictures/umutthumbnail.png" alt="Umut video" loading="lazy">
-                    </button>
-                    <button class="video-lite short-video" data-src="/videos/baran.mov" aria-label="Play Baran video">
-                        <img src="/pictures/baranthumbnail.png" alt="Baran video" loading="lazy">
-                    </button>
-                    <button class="video-lite short-video" data-src="/videos/gulizar.mov" aria-label="Play Gulizar video">
-                        <img src="/pictures/gulizarthumbnail.png" alt="Gulizar video" loading="lazy">
-                    </button>
-                </div>
-                
-                <!-- Mobile: Vertical stack -->
-                <div class="short-videos-stack mobile-only">
-                    <button class="video-lite short-video" data-src="/videos/umut.mov" aria-label="Play Umut video">
-                        <img src="/pictures/umutthumbnail.png" alt="Umut video" loading="lazy">
-                    </button>
-                    <button class="video-lite short-video" data-src="/videos/baran.mov" aria-label="Play Baran video">
-                        <img src="/pictures/baranthumbnail.png" alt="Baran video" loading="lazy">
-                    </button>
-                    <button class="video-lite short-video" data-src="/videos/gulizar.mov" aria-label="Play Gulizar video">
-                        <img src="/pictures/gulizarthumbnail.png" alt="Gulizar video" loading="lazy">
-                    </button>
-                </div>
-            </div>
+            <!-- Video Carousel -->
+            <div class="video-carousel-wrapper">
+                <div class="video-carousel-container">
+                    <!-- Video Cards Stacked -->
+                    <div class="video-cards-section">
+                        <div class="video-card" data-index="0" data-name="Umut" data-tag="Fashion Creator" data-description="Stunning visual storytelling with professional editing">
+                            <button class="video-lite video-card-btn" data-src="/videos/umut.mov" aria-label="Play Umut video">
+                                <img src="/pictures/umutthumbnail.png" alt="Umut video" loading="lazy">
+                            </button>
+                        </div>
+                        <div class="video-card" data-index="1" data-name="Baran" data-tag="Lifestyle Influencer" data-description="Creative content that captivates audiences">
+                            <button class="video-lite video-card-btn" data-src="/videos/baran.mov" aria-label="Play Baran video">
+                                <img src="/pictures/baranthumbnail.png" alt="Baran video" loading="lazy">
+                            </button>
+                        </div>
+                        <div class="video-card" data-index="2" data-name="Gülizar" data-tag="Beauty & Style" data-description="Elegant visuals with perfect timing">
+                            <button class="video-lite video-card-btn" data-src="/videos/gulizar.mov" aria-label="Play Gulizar video">
+                                <img src="/pictures/gulizarthumbnail.png" alt="Gulizar video" loading="lazy">
+                            </button>
+                        </div>
+                        <div class="video-card" data-index="3" data-name="Ceyda" data-tag="Content Creator" data-description="Engaging long-form content with cinematic quality">
+                            <button class="video-lite video-card-btn" data-src="/videos/ceyda.mov" aria-label="Play Ceyda video">
+                                <img src="/pictures/ceydathumbnail.png" alt="Ceyda video" loading="lazy">
+                            </button>
+                        </div>
+                    </div>
 
-            <!-- Long form video -->
-            <div class="long-video-section">
-                <div class="long-video-container">
-                    <button class="video-lite long-video" data-src="/videos/ceyda.mov" aria-label="Play Ceyda video">
-                        <img src="/pictures/ceydathumbnail.png" alt="Ceyda video" loading="lazy">
-                    </button>
+                    <!-- Video Info Section -->
+                    <div class="video-info-section">
+                        <div class="video-info-content">
+                            <h3 class="video-creator-name">Umut</h3>
+                            <p class="video-creator-tag">Fashion Creator</p>
+                            <p class="video-description">Stunning visual storytelling with professional editing</p>
+                        </div>
+
+                        <!-- Navigation Controls -->
+                        <div class="carousel-controls">
+                            <button class="carousel-btn carousel-prev" aria-label="Previous video">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                            </button>
+                            <button class="carousel-btn carousel-next" aria-label="Next video">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
