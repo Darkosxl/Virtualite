@@ -338,7 +338,7 @@ document.querySelectorAll('.time-slot').forEach(slot => {
 
 // WebGL Shader Animation for hero section - Document-space anchored
 let shaderCanvas, gl, shaderProgram, animationId = null;
-let isShaderActive = true; // Always active
+let isShaderActive = false; // Will be activated by startShaderAnimation()
 let startTime = Date.now();
 let fixedCenter = { x: 0, y: 0 }; // Will be calculated from hero
 let scrollX = 0, scrollY = 0;
@@ -734,7 +734,7 @@ function setupPerformanceMonitoring() {
 function init3DCarousel() {
     console.log('🎡 Starting 3D carousel initialization...');
     
-    // 3D Carousel Video Data
+    // 3D Carousel Video Data - Smaller sizes since videos play fullscreen
     const carouselVideos = [
         {
             id: 'umut',
@@ -742,8 +742,8 @@ function init3DCarousel() {
             thumbnail: '/pictures/umutthumbnail.png',
             videoSrc: '/videos/umut.mov',
             aspectRatio: '9-16',
-            width: 250,
-            height: 444
+            width: 180,
+            height: 320
         },
         {
             id: 'baran',
@@ -751,8 +751,8 @@ function init3DCarousel() {
             thumbnail: '/pictures/baranthumbnail.png',
             videoSrc: '/videos/baran.mov',
             aspectRatio: '9-16',
-            width: 250,
-            height: 444
+            width: 180,
+            height: 320
         },
         {
             id: 'gulizar',
@@ -760,8 +760,8 @@ function init3DCarousel() {
             thumbnail: '/pictures/gulizarthumbnail.png',
             videoSrc: '/videos/gulizar.mov',
             aspectRatio: '9-16',
-            width: 250,
-            height: 444
+            width: 180,
+            height: 320
         },
         {
             id: 'ceyda',
@@ -769,8 +769,8 @@ function init3DCarousel() {
             thumbnail: '/pictures/ceydathumbnail.png',
             videoSrc: '/videos/ceyda.mov',
             aspectRatio: '16-9',
-            width: 350,
-            height: 197
+            width: 280,
+            height: 158
         }
     ];
 
