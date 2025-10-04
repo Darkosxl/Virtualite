@@ -466,8 +466,8 @@ video[title]:hover::after {
 .carousel-stage-card {
     position: relative;
     width: 100%;
-    min-height: 400px;
-    padding: 2.5rem;
+    min-height: 280px;
+    padding: 2rem;
     border-radius: 1rem;
     background: linear-gradient(135deg, #F2522E, #F24535);
     box-shadow: 0 4px 12px rgba(242, 69, 53, 0.3), 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -488,17 +488,17 @@ video[title]:hover::after {
     border-radius: 0.5rem;
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
     box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
-    padding: 1.5rem;
+    padding: 1rem;
     overflow: hidden;
 }
 
 .carousel-3d-container {
     width: 100%;
-    height: 380px;
+    height: 240px;
     display: flex;
     align-items: center;
     justify-content: center;
-    perspective: 1000px;
+    perspective: 800px;
     perspective-origin: 50% 50%;
     position: relative;
     overflow: visible;
@@ -831,16 +831,16 @@ video::-moz-mute-button {
     }
 
     .carousel-stage-card {
-        padding: 1.5rem;
-        min-height: 320px;
+        padding: 1.25rem;
+        min-height: 220px;
     }
 
     .carousel-stage-interior {
-        padding: 1rem;
+        padding: 0.75rem;
     }
 
     .carousel-3d-container {
-        height: 280px;
+        height: 180px;
     }
 
     .video-modal-content.aspect-9-16 video {
@@ -949,9 +949,19 @@ video::-moz-mute-button {
                 <div class="bento-card bento-card-medium-end">
                     <div class="bento-content">
                         <div class="bento-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2L8 7.5L2 9l5 5L6 21l6-3.5L18 21l-1-7 5-5-6-1.5L12 2z"/>
-                                <path d="M12 2L9.5 9.5L2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5L12 2z"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <!-- Diamond shape -->
+                                <path d="M20 30 L50 10 L80 30 L50 70 Z" fill="none"/>
+                                <path d="M20 30 L50 70 L80 30" fill="none"/>
+                                <path d="M20 30 L80 30" fill="none"/>
+                                <path d="M35 30 L50 70" fill="none"/>
+                                <path d="M65 30 L50 70" fill="none"/>
+                                <!-- Sparkle stars -->
+                                <path d="M15 15 L17 17 M17 15 L15 17" stroke-width="2.5"/>
+                                <path d="M85 20 L88 23 M88 20 L85 23" stroke-width="2.5"/>
+                                <path d="M85 55 L87 57 M87 55 L85 57" stroke-width="2"/>
+                                <path d="M10 50 L13 53 M13 50 L10 53" stroke-width="2"/>
+                                <path d="M50 5 L52 7 M52 5 L50 7" stroke-width="2"/>
                             </svg>
                         </div>
                         <h3 class="bento-title" data-tr="5 Milyon TL" data-en="100,000+ USD" data-it="100.000+ EUR">5 Milyon TL</h3>

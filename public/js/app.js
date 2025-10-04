@@ -734,7 +734,7 @@ function setupPerformanceMonitoring() {
 function init3DCarousel() {
     console.log('🎡 Starting 3D carousel initialization...');
     
-    // 3D Carousel Video Data - Smaller sizes since videos play fullscreen
+    // 3D Carousel Video Data - Half size for compact display (fits 8 videos easily)
     const carouselVideos = [
         {
             id: 'umut',
@@ -742,8 +742,8 @@ function init3DCarousel() {
             thumbnail: '/pictures/umutthumbnail.png',
             videoSrc: '/videos/umut.mov',
             aspectRatio: '9-16',
-            width: 180,
-            height: 320
+            width: 90,
+            height: 160
         },
         {
             id: 'baran',
@@ -751,8 +751,8 @@ function init3DCarousel() {
             thumbnail: '/pictures/baranthumbnail.png',
             videoSrc: '/videos/baran.mov',
             aspectRatio: '9-16',
-            width: 180,
-            height: 320
+            width: 90,
+            height: 160
         },
         {
             id: 'gulizar',
@@ -760,8 +760,8 @@ function init3DCarousel() {
             thumbnail: '/pictures/gulizarthumbnail.png',
             videoSrc: '/videos/gulizar.mov',
             aspectRatio: '9-16',
-            width: 180,
-            height: 320
+            width: 90,
+            height: 160
         },
         {
             id: 'ceyda',
@@ -769,8 +769,8 @@ function init3DCarousel() {
             thumbnail: '/pictures/ceydathumbnail.png',
             videoSrc: '/videos/ceyda.mov',
             aspectRatio: '16-9',
-            width: 280,
-            height: 158
+            width: 140,
+            height: 79
         }
     ];
 
