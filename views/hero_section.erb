@@ -289,13 +289,13 @@
     60% { transform: translateX(-50%) translateY(-0.3125vw); }
 }
 
-/* WebGL Shader Canvas - fixed at hero center, rings expand throughout page */
+/* WebGL Shader Canvas - fixed positioning, tall canvas for wave effect to extend down */
 #shader-canvas {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
-    height: 300vh; /* Tall enough for rings to reach footer */
+    height: 100%; /* Height set dynamically by JavaScript to cover full page */
     z-index: 0;
     pointer-events: none;
 }

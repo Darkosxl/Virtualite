@@ -344,9 +344,19 @@ function initShaderAnimation() {
     }
 
     // Set canvas size - tall enough for rings to reach footer
+    // Store viewport height for shader calculations
+    const viewportHeight = window.innerHeight;
+    const pageHeight = Math.max(
+        document.documentElement.scrollHeight,
+        window.innerHeight * 4 // Ensure at least 4x viewport height for expanding circles
+    );
+    
     shaderCanvas.width = window.innerWidth;
-    shaderCanvas.height = window.innerHeight * 3; // 3x viewport height for full page coverage
+    shaderCanvas.height = pageHeight;
     gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
+
+    // Pass viewport height to shader
+    shaderCanvas.dataset.viewportHeight = viewportHeight;
 
     // Vertex shader
     const vertexShaderSource = `
@@ -367,10 +377,13 @@ function initShaderAnimation() {
 
         uniform vec2 resolution;
         uniform float time;
+        uniform float viewportHeight;
 
         void main(void) {
-            // Fixed center at hero section (top half of viewport, not canvas)
-            vec2 heroCenter = vec2(resolution.x * 0.5, resolution.y / 6.0); // 1/6 of tall canvas = hero center
+            // Center point at hero section center (50% of viewport height from bottom of canvas)
+            // Since gl_FragCoord.xy starts from bottom-left, we need to account for this
+            float heroYFromBottom = resolution.y - (viewportHeight * 0.5);
+            vec2 heroCenter = vec2(resolution.x * 0.5, heroYFromBottom);
             vec2 pixelPos = gl_FragCoord.xy - heroCenter;
 
             // Normalize to keep circles circular (use width as reference)
@@ -454,9 +467,11 @@ function animateShader() {
     // Set uniforms
     const resolutionLocation = gl.getUniformLocation(shaderProgram, 'resolution');
     const timeLocation = gl.getUniformLocation(shaderProgram, 'time');
+    const viewportHeightLocation = gl.getUniformLocation(shaderProgram, 'viewportHeight');
 
     gl.uniform2f(resolutionLocation, shaderCanvas.width, shaderCanvas.height);
     gl.uniform1f(timeLocation, currentTime);
+    gl.uniform1f(viewportHeightLocation, parseFloat(shaderCanvas.dataset.viewportHeight));
 
     // Draw
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -484,8 +499,15 @@ window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
         if (shaderCanvas && gl) {
+            const viewportHeight = window.innerHeight;
+            const pageHeight = Math.max(
+                document.documentElement.scrollHeight,
+                window.innerHeight * 4 // Ensure at least 4x viewport height for expanding circles
+            );
+            
             shaderCanvas.width = window.innerWidth;
-            shaderCanvas.height = window.innerHeight * 3; // Match initial setup
+            shaderCanvas.height = pageHeight;
+            shaderCanvas.dataset.viewportHeight = viewportHeight;
             gl.viewport(0, 0, shaderCanvas.width, shaderCanvas.height);
         }
     }, 100);
