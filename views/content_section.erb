@@ -453,142 +453,6 @@ video[title]:hover::after {
     color: #888;
 }
 
-/* 3D Cylindrical Video Carousel Styles - Integrated with Bento Grid */
-.video-carousel-wrapper {
-    width: 100%;
-    max-width: 75%; /* Match bento grid width */
-    margin: 2vh auto 6vh auto; /* Closer to grid above */
-    padding: 0;
-}
-
-/* Stage Card - Bento Tile Frame for Carousel */
-.carousel-stage-card {
-    position: relative;
-    width: 100%;
-    min-height: 280px;
-    padding: 2rem;
-    border-radius: 1rem;
-    background: linear-gradient(135deg, #F2522E, #F24535);
-    box-shadow: 0 4px 12px rgba(242, 69, 53, 0.3), 0 8px 24px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.carousel-stage-card:hover {
-    box-shadow: 0 8px 20px rgba(242, 69, 53, 0.4), 0 16px 40px rgba(0, 0, 0, 0.2);
-}
-
-/* Interior Stage - Darker background for contrast */
-.carousel-stage-interior {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    border-radius: 0.5rem;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
-    padding: 1rem;
-    overflow: hidden;
-}
-
-.carousel-3d-container {
-    width: 100%;
-    height: 240px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    perspective: 1000px;
-    perspective-origin: 50% 50%;
-    position: relative;
-    overflow: hidden;
-    background: transparent;
-}
-
-.carousel-3d-cylinder {
-    position: relative;
-    width: 100%;
-    max-width: 1800px;
-    height: 100%;
-    transform-style: preserve-3d;
-    cursor: grab;
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: transform;
-    transform: rotateY(0deg);
-}
-
-.carousel-3d-cylinder:active {
-    cursor: grabbing;
-}
-
-.carousel-3d-face {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border-radius: 20px;
-    overflow: visible;
-    padding: 8px;
-    transform-style: preserve-3d;
-    backface-visibility: visible;
-    transform-origin: center center;
-}
-
-.carousel-3d-face button {
-    width: 100%;
-    height: 100%;
-    border: none;
-    padding: 0;
-    background: #000;
-    cursor: pointer;
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.carousel-3d-face button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.carousel-3d-face img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 16px;
-    pointer-events: none;
-    display: block;
-}
-
-/* Play button overlay */
-.carousel-3d-face button::after {
-    content: '▶';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    transition: all 0.3s ease;
-    pointer-events: none;
-}
-
-.carousel-3d-face button:hover::after {
-    background: rgba(255, 255, 255, 0.9);
-    color: black;
-    transform: translate(-50%, -50%) scale(1.1);
-}
 
 /* Hide and disable volume controls on all videos */
 video::-webkit-media-controls-volume-slider,
@@ -690,15 +554,30 @@ video::-moz-mute-button {
     transform: rotate(90deg);
 }
 
-/* Diagonal Connectors */
+/* Decorative Heart Flourish Connectors */
 .diagonal-connectors {
     width: 75%;
     max-width: 75%;
-    height: 60px;
-    margin: -30px auto 0 auto;
+    height: clamp(40px, 6vh, 80px);
+    margin: 0 auto;
     display: block;
     position: relative;
     z-index: 5;
+}
+
+@media (max-width: 1200px) {
+    .diagonal-connectors {
+        width: 85%;
+        max-width: 85%;
+    }
+}
+
+@media (max-width: 768px) {
+    .diagonal-connectors {
+        width: 95%;
+        max-width: 95%;
+        height: clamp(30px, 5vh, 60px);
+    }
 }
 
 /* Gallery Rectangle Container */
@@ -1294,12 +1173,73 @@ video::-moz-mute-button {
                 </div>
             </div>
 
-            <!-- SVG Diagonal Connectors - Using Exact Amoredit Logo "A" Colors -->
-            <svg class="diagonal-connectors" viewBox="0 0 100 20" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Left diagonal line - matches left stroke of "A" in Amoredit logo (#F2522E - darker orange-red) -->
-                <line x1="12.5" y1="0" x2="0" y2="20" stroke="#F2522E" stroke-width="2" />
-                <!-- Right diagonal line - matches right stroke of "A" in Amoredit logo (#F24535 - lighter red-orange) -->
-                <line x1="87.5" y1="0" x2="100" y2="20" stroke="#F24535" stroke-width="2" />
+            <!-- SVG Decorative Heart Flourish Connectors - Using Exact Amoredit Logo Colors -->
+            <svg class="diagonal-connectors" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Decorative heart flourish with curled tendrils connecting bento grid to carousel -->
+                <defs>
+                    <linearGradient id="heartGradientLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#F2522E;stop-opacity:0.9" />
+                        <stop offset="100%" style="stop-color:#F3533E;stop-opacity:0.8" />
+                    </linearGradient>
+                    <linearGradient id="heartGradientRight" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#F24535;stop-opacity:0.9" />
+                        <stop offset="100%" style="stop-color:#F3533E;stop-opacity:0.8" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Left ornate curled line from bottom-left of bento to top-left of carousel -->
+                <path d="M 12.5 0
+                         C 12.5 20, 10 25, 8 35
+                         C 6 45, 4 55, 3 65
+                         C 2 75, 1 85, 0 100"
+                      stroke="url(#heartGradientLeft)"
+                      stroke-width="3"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+
+                <!-- Left inner decorative swirl -->
+                <path d="M 12.5 0
+                         C 11 15, 9 20, 7.5 30
+                         C 6.5 38, 5.5 46, 4.5 55"
+                      stroke="#F2522E"
+                      stroke-width="1.5"
+                      fill="none"
+                      stroke-linecap="round"
+                      opacity="0.5"/>
+
+                <!-- Right ornate curled line from bottom-right of bento to top-right of carousel -->
+                <path d="M 87.5 0
+                         C 87.5 20, 90 25, 92 35
+                         C 94 45, 96 55, 97 65
+                         C 98 75, 99 85, 100 100"
+                      stroke="url(#heartGradientRight)"
+                      stroke-width="3"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+
+                <!-- Right inner decorative swirl -->
+                <path d="M 87.5 0
+                         C 89 15, 91 20, 92.5 30
+                         C 93.5 38, 94.5 46, 95.5 55"
+                      stroke="#F24535"
+                      stroke-width="1.5"
+                      fill="none"
+                      stroke-linecap="round"
+                      opacity="0.5"/>
+
+                <!-- Central heart meeting point accent -->
+                <path d="M 45 65
+                         Q 50 70, 50 75
+                         Q 50 78, 50 80
+                         Q 50 78, 50 75
+                         Q 50 70, 55 65"
+                      stroke="url(#heartGradientLeft)"
+                      stroke-width="1.5"
+                      fill="none"
+                      stroke-linecap="round"
+                      opacity="0.6"/>
             </svg>
 
             <!-- Custom Rectangle Container with Gallery Carousel -->
@@ -1308,8 +1248,8 @@ video::-moz-mute-button {
                     <!-- Gallery Header -->
                     <div class="gallery-header">
                         <div class="gallery-text">
-                            <h2 class="gallery-title" data-tr="Projeler" data-en="Projects" data-it="Progetti">Projeler</h2>
-                            <p class="gallery-description" data-tr="Önde gelen şirketlerin ve geliştiricilerin olağanüstü dijital deneyimler oluşturmak için modern web teknolojilerinden nasıl yararlandığını keşfedin." data-en="Discover how leading companies and developers are leveraging modern web technologies to build exceptional digital experiences." data-it="Scopri come aziende leader e sviluppatori stanno sfruttando le moderne tecnologie web per creare esperienze digitali eccezionali.">Önde gelen şirketlerin ve geliştiricilerin olağanüstü dijital deneyimler oluşturmak için modern web teknolojilerinden nasıl yararlandığını keşfedin.</p>
+                            <h2 class="gallery-title" data-tr="Our edits:" data-en="Our edits:" data-it="I nostri edit:">Our edits:</h2>
+                            <p class="gallery-description" data-tr="Motion Graphics, Color Grading, Room-tone matching, Kinetic Typography, 3-point editing, SFX, Dynamic EQ" data-en="Motion Graphics, Color Grading, Room-tone matching, Kinetic Typography, 3-point editing, SFX, Dynamic EQ" data-it="Motion Graphics, Color Grading, Room-tone matching, Kinetic Typography, 3-point editing, SFX, Dynamic EQ">Motion Graphics, Color Grading, Room-tone matching, Kinetic Typography, 3-point editing, SFX, Dynamic EQ</p>
                         </div>
                         <div class="gallery-nav-buttons">
                             <button class="gallery-nav-btn gallery-prev" aria-label="Previous">
@@ -1339,18 +1279,6 @@ video::-moz-mute-button {
                 </div>
             </div>
 
-            <!-- 3D Video Carousel - Housed in Bento Stage Card -->
-            <div class="video-carousel-wrapper">
-                <div class="carousel-stage-card">
-                    <div class="carousel-stage-interior">
-                        <div class="carousel-3d-container">
-                            <div class="carousel-3d-cylinder" id="carousel-3d">
-                                <!-- Carousel faces will be generated by JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Gallery Video Modal -->
             <div class="gallery-video-modal-overlay" id="galleryVideoModal">
