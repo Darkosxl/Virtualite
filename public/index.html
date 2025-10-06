@@ -316,7 +316,7 @@
                     vec3 color = vec3(0.0);
                     for(int j = 0; j < 3; j++){
                         for(int i=0; i < 5; i++){
-                            color[j] += lineWidth*float(i*i) / abs(fract(t - 0.01*float(j)+float(i)*0.01)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
+                            color[j] += lineWidth*float(i*i) / abs(fract(t - 0.01*float(j)+float(i)*0.01)*10.0 - length(uv) + mod(uv.x+uv.y, 0.2));
                         }
                     }
                     
@@ -458,7 +458,7 @@
             });
 
             // Apply saved language on page load
-            const savedLang = localStorage.getItem('selectedLanguage') || 'tr';
+            const savedLang = localStorage.getItem('selectedLanguage') || 'en';
             const savedOption = document.querySelector(`[data-lang="${savedLang}"]`);
             if (savedOption) {
                 const flagSrc = savedOption.querySelector('.flag-icon').src;
@@ -468,7 +468,7 @@
 
             // Watch for dynamically loaded content
             const observer = new MutationObserver(function(mutations) {
-                const selectedLang = localStorage.getItem('selectedLanguage') || 'tr';
+                const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
                 mutations.forEach(function(mutation) {
                     mutation.addedNodes.forEach(function(node) {
                         if (node.nodeType === 1) {
