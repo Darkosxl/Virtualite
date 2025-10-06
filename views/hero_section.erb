@@ -266,12 +266,26 @@
     font-size: clamp(2.34rem, 5.2vw, 5.2rem);
     font-weight: 900;
     margin-bottom: 3vh;
-    background: linear-gradient(45deg, #fff, #F2522E, #F24535);
+    color: white;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.hero h1 .gradient-text {
+    background: linear-gradient(45deg, #F2522E, #F24535, #fff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
+}
+
+.hero p a {
+    color: #F2522E;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.hero p a:hover {
+    color: #F24535;
 }
 
 .hero p {
@@ -333,13 +347,41 @@
 
 @media (max-width: 768px) {
     .navbar {
-        transform: translateX(-50%) scale(0.85);
-        padding: 0.6vh 1.2vw;
+        transform: translateX(-50%) scale(1);
+        padding: 0.8vh 1.5vw;
+        max-width: 96%;
+        width: 96%;
+    }
+
+    .nav-container {
+        gap: 1vw;
     }
 
     .nav-link {
-        font-size: 0.75rem;
-        padding: 0.5vh 1.2vw;
+        font-size: 0.8rem;
+        padding: 0.8vh 2vw;
+        white-space: nowrap;
+    }
+
+    .nav-logo {
+        min-height: 35px;
+        max-height: 35px;
+    }
+
+    .selected-language {
+        padding: 0.8vh 1.5vw;
+        font-size: 0.8rem;
+        min-width: auto;
+    }
+
+    .flag-icon {
+        width: 20px;
+        height: 15px;
+    }
+
+    .chevron-icon {
+        width: 14px;
+        height: 14px;
     }
 
     .hero-content {
@@ -391,10 +433,9 @@
     <section class="hero" id="home">
         <div class="hero-content">
             <div class="hero-text">
-                <h1 data-tr="Edit: ayda 40 saatini alan o baş belası!" data-en="Editing: that 40-hour monthly headache!" data-it="Editing: quel mal di testa di 40 ore al mese!">Edit: ayda 40 saatini alan o baş belası!</h1>
-                <p data-tr="Bu süreyi iş birliklerini artırmaya ayırmak harika olmaz mı? Veya daha çok içerik üretmeye! Veya takipçilerini artırmaya!" data-en="Wouldn't it be great to spend this time getting more brand deals? Or creating more content! Or growing your followers!" data-it="Non sarebbe fantastico usare questo tempo per aumentare le collaborazioni? O per creare più content! O per far crescere i tuoi follower!">Bu süreyi iş birliklerini artırmaya ayırmak harika olmaz mı? Veya daha çok içerik üretmeye! Veya takipçilerini artırmaya!</p>
-                <p data-tr="Videonu çek, bize gönder, ışık hızında editleyelim, paylaş. Tekrar et!" data-en="Shoot your video, send it to us, we'll edit it at lightning speed, share it. Repeat!" data-it="Gira il tuo video, invialo a noi, lo modificheremo alla velocità della luce, condividilo. Ripeti!">Videonu çek, bize gönder, ışık hızında editleyelim, paylaş. Tekrar et!</p>
+                <h1><span data-tr="Editler: müşterilerinizin" data-en="Edits: the first impression of" data-it="Edits: la prima impressione dell'">Editler: müşterilerinizin</span> <span class="gradient-text" data-tr="%80.2" data-en="80.2%" data-it="80,2%">%80.2</span><span data-tr="'sinin ilk izlenimi" data-en=" of your clients" data-it=" dei tuoi clienti">'sinin ilk izlenimi</span></h1>
+                <p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4901188/" target="_blank" rel="noopener noreferrer"><span data-tr="Veriler" data-en="Data" data-it="Dati">Veriler</span></a> <span data-tr="gösteriyor ki müşterilerinizin ilk izlenimi internet varlığınızdır, içeriklerinizi, ilk temasınızı, dikkatlerini çekmek için tasarlayalım" data-en="shows that the first impression your clients have on you is your internet presence, let's design your content, your first contact, to get their attention" data-it="dimostrano che la prima impressione che i tuoi clienti hanno di te è la tua presenza su internet, progettiamo i tuoi contenuti, il tuo primo contatto, per attirare la loro attenzione">gösteriyor ki müşterilerinizin ilk izlenimi internet varlığınızdır, içeriklerinizi, ilk temasınızı, dikkatlerini çekmek için tasarlayalım</span></p>
             </div>
-            <a href="#contact" class="cta-button" data-tr="Tanışalım mı?" data-en="Shall we meet?" data-it="Conosciamoci!">Tanışalım mı?</a>
+            <a href="#contact" class="cta-button" data-tr="Ücretsiz Görüşme Ayarlayın" data-en="Book a Free Call" data-it="Prenota una chiamata gratuita">Ücretsiz Görüşme Ayarlayın</a>
         </div>
     </section>

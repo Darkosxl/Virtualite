@@ -475,6 +475,76 @@ function initGalleryCarousel() {
     // Use existing video data from 3D carousel
     const galleryVideos = [
         {
+            id: 'zoe',
+            name: 'Zoe',
+            thumbnail: '/pictures/zoethumbnail.png',
+            videoSrc: '/videos/zoe.mp4',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'vivianguo',
+            name: 'Vivian Guo',
+            thumbnail: '/pictures/vivanguothumbnail.png',
+            videoSrc: '/videos/vivianguo.mp4',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'enis-4',
+            name: 'Enis',
+            thumbnail: '/pictures/enis4thumbnail.png',
+            videoSrc: '/videos/enis-4.mov',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'justinkan',
+            name: 'Justin Kan',
+            thumbnail: '/pictures/justinkanthumbnail.png',
+            videoSrc: '/videos/justinkan.mp4',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'enis-5',
+            name: 'Enis',
+            thumbnail: '/pictures/enis5thumbnail.png',
+            videoSrc: '/videos/enis-5.mov',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'mirofounder',
+            name: 'Miro Founder',
+            thumbnail: '/pictures/mirofounderthumbnail.png',
+            videoSrc: '/videos/mirofounder.mp4',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'enis-6',
+            name: 'Enis',
+            thumbnail: '/pictures/enis6thumbnail.png',
+            videoSrc: '/videos/enis-6.mov',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'naeemishaq',
+            name: 'Naeem Ishaq',
+            thumbnail: '/pictures/naeemishaqthumbnail.png',
+            videoSrc: '/videos/naeemishaq.mp4',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'enis',
+            name: 'Enis',
+            thumbnail: '/pictures/enisthumbnail.png',
+            videoSrc: '/videos/enis.mov',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'displaybasketball',
+            name: 'Display Basketball',
+            thumbnail: '/pictures/displaybasketballthumbnail.png',
+            videoSrc: '/videos/displaybasketball.mov',
+            aspectRatio: '9-16'
+        },
+        {
             id: 'umut',
             name: 'Umut',
             thumbnail: '/pictures/umutthumbnail.png',
@@ -515,55 +585,6 @@ function initGalleryCarousel() {
             thumbnail: '/pictures/burcuthumbnail.png',
             videoSrc: '/videos/burcu.mp4',
             aspectRatio: '9-16'
-        },
-        {
-            id: 'zoe',
-            name: 'Zoe',
-            thumbnail: '/pictures/zoethumbnail.png',
-            videoSrc: '/videos/zoe.mp4',
-            aspectRatio: '1-1'
-        },
-        {
-            id: 'vivianguo',
-            name: 'Vivian Guo',
-            thumbnail: '/pictures/vivanguothumbnail.png',
-            videoSrc: '/videos/vivianguo.mp4',
-            aspectRatio: '1-1'
-        },
-        {
-            id: 'justinkan',
-            name: 'Justin Kan',
-            thumbnail: '/pictures/justinkanthumbnail.png',
-            videoSrc: '/videos/justinkan.mp4',
-            aspectRatio: '1-1'
-        },
-        {
-            id: 'mirofounder',
-            name: 'Miro Founder',
-            thumbnail: '/pictures/mirofounderthumbnail.png',
-            videoSrc: '/videos/mirofounder.mp4',
-            aspectRatio: '1-1'
-        },
-        {
-            id: 'naeemishaq',
-            name: 'Naeem Ishaq',
-            thumbnail: '/pictures/naeemishaqthumbnail.png',
-            videoSrc: '/videos/naeemishaq.mp4',
-            aspectRatio: '1-1'
-        },
-        {
-            id: 'displaybasketball',
-            name: 'Display Basketball',
-            thumbnail: '/pictures/displaybasketballthumbnail.png',
-            videoSrc: '/videos/displaybasketball.mov',
-            aspectRatio: '9-16'
-        },
-        {
-            id: 'enis',
-            name: 'Enis',
-            thumbnail: '/pictures/enisthumbnail.png',
-            videoSrc: '/videos/enis.mov',
-            aspectRatio: '1-1'
         }
     ];
 
