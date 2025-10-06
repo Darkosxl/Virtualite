@@ -619,6 +619,9 @@ function initGalleryCarousel() {
         carouselItem.innerHTML = `
             <div class="gallery-item-content">
                 <img src="${video.thumbnail}" alt="${video.name}" class="gallery-item-image" loading="lazy">
+                <video class="gallery-item-video" loop muted playsinline>
+                    <source src="${video.videoSrc}" type="video/mp4">
+                </video>
                 <div class="gallery-item-play-overlay">
                     <svg class="gallery-play-icon" xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -627,10 +630,10 @@ function initGalleryCarousel() {
             </div>
         `;
 
-        // Click to play video in modal
+        // Click to play video inline
         carouselItem.addEventListener('click', (e) => {
             e.stopPropagation();
-            openGalleryVideoModal(video.videoSrc, video.aspectRatio);
+            playVideoInline(carouselItem);
         });
 
         track.appendChild(carouselItem);
@@ -645,57 +648,33 @@ function initGalleryCarousel() {
         dotsContainer.appendChild(dot);
     });
 
-    // Video modal functions
-    function openGalleryVideoModal(videoSrc, aspectRatio) {
-        if (!modal || !modalVideo || !modalContent) return;
+    // Play video inline
+    function playVideoInline(clickedItem) {
+        const videoElement = clickedItem.querySelector('.gallery-item-video');
 
-        modalVideo.src = videoSrc;
-        modalVideo.muted = true;
-        modalContent.className = 'gallery-modal-content aspect-' + aspectRatio;
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-
-        // Prevent unmuting
-        modalVideo.addEventListener('volumechange', function forceVideoMute() {
-            if (!modalVideo.muted) {
-                modalVideo.muted = true;
+        // Stop all other videos in the carousel
+        document.querySelectorAll('.gallery-carousel-item').forEach(item => {
+            if (item !== clickedItem) {
+                const otherVideo = item.querySelector('.gallery-item-video');
+                if (otherVideo) {
+                    otherVideo.pause();
+                    otherVideo.currentTime = 0;
+                }
+                item.classList.remove('playing');
             }
         });
 
-        modalVideo.play().catch(e => {
-            console.log('Video autoplay prevented:', e);
-        });
-    }
-
-    function closeGalleryVideoModal() {
-        if (!modal || !modalVideo) return;
-
-        modal.classList.remove('active');
-        modalVideo.pause();
-        modalVideo.muted = true;
-        modalVideo.src = '';
-        document.body.style.overflow = '';
-    }
-
-    // Close modal handlers
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeGalleryVideoModal);
-    }
-
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeGalleryVideoModal();
-            }
-        });
-    }
-
-    // Close on Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
-            closeGalleryVideoModal();
+        // Toggle play/pause for clicked video
+        if (clickedItem.classList.contains('playing')) {
+            videoElement.pause();
+            clickedItem.classList.remove('playing');
+        } else {
+            clickedItem.classList.add('playing');
+            videoElement.play().catch(e => {
+                console.log('Video autoplay prevented:', e);
+            });
         }
-    });
+    }
 
     // Update carousel position
     function updateCarousel() {

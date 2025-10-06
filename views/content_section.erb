@@ -672,12 +672,29 @@ video::-moz-mute-button {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: opacity 0.3s ease;
     display: block;
+    cursor: pointer;
 }
 
-.gallery-carousel-item:hover .gallery-item-image {
-    transform: scale(1.05);
+.gallery-item-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 0.75rem;
+}
+
+.gallery-carousel-item.playing .gallery-item-image {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.gallery-carousel-item.playing .gallery-item-video {
+    display: block;
 }
 
 /* Play button overlay */
@@ -690,10 +707,15 @@ video::-moz-mute-button {
     background: rgba(0, 0, 0, 0.2);
     opacity: 0;
     transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
 .gallery-carousel-item:hover .gallery-item-play-overlay {
     opacity: 1;
+}
+
+.gallery-carousel-item.playing .gallery-item-play-overlay {
+    opacity: 0;
 }
 
 .gallery-play-icon {
@@ -729,96 +751,6 @@ video::-moz-mute-button {
     background: white;
     width: 1.5rem;
     border-radius: 0.25rem;
-}
-
-/* Gallery Video Modal */
-.gallery-video-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.95);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    padding: 20px;
-}
-
-.gallery-video-modal-overlay.active {
-    display: flex;
-    opacity: 1;
-}
-
-.gallery-modal-content {
-    position: relative;
-    max-width: 95vw;
-    max-height: 95vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: galleryVideoModalZoom 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
-@keyframes galleryVideoModalZoom {
-    0% {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.gallery-modal-content video {
-    max-width: 100%;
-    max-height: 95vh;
-    border-radius: 15px;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
-}
-
-/* Different aspect ratios for videos */
-.gallery-modal-content.aspect-9-16 video {
-    width: auto;
-    height: 95vh;
-    max-width: calc(95vh * 9 / 16);
-}
-
-.gallery-modal-content.aspect-16-9 video {
-    width: 90vw;
-    max-width: 900px;
-    height: auto;
-}
-
-.gallery-modal-content.aspect-1-1 video {
-    width: auto;
-    height: 80vh;
-    max-width: 80vh;
-}
-
-.gallery-modal-close {
-    position: absolute;
-    top: -50px;
-    right: 0;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: white;
-    font-size: 30px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    z-index: 10001;
-}
-
-.gallery-modal-close:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: rotate(90deg);
 }
 
 /* Responsive design */
@@ -1192,14 +1124,6 @@ video::-moz-mute-button {
                 </div>
             </div>
 
-
-            <!-- Gallery Video Modal -->
-            <div class="gallery-video-modal-overlay" id="galleryVideoModal">
-                <div class="gallery-modal-content" id="galleryModalContent">
-                    <button class="gallery-modal-close" id="galleryModalClose" aria-label="Close video">×</button>
-                    <video id="galleryModalVideo" controls autoplay muted loop></video>
-                </div>
-            </div>
 
             <!-- Video Modal -->
             <div class="video-modal-overlay" id="videoModal">
