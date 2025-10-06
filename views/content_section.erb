@@ -554,12 +554,11 @@ video::-moz-mute-button {
     transform: rotate(90deg);
 }
 
-/* Decorative Heart Flourish Connectors */
+/* Decorative Heart Flourish */
 .diagonal-connectors {
-    width: 75%;
-    max-width: 75%;
-    height: clamp(40px, 6vh, 80px);
-    margin: 0 auto;
+    width: clamp(200px, 30%, 400px);
+    height: clamp(60px, 12vh, 120px);
+    margin: 2vh auto 2vh auto;
     display: block;
     position: relative;
     z-index: 5;
@@ -567,16 +566,15 @@ video::-moz-mute-button {
 
 @media (max-width: 1200px) {
     .diagonal-connectors {
-        width: 85%;
-        max-width: 85%;
+        width: clamp(180px, 35%, 350px);
     }
 }
 
 @media (max-width: 768px) {
     .diagonal-connectors {
-        width: 95%;
-        max-width: 95%;
-        height: clamp(30px, 5vh, 60px);
+        width: clamp(150px, 40%, 300px);
+        height: clamp(50px, 10vh, 100px);
+        margin: 1.5vh auto 1.5vh auto;
     }
 }
 
@@ -1173,73 +1171,62 @@ video::-moz-mute-button {
                 </div>
             </div>
 
-            <!-- SVG Decorative Heart Flourish Connectors - Using Exact Amoredit Logo Colors -->
-            <svg class="diagonal-connectors" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Decorative heart flourish with curled tendrils connecting bento grid to carousel -->
+            <!-- SVG Decorative Heart Flourish - Centered Below Middle Card -->
+            <svg class="diagonal-connectors" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <linearGradient id="heartGradientLeft" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#F2522E;stop-opacity:0.9" />
-                        <stop offset="100%" style="stop-color:#F3533E;stop-opacity:0.8" />
-                    </linearGradient>
-                    <linearGradient id="heartGradientRight" x1="100%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style="stop-color:#F24535;stop-opacity:0.9" />
-                        <stop offset="100%" style="stop-color:#F3533E;stop-opacity:0.8" />
+                    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#F2522E;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#F3533E;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#F24535;stop-opacity:1" />
                     </linearGradient>
                 </defs>
 
-                <!-- Left ornate curled line from bottom-left of bento to top-left of carousel -->
-                <path d="M 12.5 0
-                         C 12.5 20, 10 25, 8 35
-                         C 6 45, 4 55, 3 65
-                         C 2 75, 1 85, 0 100"
-                      stroke="url(#heartGradientLeft)"
-                      stroke-width="3"
+                <!-- Left heart curve with decorative swirl -->
+                <path d="M 110 20
+                         C 105 15, 100 12, 95 15
+                         C 88 19, 85 28, 88 38
+                         C 92 50, 102 60, 115 72
+                         C 125 82, 138 92, 150 100"
+                      stroke="url(#heartGradient)"
+                      stroke-width="5"
                       fill="none"
                       stroke-linecap="round"
                       stroke-linejoin="round"/>
 
-                <!-- Left inner decorative swirl -->
-                <path d="M 12.5 0
-                         C 11 15, 9 20, 7.5 30
-                         C 6.5 38, 5.5 46, 4.5 55"
+                <!-- Right heart curve with decorative swirl -->
+                <path d="M 190 20
+                         C 195 15, 200 12, 205 15
+                         C 212 19, 215 28, 212 38
+                         C 208 50, 198 60, 185 72
+                         C 175 82, 162 92, 150 100"
+                      stroke="url(#heartGradient)"
+                      stroke-width="5"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+
+                <!-- Left decorative curl accent -->
+                <path d="M 95 18
+                         C 90 16, 85 15, 82 18
+                         C 79 21, 80 26, 83 29"
                       stroke="#F2522E"
-                      stroke-width="1.5"
-                      fill="none"
-                      stroke-linecap="round"
-                      opacity="0.5"/>
-
-                <!-- Right ornate curled line from bottom-right of bento to top-right of carousel -->
-                <path d="M 87.5 0
-                         C 87.5 20, 90 25, 92 35
-                         C 94 45, 96 55, 97 65
-                         C 98 75, 99 85, 100 100"
-                      stroke="url(#heartGradientRight)"
                       stroke-width="3"
                       fill="none"
                       stroke-linecap="round"
-                      stroke-linejoin="round"/>
+                      opacity="0.8"/>
 
-                <!-- Right inner decorative swirl -->
-                <path d="M 87.5 0
-                         C 89 15, 91 20, 92.5 30
-                         C 93.5 38, 94.5 46, 95.5 55"
+                <!-- Right decorative curl accent -->
+                <path d="M 205 18
+                         C 210 16, 215 15, 218 18
+                         C 221 21, 220 26, 217 29"
                       stroke="#F24535"
-                      stroke-width="1.5"
+                      stroke-width="3"
                       fill="none"
                       stroke-linecap="round"
-                      opacity="0.5"/>
+                      opacity="0.8"/>
 
-                <!-- Central heart meeting point accent -->
-                <path d="M 45 65
-                         Q 50 70, 50 75
-                         Q 50 78, 50 80
-                         Q 50 78, 50 75
-                         Q 50 70, 55 65"
-                      stroke="url(#heartGradientLeft)"
-                      stroke-width="1.5"
-                      fill="none"
-                      stroke-linecap="round"
-                      opacity="0.6"/>
+                <!-- Small center flourish where heart meets -->
+                <circle cx="150" cy="100" r="3" fill="url(#heartGradient)" opacity="0.9"/>
             </svg>
 
             <!-- Custom Rectangle Container with Gallery Carousel -->
@@ -1248,7 +1235,7 @@ video::-moz-mute-button {
                     <!-- Gallery Header -->
                     <div class="gallery-header">
                         <div class="gallery-text">
-                            <h2 class="gallery-title" data-tr="Our edits:" data-en="Our edits:" data-it="I nostri edit:">Our edits:</h2>
+                            <h2 class="gallery-title" data-tr="Editlerimiz" data-en="Our Edits" data-it="Edit">Our edits</h2>
                             <p class="gallery-description" data-tr="Motion Graphics, Color Grading, Room-tone matching, Kinetic Typography, 3-point editing, SFX, Dynamic EQ" data-en="Motion Graphics, Color Grading, Room-tone matching, Kinetic Typography, 3-point editing, SFX, Dynamic EQ" data-it="Motion Graphics, Color Grading, Room-tone matching, Kinetic Typography, 3-point editing, SFX, Dynamic EQ">Motion Graphics, Color Grading, Room-tone matching, Kinetic Typography, 3-point editing, SFX, Dynamic EQ</p>
                         </div>
                         <div class="gallery-nav-buttons">
