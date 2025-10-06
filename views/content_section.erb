@@ -554,11 +554,15 @@ video::-moz-mute-button {
     transform: rotate(90deg);
 }
 
-/* Decorative Heart Flourish */
+/* Decorative Heart Flourish - Fully Responsive */
 .diagonal-connectors {
-    width: clamp(200px, 30%, 400px);
-    height: clamp(60px, 12vh, 120px);
-    margin: 2vh auto 2vh auto;
+    width: 20vw;
+    height: 20vw;
+    max-width: 200px;
+    max-height: 200px;
+    min-width: 100px;
+    min-height: 100px;
+    margin: 3vh auto;
     display: block;
     position: relative;
     z-index: 5;
@@ -566,15 +570,22 @@ video::-moz-mute-button {
 
 @media (max-width: 1200px) {
     .diagonal-connectors {
-        width: clamp(180px, 35%, 350px);
+        width: 25vw;
+        height: 25vw;
+        max-width: 180px;
+        max-height: 180px;
     }
 }
 
 @media (max-width: 768px) {
     .diagonal-connectors {
-        width: clamp(150px, 40%, 300px);
-        height: clamp(50px, 10vh, 100px);
-        margin: 1.5vh auto 1.5vh auto;
+        width: 30vw;
+        height: 30vw;
+        max-width: 150px;
+        max-height: 150px;
+        min-width: 80px;
+        min-height: 80px;
+        margin: 2vh auto;
     }
 }
 
@@ -1171,8 +1182,8 @@ video::-moz-mute-button {
                 </div>
             </div>
 
-            <!-- SVG Decorative Heart Flourish - Centered Below Middle Card -->
-            <svg class="diagonal-connectors" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <!-- SVG Decorative Heart Flourish - Fully Responsive -->
+            <svg class="diagonal-connectors" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" style="stop-color:#F2522E;stop-opacity:1" />
@@ -1182,51 +1193,55 @@ video::-moz-mute-button {
                 </defs>
 
                 <!-- Left heart curve with decorative swirl -->
-                <path d="M 110 20
-                         C 105 15, 100 12, 95 15
-                         C 88 19, 85 28, 88 38
-                         C 92 50, 102 60, 115 72
-                         C 125 82, 138 92, 150 100"
+                <path d="M 36 16
+                         C 34 12, 32 10, 30 11
+                         C 27 13, 26 18, 27 24
+                         C 29 32, 34 40, 40 48
+                         C 44 54, 48 60, 50 66"
                       stroke="url(#heartGradient)"
-                      stroke-width="5"
+                      stroke-width="2"
                       fill="none"
                       stroke-linecap="round"
-                      stroke-linejoin="round"/>
+                      stroke-linejoin="round"
+                      vector-effect="non-scaling-stroke"/>
 
                 <!-- Right heart curve with decorative swirl -->
-                <path d="M 190 20
-                         C 195 15, 200 12, 205 15
-                         C 212 19, 215 28, 212 38
-                         C 208 50, 198 60, 185 72
-                         C 175 82, 162 92, 150 100"
+                <path d="M 64 16
+                         C 66 12, 68 10, 70 11
+                         C 73 13, 74 18, 73 24
+                         C 71 32, 66 40, 60 48
+                         C 56 54, 52 60, 50 66"
                       stroke="url(#heartGradient)"
-                      stroke-width="5"
+                      stroke-width="2"
                       fill="none"
                       stroke-linecap="round"
-                      stroke-linejoin="round"/>
+                      stroke-linejoin="round"
+                      vector-effect="non-scaling-stroke"/>
 
                 <!-- Left decorative curl accent -->
-                <path d="M 95 18
-                         C 90 16, 85 15, 82 18
-                         C 79 21, 80 26, 83 29"
+                <path d="M 30 14
+                         C 28 13, 26 12, 24 14
+                         C 22 16, 23 19, 25 21"
                       stroke="#F2522E"
-                      stroke-width="3"
+                      stroke-width="1.5"
                       fill="none"
                       stroke-linecap="round"
-                      opacity="0.8"/>
+                      opacity="0.8"
+                      vector-effect="non-scaling-stroke"/>
 
                 <!-- Right decorative curl accent -->
-                <path d="M 205 18
-                         C 210 16, 215 15, 218 18
-                         C 221 21, 220 26, 217 29"
+                <path d="M 70 14
+                         C 72 13, 74 12, 76 14
+                         C 78 16, 77 19, 75 21"
                       stroke="#F24535"
-                      stroke-width="3"
+                      stroke-width="1.5"
                       fill="none"
                       stroke-linecap="round"
-                      opacity="0.8"/>
+                      opacity="0.8"
+                      vector-effect="non-scaling-stroke"/>
 
                 <!-- Small center flourish where heart meets -->
-                <circle cx="150" cy="100" r="3" fill="url(#heartGradient)" opacity="0.9"/>
+                <circle cx="50" cy="66" r="1.5" fill="url(#heartGradient)" opacity="0.9"/>
             </svg>
 
             <!-- Custom Rectangle Container with Gallery Carousel -->
