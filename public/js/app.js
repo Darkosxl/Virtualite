@@ -779,6 +779,317 @@ function init3DCarousel() {
     return true;
 }
 
+// Initialize Gallery Carousel
+function initGalleryCarousel() {
+    console.log('🎨 Starting gallery carousel initialization...');
+
+    // Use existing video data from 3D carousel
+    const galleryVideos = [
+        {
+            id: 'umut',
+            name: 'Umut',
+            thumbnail: '/pictures/umutthumbnail.png',
+            videoSrc: '/videos/umut.mov',
+            aspectRatio: '9-16'
+        },
+        {
+            id: 'baran',
+            name: 'Baran',
+            thumbnail: '/pictures/baranthumbnail.png',
+            videoSrc: '/videos/baran.mov',
+            aspectRatio: '9-16'
+        },
+        {
+            id: 'gulizar',
+            name: 'Gülizar',
+            thumbnail: '/pictures/gulizarthumbnail.png',
+            videoSrc: '/videos/gulizar.mov',
+            aspectRatio: '9-16'
+        },
+        {
+            id: 'ceyda',
+            name: 'Ceyda',
+            thumbnail: '/pictures/ceydathumbnail.png',
+            videoSrc: '/videos/ceyda.mov',
+            aspectRatio: '16-9'
+        },
+        {
+            id: 'enis-hulli',
+            name: 'Enis Hulli',
+            thumbnail: '/pictures/enishullithumbnail.png',
+            videoSrc: '/videos/enis hulli.mov',
+            aspectRatio: '9-16'
+        },
+        {
+            id: 'burcu',
+            name: 'Burcu',
+            thumbnail: '/pictures/burcuthumbnail.png',
+            videoSrc: '/videos/burcu.mp4',
+            aspectRatio: '9-16'
+        },
+        {
+            id: 'zoe',
+            name: 'Zoe',
+            thumbnail: '/pictures/zoethumbnail.png',
+            videoSrc: '/videos/zoe.mp4',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'vivianguo',
+            name: 'Vivian Guo',
+            thumbnail: '/pictures/vivanguothumbnail.png',
+            videoSrc: '/videos/vivianguo.mp4',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'justinkan',
+            name: 'Justin Kan',
+            thumbnail: '/pictures/justinkanthumbnail.png',
+            videoSrc: '/videos/justinkan.mp4',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'mirofounder',
+            name: 'Miro Founder',
+            thumbnail: '/pictures/mirofounderthumbnail.png',
+            videoSrc: '/videos/mirofounder.mp4',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'naeemishaq',
+            name: 'Naeem Ishaq',
+            thumbnail: '/pictures/naeemishaqthumbnail.png',
+            videoSrc: '/videos/naeemishaq.mp4',
+            aspectRatio: '1-1'
+        },
+        {
+            id: 'displaybasketball',
+            name: 'Display Basketball',
+            thumbnail: '/pictures/displaybasketballthumbnail.png',
+            videoSrc: '/videos/displaybasketball.mov',
+            aspectRatio: '9-16'
+        },
+        {
+            id: 'enis',
+            name: 'Enis',
+            thumbnail: '/pictures/enisthumbnail.png',
+            videoSrc: '/videos/enis.mov',
+            aspectRatio: '1-1'
+        }
+    ];
+
+    const track = document.getElementById('galleryCarouselTrack');
+    const dotsContainer = document.getElementById('galleryDots');
+    const prevBtn = document.querySelector('.gallery-prev');
+    const nextBtn = document.querySelector('.gallery-next');
+    const modal = document.getElementById('galleryVideoModal');
+    const modalVideo = document.getElementById('galleryModalVideo');
+    const modalContent = document.getElementById('galleryModalContent');
+    const closeBtn = document.getElementById('galleryModalClose');
+
+    if (!track || !dotsContainer) {
+        console.error('❌ Gallery carousel elements not found');
+        return false;
+    }
+
+    let currentSlide = 0;
+    let isDragging = false;
+    let startX = 0;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
+
+    // Create carousel items (video cards without text)
+    galleryVideos.forEach((video, index) => {
+        const carouselItem = document.createElement('button');
+        carouselItem.className = 'gallery-carousel-item';
+        carouselItem.setAttribute('aria-label', `Play ${video.name} video`);
+        carouselItem.dataset.videoSrc = video.videoSrc;
+        carouselItem.dataset.aspectRatio = video.aspectRatio;
+
+        carouselItem.innerHTML = `
+            <div class="gallery-item-content">
+                <img src="${video.thumbnail}" alt="${video.name}" class="gallery-item-image" loading="lazy">
+                <div class="gallery-item-play-overlay">
+                    <svg class="gallery-play-icon" xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                </div>
+            </div>
+        `;
+
+        // Click to play video in modal
+        carouselItem.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openGalleryVideoModal(video.videoSrc, video.aspectRatio);
+        });
+
+        track.appendChild(carouselItem);
+
+        // Create dot indicator
+        const dot = document.createElement('button');
+        dot.className = 'gallery-dot';
+        dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
+        if (index === 0) dot.classList.add('active');
+
+        dot.addEventListener('click', () => goToSlide(index));
+        dotsContainer.appendChild(dot);
+    });
+
+    // Video modal functions
+    function openGalleryVideoModal(videoSrc, aspectRatio) {
+        if (!modal || !modalVideo || !modalContent) return;
+
+        modalVideo.src = videoSrc;
+        modalVideo.muted = true;
+        modalContent.className = 'gallery-modal-content aspect-' + aspectRatio;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Prevent unmuting
+        modalVideo.addEventListener('volumechange', function forceVideoMute() {
+            if (!modalVideo.muted) {
+                modalVideo.muted = true;
+            }
+        });
+
+        modalVideo.play().catch(e => {
+            console.log('Video autoplay prevented:', e);
+        });
+    }
+
+    function closeGalleryVideoModal() {
+        if (!modal || !modalVideo) return;
+
+        modal.classList.remove('active');
+        modalVideo.pause();
+        modalVideo.muted = true;
+        modalVideo.src = '';
+        document.body.style.overflow = '';
+    }
+
+    // Close modal handlers
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeGalleryVideoModal);
+    }
+
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeGalleryVideoModal();
+            }
+        });
+    }
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
+            closeGalleryVideoModal();
+        }
+    });
+
+    // Update carousel position
+    function updateCarousel() {
+        const itemWidth = track.querySelector('.gallery-carousel-item').offsetWidth;
+        const gap = 20; // 1.25rem = 20px
+        const offset = currentSlide * (itemWidth + gap);
+
+        track.style.transform = `translateX(-${offset}px)`;
+
+        // Update dots
+        document.querySelectorAll('.gallery-dot').forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentSlide);
+        });
+
+        // Update button states
+        if (prevBtn && nextBtn) {
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === galleryVideos.length - 1;
+        }
+    }
+
+    // Navigate to specific slide
+    function goToSlide(index) {
+        currentSlide = Math.max(0, Math.min(index, galleryVideos.length - 1));
+        updateCarousel();
+    }
+
+    // Navigation handlers
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            goToSlide(currentSlide - 1);
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            goToSlide(currentSlide + 1);
+        });
+    }
+
+    // Touch/drag support
+    function touchStart(e) {
+        isDragging = true;
+        startX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+        track.style.transition = 'none';
+    }
+
+    function touchMove(e) {
+        if (!isDragging) return;
+
+        const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+        const diff = currentX - startX;
+        currentTranslate = prevTranslate + diff;
+    }
+
+    function touchEnd() {
+        isDragging = false;
+        track.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+
+        const movedBy = currentTranslate - prevTranslate;
+
+        if (movedBy < -50 && currentSlide < galleryVideos.length - 1) {
+            goToSlide(currentSlide + 1);
+        } else if (movedBy > 50 && currentSlide > 0) {
+            goToSlide(currentSlide - 1);
+        } else {
+            updateCarousel();
+        }
+
+        prevTranslate = currentTranslate;
+    }
+
+    // Add touch/mouse events
+    track.addEventListener('mousedown', touchStart);
+    track.addEventListener('touchstart', touchStart, { passive: true });
+    track.addEventListener('mousemove', touchMove);
+    track.addEventListener('touchmove', touchMove, { passive: true });
+    track.addEventListener('mouseup', touchEnd);
+    track.addEventListener('mouseleave', touchEnd);
+    track.addEventListener('touchend', touchEnd);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+            goToSlide(currentSlide - 1);
+        } else if (e.key === 'ArrowRight') {
+            goToSlide(currentSlide + 1);
+        }
+    });
+
+    // Initial update
+    updateCarousel();
+
+    // Update on window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(updateCarousel, 150);
+    });
+
+    console.log('✅ Gallery carousel initialized successfully');
+    return true;
+}
+
 // Main initialization function - called explicitly from index.html
 function initializeApp() {
     console.log('app.js initializeApp() called...');
@@ -804,12 +1115,19 @@ function initializeApp() {
     setupVideoHoverControls();
 
     // UnicornStudio animation is initialized in index.html before app.js loads
-    
+
     // Initialize 3D Carousel
     if (init3DCarousel()) {
         console.log('✅ 3D Carousel initialization complete');
     } else {
         console.error('❌ Failed to initialize 3D carousel');
+    }
+
+    // Initialize Gallery Carousel
+    if (initGalleryCarousel()) {
+        console.log('✅ Gallery carousel initialization complete');
+    } else {
+        console.error('❌ Failed to initialize gallery carousel');
     }
 }
 

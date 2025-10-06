@@ -690,6 +690,291 @@ video::-moz-mute-button {
     transform: rotate(90deg);
 }
 
+/* Diagonal Connectors */
+.diagonal-connectors {
+    width: 75%;
+    max-width: 75%;
+    height: 60px;
+    margin: -30px auto 0 auto;
+    display: block;
+    position: relative;
+    z-index: 5;
+}
+
+/* Gallery Rectangle Container */
+.gallery-rectangle-container {
+    width: 75%;
+    max-width: 75%;
+    margin: 0 auto 6vh auto;
+    background: linear-gradient(135deg, #F2522E, #F24535);
+    border-radius: clamp(0.75rem, 1.5vw, 1rem);
+    padding: clamp(2rem, 3vw, 3rem);
+    box-shadow: 0 4px 12px rgba(242, 69, 53, 0.3), 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 5;
+}
+
+.gallery-rectangle-inner {
+    width: 100%;
+}
+
+/* Gallery Header */
+.gallery-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 2rem;
+}
+
+.gallery-text {
+    flex: 1;
+}
+
+.gallery-title {
+    font-size: clamp(1.875rem, 2.5vw, 3rem);
+    font-weight: 500;
+    color: white;
+    margin: 0 0 1rem 0;
+    line-height: 1.2;
+}
+
+.gallery-description {
+    font-size: clamp(0.875rem, 1vw, 1rem);
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    max-width: 32rem;
+    line-height: 1.5;
+}
+
+.gallery-nav-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.gallery-nav-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.gallery-nav-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.gallery-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.gallery-nav-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Gallery Carousel */
+.gallery-carousel-container {
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.gallery-carousel-track {
+    display: flex;
+    gap: 1.25rem;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    padding: 0 0.5rem;
+}
+
+.gallery-carousel-item {
+    flex: 0 0 auto;
+    width: clamp(320px, 22vw, 360px);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.gallery-carousel-item:hover {
+    transform: translateY(-0.25rem);
+}
+
+.gallery-item-content {
+    position: relative;
+    width: 100%;
+    height: clamp(400px, 27rem, 500px);
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.gallery-item-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    display: block;
+}
+
+.gallery-carousel-item:hover .gallery-item-image {
+    transform: scale(1.05);
+}
+
+/* Play button overlay */
+.gallery-item-play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.gallery-carousel-item:hover .gallery-item-play-overlay {
+    opacity: 1;
+}
+
+.gallery-play-icon {
+    width: 60px;
+    height: 60px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    transition: transform 0.3s ease;
+}
+
+.gallery-carousel-item:hover .gallery-play-icon {
+    transform: scale(1.1);
+}
+
+/* Gallery Dots */
+.gallery-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.gallery-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gallery-dot.active {
+    background: white;
+    width: 1.5rem;
+    border-radius: 0.25rem;
+}
+
+/* Gallery Video Modal */
+.gallery-video-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 20px;
+}
+
+.gallery-video-modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.gallery-modal-content {
+    position: relative;
+    max-width: 95vw;
+    max-height: 95vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: galleryVideoModalZoom 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+@keyframes galleryVideoModalZoom {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.gallery-modal-content video {
+    max-width: 100%;
+    max-height: 95vh;
+    border-radius: 15px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+}
+
+/* Different aspect ratios for videos */
+.gallery-modal-content.aspect-9-16 video {
+    width: auto;
+    height: 95vh;
+    max-width: calc(95vh * 9 / 16);
+}
+
+.gallery-modal-content.aspect-16-9 video {
+    width: 90vw;
+    max-width: 900px;
+    height: auto;
+}
+
+.gallery-modal-content.aspect-1-1 video {
+    width: auto;
+    height: 80vh;
+    max-width: 80vh;
+}
+
+.gallery-modal-close {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    font-size: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10001;
+}
+
+.gallery-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
 /* Responsive design */
     @media (max-width: 1200px) {
     .content-grid {
@@ -709,6 +994,27 @@ video::-moz-mute-button {
 
     .video-carousel-wrapper {
         max-width: 85%; /* Match bento grid tablet width */
+    }
+
+    .diagonal-connectors {
+        width: 85%;
+        max-width: 85%;
+    }
+
+    .gallery-rectangle-container {
+        width: 85%;
+        max-width: 85%;
+        padding: 2rem;
+    }
+
+    .gallery-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .gallery-nav-buttons {
+        align-self: flex-end;
     }
 
     .bento-card-large {
@@ -769,6 +1075,43 @@ video::-moz-mute-button {
 
     .video-carousel-wrapper {
         max-width: 95%; /* Match bento grid mobile width */
+    }
+
+    .diagonal-connectors {
+        width: 95%;
+        max-width: 95%;
+        height: 40px;
+        margin: -20px auto 0 auto;
+    }
+
+    .gallery-rectangle-container {
+        width: 95%;
+        max-width: 95%;
+        padding: 1.5rem;
+    }
+
+    .gallery-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .gallery-nav-buttons {
+        display: none;
+    }
+
+    .gallery-carousel-item {
+        width: clamp(280px, 85vw, 320px);
+    }
+
+    .gallery-modal-close {
+        top: -40px;
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+    }
+
+    .gallery-modal-content.aspect-9-16 video {
+        height: 85vh;
+        max-width: calc(85vh * 9 / 16);
     }
 
     .bento-card-large,
@@ -951,6 +1294,51 @@ video::-moz-mute-button {
                 </div>
             </div>
 
+            <!-- SVG Diagonal Connectors - Using Exact Amoredit Logo "A" Colors -->
+            <svg class="diagonal-connectors" viewBox="0 0 100 20" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Left diagonal line - matches left stroke of "A" in Amoredit logo (#F2522E - darker orange-red) -->
+                <line x1="12.5" y1="0" x2="0" y2="20" stroke="#F2522E" stroke-width="2" />
+                <!-- Right diagonal line - matches right stroke of "A" in Amoredit logo (#F24535 - lighter red-orange) -->
+                <line x1="87.5" y1="0" x2="100" y2="20" stroke="#F24535" stroke-width="2" />
+            </svg>
+
+            <!-- Custom Rectangle Container with Gallery Carousel -->
+            <div class="gallery-rectangle-container">
+                <div class="gallery-rectangle-inner">
+                    <!-- Gallery Header -->
+                    <div class="gallery-header">
+                        <div class="gallery-text">
+                            <h2 class="gallery-title" data-tr="Projeler" data-en="Projects" data-it="Progetti">Projeler</h2>
+                            <p class="gallery-description" data-tr="Önde gelen şirketlerin ve geliştiricilerin olağanüstü dijital deneyimler oluşturmak için modern web teknolojilerinden nasıl yararlandığını keşfedin." data-en="Discover how leading companies and developers are leveraging modern web technologies to build exceptional digital experiences." data-it="Scopri come aziende leader e sviluppatori stanno sfruttando le moderne tecnologie web per creare esperienze digitali eccezionali.">Önde gelen şirketlerin ve geliştiricilerin olağanüstü dijital deneyimler oluşturmak için modern web teknolojilerinden nasıl yararlandığını keşfedin.</p>
+                        </div>
+                        <div class="gallery-nav-buttons">
+                            <button class="gallery-nav-btn gallery-prev" aria-label="Previous">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15 18 9 12 15 6"></polyline>
+                                </svg>
+                            </button>
+                            <button class="gallery-nav-btn gallery-next" aria-label="Next">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Carousel -->
+                    <div class="gallery-carousel-container">
+                        <div class="gallery-carousel-track" id="galleryCarouselTrack">
+                            <!-- Carousel items will be inserted here by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Dot Indicators -->
+                    <div class="gallery-dots" id="galleryDots">
+                        <!-- Dots will be inserted here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
             <!-- 3D Video Carousel - Housed in Bento Stage Card -->
             <div class="video-carousel-wrapper">
                 <div class="carousel-stage-card">
@@ -961,6 +1349,14 @@ video::-moz-mute-button {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Gallery Video Modal -->
+            <div class="gallery-video-modal-overlay" id="galleryVideoModal">
+                <div class="gallery-modal-content" id="galleryModalContent">
+                    <button class="gallery-modal-close" id="galleryModalClose" aria-label="Close video">×</button>
+                    <video id="galleryModalVideo" controls autoplay muted loop></video>
                 </div>
             </div>
 
