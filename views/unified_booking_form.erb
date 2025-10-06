@@ -842,17 +842,17 @@
     function openCalendarModal() {
         modalOverlay.style.display = 'block';
         datePicker.style.display = 'block';
-        document.body.style.overflow = 'hidden'; // Prevent background scrolling
-        
+        // Allow background scrolling - removed overflow hidden
+
         // Show date view, hide time view
         showDateView();
         renderCalendar();
     }
-    
+
     function closeCalendarModal() {
         modalOverlay.style.display = 'none';
         datePicker.style.display = 'none';
-        document.body.style.overflow = ''; // Restore scrolling
+        // No need to restore scrolling since we don't block it
 
         // Reset to date view
         showDateView();
@@ -870,7 +870,13 @@
     
     dateDisplay.addEventListener('click', openCalendarModal);
     closeCalendarBtn.addEventListener('click', closeCalendarModal);
-    modalOverlay.addEventListener('click', closeCalendarModal); // Close on overlay click
+
+    // Close only when clicking directly on overlay, not on the modal itself
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+            closeCalendarModal();
+        }
+    });
     
     // Back button to return to date selection
     backToDateBtn.addEventListener('click', function() {
