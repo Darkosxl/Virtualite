@@ -28,21 +28,26 @@ class FacebookTracker
     hashed_last_name = event_data[:last_name] ? hash_data(event_data[:last_name].strip.downcase) : nil
     hashed_external_id = event_data[:external_id] ? hash_data(event_data[:external_id]) : nil
 
+    # Hash geographic data (normalize then hash per Meta's requirements)
+    hashed_city = event_data[:city] ? hash_data(normalize_text(event_data[:city])) : nil
+    hashed_country = event_data[:country] ? hash_data(normalize_text(event_data[:country])) : hash_data('tr') # Default to Turkey
+    hashed_state = event_data[:state] ? hash_data(normalize_text(event_data[:state])) : nil
+    hashed_zip = event_data[:zip_code] ? hash_data(normalize_text(event_data[:zip_code])) : nil
+
     user_data = {
       em: hashed_email,
       ph: hashed_phone,
       fn: hashed_first_name,
       ln: hashed_last_name,
       external_id: hashed_external_id,
-      client_ip_address: event_data[:client_ip],
-      client_user_agent: event_data[:user_agent],
-      fbc: event_data[:fbc],
-      fbp: event_data[:fbp],
-      # Geographic data for better matching
-      country: hash_data(event_data[:country] || 'TR'), # Default to Turkey
-      ct: hash_data(event_data[:city]),
-      st: hash_data(event_data[:state]),
-      zp: hash_data(event_data[:zip_code])
+      client_ip_address: event_data[:client_ip], # Required for high EMQ
+      client_user_agent: event_data[:user_agent], # Required for website events
+      fbp: event_data[:fbp], # _fbp cookie (not hashed)
+      fbc: event_data[:fbc], # _fbc cookie (not hashed)
+      ct: hashed_city,
+      country: hashed_country,
+      st: hashed_state,
+      zp: hashed_zip
     }.compact
 
     payload = {
@@ -72,6 +77,12 @@ class FacebookTracker
   def hash_data(data)
     return nil unless data && !data.to_s.empty?
     Digest::SHA256.hexdigest(data.to_s.strip)
+  end
+
+  def normalize_text(text)
+    # Normalize text per Meta's requirements: lowercase, trim, remove punctuation/spaces
+    return nil unless text && !text.to_s.empty?
+    text.to_s.strip.downcase.gsub(/[^a-z0-9]/, '')
   end
 
   def normalize_phone(phone)

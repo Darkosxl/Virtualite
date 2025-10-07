@@ -10,6 +10,7 @@ require 'dotenv/load' if ENV['RACK_ENV'] != 'production'
 require_relative 'database'
 require_relative 'facebook'
 require_relative 'google_sheets'
+require_relative 'geoip'
 
 # Configuration
 set :public_folder, 'public'
@@ -37,6 +38,7 @@ end
 $db = Database.new
 $fb_tracker = FacebookTracker.new
 $google_sheets = GoogleSheetsIntegration.new
+$geoip = GeoIP.new
 configure :development do
   set :host_authorization, { permitted_hosts: [] }
 end
@@ -77,14 +79,6 @@ end
 
 # Routes
 get '/' do
-  # Track website visit
-  track_facebook_event('Website_Visit', request, {
-    custom_data: {
-      page: 'homepage',
-      referrer: request.referrer
-    }
-  })
-
   send_file File.join('public', 'index.html')
 end
 
@@ -356,11 +350,11 @@ post '/submit-booking' do
   end
 end
 
-# Track calendar view event
-post '/track/calendar-view' do
-  track_facebook_event('Calendar_View', request, {
+# Track form view event
+post '/track/form-view' do
+  track_facebook_event('Form_View', request, {
     custom_data: {
-      action: 'calendar_viewed',
+      action: 'form_viewed',
       page_section: 'booking'
     }
   })
@@ -368,34 +362,36 @@ post '/track/calendar-view' do
   { success: true }.to_json
 end
 
-# Track date selection event
-post '/track/date-select' do
-  selected_date = params['selected_date']
+# Track form field filled event (user typing in form fields before submission)
+post '/track/form-field-filled' do
+  content_type :json
 
-  track_facebook_event('Date_Select', request, {
-    custom_data: {
-      selected_date: selected_date,
-      action: 'date_selected'
-    }
-  })
+  begin
+    # Get all form data that user has filled so far
+    name = params['name']
+    email = params['email']
+    phone = params['phone_number']
+    field_name = params['field_name'] # Which field was just filled
+    event_id = params['event_id'] # Unique event_id from frontend
 
-  { success: true }.to_json
-end
+    track_facebook_event('Form_Field_Filled', request, {
+      email: email,
+      first_name: extract_first_name(name),
+      last_name: extract_last_name(name),
+      phone: phone,
+      event_id: event_id, # Pass through for deduplication
+      custom_data: {
+        field_filled: field_name,
+        action: 'field_completed',
+        page_section: 'booking_form'
+      }
+    })
 
-# Track time slot selection event
-post '/track/time-select' do
-  selected_time = params['selected_time']
-  selected_date = params['selected_date']
-
-  track_facebook_event('Time_Select', request, {
-    custom_data: {
-      selected_date: selected_date,
-      selected_time: selected_time,
-      action: 'time_selected'
-    }
-  })
-
-  { success: true }.to_json
+    { success: true }.to_json
+  rescue => e
+    puts "Form field tracking error: #{e.message}"
+    { success: false, error: e.message }.to_json
+  end
 end
 
 # Facebook tracking endpoint - receives data from client, sends to Facebook
@@ -574,13 +570,47 @@ end
 def track_facebook_event(event_name, request, additional_data = {})
   return unless $fb_tracker
 
+  # Extract real client IP from Cloudflare headers (critical for EMQ)
+  client_ip = request.env['HTTP_CF_CONNECTING_IP'] ||
+              request.env['HTTP_X_FORWARDED_FOR']&.split(',')&.first&.strip ||
+              request.ip
+
+  # Try Cloudflare headers first (fastest), then fallback to GeoIP lookup
+  country = request.env['HTTP_CF_IPCOUNTRY'] # 2-letter country code from Cloudflare
+  city = nil
+  state = nil
+  zip_code = nil
+
+  # If Cloudflare doesn't provide country, or we need city/state/zip, use GeoIP
+  if !country || country.empty?
+    geo_data = $geoip.lookup(client_ip)
+    if geo_data
+      country ||= geo_data[:country]
+      city = geo_data[:city]
+      state = geo_data[:state]
+      zip_code = geo_data[:zip]
+    end
+  else
+    # We have country from Cloudflare, but get city/state/zip from GeoIP
+    geo_data = $geoip.lookup(client_ip)
+    if geo_data
+      city = geo_data[:city]
+      state = geo_data[:state]
+      zip_code = geo_data[:zip]
+    end
+  end
+
   event_data = {
     event_name: event_name,
     source_url: request.url,
     user_agent: request.user_agent,
-    client_ip: request.ip,
-    fbc: extract_fbc_from_request(request),
-    fbp: extract_fbp_from_request(request)
+    client_ip: client_ip, # Real user IP (required for high EMQ)
+    country: country, # Will be normalized and hashed in FacebookTracker
+    city: city, # Will be normalized and hashed
+    state: state, # Will be normalized and hashed
+    zip_code: zip_code, # Will be normalized and hashed
+    fbc: extract_fbc_from_request(request), # Click ID from Meta ads
+    fbp: extract_fbp_from_request(request) # Browser ID from Meta Pixel
   }.merge(additional_data)
 
   $fb_tracker.track_event(event_data)

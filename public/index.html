@@ -127,6 +127,22 @@
     }
     
     // PageView tracking is now handled server-side in app.rb
+
+    // Create _fbc cookie from fbclid URL parameter (critical for EMQ)
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const fbclid = urlParams.get('fbclid');
+
+        // Only create if fbclid exists and _fbc cookie doesn't already exist
+        if (fbclid && !getCookie('_fbc')) {
+            // Format: fb.1.<timestamp>.<fbclid>
+            const fbcValue = 'fb.1.' + Date.now() + '.' + fbclid;
+            // Set cookie for 90 days (Meta's recommendation)
+            const maxAge = 90 * 24 * 60 * 60; // 90 days in seconds
+            document.cookie = '_fbc=' + fbcValue + '; path=/; max-age=' + maxAge + '; SameSite=Lax';
+            console.log('Created _fbc cookie from fbclid:', fbcValue);
+        }
+    })();
     </script>
     <noscript><img height="1" width="1" style="display:none"
     src="https://www.facebook.com/tr?id=787530457230374&ev=PageView&noscript=1"

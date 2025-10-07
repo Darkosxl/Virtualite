@@ -122,9 +122,6 @@ function generateCalendar() {
                     dateInput.value = selectedDate;
                 }
 
-                // Track date selection
-                trackEvent('/track/date-select', { selected_date: selectedDate });
-
                 // Update time slots for selected date
                 updateTimeSlots(selectedDate);
 
@@ -172,9 +169,6 @@ function generateCalendar() {
                 if (dateInput) {
                     dateInput.value = selectedDate;
                 }
-
-                // Track date selection
-                trackEvent('/track/date-select', { selected_date: selectedDate });
 
                 // Update time slots for selected date
                 updateTimeSlots(selectedDate);
@@ -265,17 +259,8 @@ async function updateTimeSlots(selectedDate) {
 
                     // Update hidden input
                     const timeInput = document.getElementById('selected-time');
-                    const dateInput = document.getElementById('selected-date');
                     if (timeInput) {
                         timeInput.value = timeText;
-                    }
-
-                    // Track time selection
-                    if (dateInput && dateInput.value) {
-                        trackEvent('/track/time-select', {
-                            selected_time: timeText,
-                            selected_date: dateInput.value
-                        });
                     }
 
                     checkSelectionComplete();
@@ -791,8 +776,11 @@ function initializeApp() {
     const tomorrowString = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
     updateTimeSlots(tomorrowString);
 
-    // Setup calendar view tracking
-    setupCalendarViewTracking();
+    // Setup form view tracking
+    setupFormViewTracking();
+
+    // Setup form field tracking
+    setupFormFieldTracking();
 
     // Setup performance monitoring
     setupPerformanceMonitoring();
@@ -824,22 +812,92 @@ function trackEvent(endpoint, data = {}) {
     }).catch(e => console.log('Tracking error:', e));
 }
 
-// Track calendar view when user scrolls to calendar section
-function setupCalendarViewTracking() {
-    const calendarSection = document.querySelector('.contact-section');
-    if (!calendarSection) return;
+// Track form view when user scrolls to booking form section
+function setupFormViewTracking() {
+    const formSection = document.querySelector('.contact-section');
+    if (!formSection) return;
 
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                // Track calendar view only once
-                trackEvent('/track/calendar-view');
+                // Track form view only once
+                trackEvent('/track/form-view');
                 observer.unobserve(entry.target);
             }
         });
     }, { threshold: 0.5 });
 
-    observer.observe(calendarSection);
+    observer.observe(formSection);
+}
+
+// Track form field filled events - fires instantly on blur (no debounce)
+function setupFormFieldTracking() {
+    const nameInput = document.querySelector('input[name="name"]');
+    const emailInput = document.querySelector('input[name="email"]');
+    const phoneInput = document.querySelector('input[name="phone_number"]');
+
+    function trackFieldFilled(fieldName, input) {
+        // Only track if field has value and hasn't been tracked yet
+        if (!input.value || input.dataset.tracked === 'true') {
+            return;
+        }
+
+        // Generate unique event_id for this field completion
+        const eventId = (crypto.randomUUID && crypto.randomUUID()) ||
+                        'field_' + fieldName + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+        const data = {
+            field_name: fieldName,
+            event_id: eventId,
+            name: nameInput?.value || '',
+            email: emailInput?.value || '',
+            phone_number: phoneInput?.value || ''
+        };
+
+        // Mark field as tracked to prevent duplicates
+        input.dataset.tracked = 'true';
+
+        // Track immediately (no debounce)
+        trackEvent('/track/form-field-filled', data);
+    }
+
+    // Attach blur event listeners (fires when user leaves field)
+    if (nameInput) {
+        nameInput.addEventListener('blur', () => {
+            trackFieldFilled('name', nameInput);
+        });
+
+        // Reset tracked flag if user changes the field again
+        nameInput.addEventListener('focus', () => {
+            if (nameInput.dataset.tracked === 'true') {
+                nameInput.dataset.tracked = 'false';
+            }
+        });
+    }
+
+    if (emailInput) {
+        emailInput.addEventListener('blur', () => {
+            trackFieldFilled('email', emailInput);
+        });
+
+        emailInput.addEventListener('focus', () => {
+            if (emailInput.dataset.tracked === 'true') {
+                emailInput.dataset.tracked = 'false';
+            }
+        });
+    }
+
+    if (phoneInput) {
+        phoneInput.addEventListener('blur', () => {
+            trackFieldFilled('phone_number', phoneInput);
+        });
+
+        phoneInput.addEventListener('focus', () => {
+            if (phoneInput.dataset.tracked === 'true') {
+                phoneInput.dataset.tracked = 'false';
+            }
+        });
+    }
 }
 
 // Check if both date and time are selected
