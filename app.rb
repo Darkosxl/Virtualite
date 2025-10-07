@@ -28,8 +28,8 @@ configure :production do
 
   # Enable gzip compression
   use Rack::Deflater
-  # Allow localhost for healthchecks, plus production domain
-  set :host_authorization, { permitted_hosts: ["amoredit.com", "localhost", "127.0.0.1"] }
+  # Allow localhost for healthchecks, plus production domains (with and without www)
+  set :host_authorization, { permitted_hosts: ["amoredit.com", "www.amoredit.com", "localhost", "127.0.0.1"] }
   # Serve static files efficiently
   set :static_cache_control, [:public, max_age: 31536000]
 end
