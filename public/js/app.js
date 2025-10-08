@@ -463,112 +463,112 @@ function initGalleryCarousel() {
             id: 'zoe',
             name: 'Zoe',
             thumbnail: '/pictures/zoethumbnail.png',
-            videoSrc: '/videos/zoe.mp4',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935232/zoe_oak8vp.mp4',
             aspectRatio: '1-1'
         },
         {
             id: 'vivianguo',
             name: 'Vivian Guo',
             thumbnail: '/pictures/vivanguothumbnail.png',
-            videoSrc: '/videos/vivianguo.mp4',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935228/vivianguo_oereoa.mp4',
             aspectRatio: '1-1'
         },
         {
             id: 'enis-4',
             name: 'Enis',
             thumbnail: '/pictures/enis4thumbnail.png',
-            videoSrc: '/videos/enis-4.mov',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935231/enis-4_ruolmq.mov',
             aspectRatio: '1-1'
         },
         {
             id: 'justinkan',
             name: 'Justin Kan',
             thumbnail: '/pictures/justinkanthumbnail.png',
-            videoSrc: '/videos/justinkan.mp4',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935229/justinkan_lmbslz.mp4',
             aspectRatio: '1-1'
         },
         {
             id: 'enis-5',
             name: 'Enis',
             thumbnail: '/pictures/enis5thumbnail.png',
-            videoSrc: '/videos/enis-5.mov',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935230/enis-5_e24bbk.mov',
             aspectRatio: '1-1'
         },
         {
             id: 'mirofounder',
             name: 'Miro Founder',
             thumbnail: '/pictures/mirofounderthumbnail.png',
-            videoSrc: '/videos/mirofounder.mp4',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935224/mirofounder_tn9e0g.mp4',
             aspectRatio: '1-1'
         },
         {
             id: 'enis-6',
             name: 'Enis',
             thumbnail: '/pictures/enis6thumbnail.png',
-            videoSrc: '/videos/enis-6.mov',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935233/enis-6_sdlmwm.mov',
             aspectRatio: '1-1'
         },
         {
             id: 'naeemishaq',
             name: 'Naeem Ishaq',
             thumbnail: '/pictures/naeemishaqthumbnail.png',
-            videoSrc: '/videos/naeemishaq.mp4',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935227/naeemishaq_e3wcag.mp4',
             aspectRatio: '1-1'
         },
         {
             id: 'enis',
             name: 'Enis',
             thumbnail: '/pictures/enisthumbnail.png',
-            videoSrc: '/videos/enis.mov',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935230/enis_olwayw.mov',
             aspectRatio: '1-1'
         },
         {
             id: 'displaybasketball',
             name: 'Display Basketball',
             thumbnail: '/pictures/displaybasketballthumbnail.png',
-            videoSrc: '/videos/displaybasketball.mov',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935229/displaybasketball_xwnyek.mov',
             aspectRatio: '9-16'
         },
         {
             id: 'umut',
             name: 'Umut',
             thumbnail: '/pictures/umutthumbnail.png',
-            videoSrc: '/videos/umut.mov',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935227/umut_a3gtpi.mov',
             aspectRatio: '9-16'
         },
         {
             id: 'baran',
             name: 'Baran',
             thumbnail: '/pictures/baranthumbnail.png',
-            videoSrc: '/videos/baran.mov',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935228/baran_b3ft04.mov',
             aspectRatio: '9-16'
         },
         {
             id: 'gulizar',
             name: 'Gülizar',
             thumbnail: '/pictures/gulizarthumbnail.png',
-            videoSrc: '/videos/gulizar.mov',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935226/gulizar_zmnz5f.mov',
             aspectRatio: '9-16'
         },
         {
             id: 'ceyda',
             name: 'Ceyda',
             thumbnail: '/pictures/ceydathumbnail.png',
-            videoSrc: '/videos/ceyda.mov',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935238/ceyda_jb6bsh.mov',
             aspectRatio: '16-9'
         },
         {
             id: 'enis-hulli',
             name: 'Enis Hulli',
             thumbnail: '/pictures/enishullithumbnail.png',
-            videoSrc: '/videos/enis hulli.mov',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935229/enis_hulli_btbvvw.mov',
             aspectRatio: '9-16'
         },
         {
             id: 'burcu',
             name: 'Burcu',
             thumbnail: '/pictures/burcuthumbnail.png',
-            videoSrc: '/videos/burcu.mp4',
+            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935234/burcu_b41zcg.mp4',
             aspectRatio: '9-16'
         }
     ];

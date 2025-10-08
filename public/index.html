@@ -110,25 +110,23 @@
     t.src=v;s=b.getElementsByTagName(e)[0];
     s.parentNode.insertBefore(t,s)}(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '787530457230374');
-    
-    // Generate unique event ID for deduplication
-    const pageViewEventId = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now() + Math.random());
-    
-    // Track PageView with event_id for deduplication
-    fbq('track', 'PageView', { event_id: pageViewEventId });
-    
-    // Add server-side PageView tracking (bypasses ad blockers)
+
+    // Initialize with first-party cookies (improves fbp coverage)
+    fbq('init', '787530457230374', {}, {
+        agent: 'plruby', // Identify server-side conversions
+        autoConfig: true, // Enable automatic configuration
+        debug: false // Set to true for debugging
+    });
+
+    // Helper function to get cookies
     function getCookie(name) {
         const value = "; " + document.cookie;
         const parts = value.split("; " + name + "=");
         if (parts.length === 2) return parts.pop().split(";").shift();
         return null;
     }
-    
-    // PageView tracking is now handled server-side in app.rb
 
-    // Create _fbc cookie from fbclid URL parameter (critical for EMQ)
+    // Create _fbc cookie from fbclid URL parameter BEFORE tracking PageView (critical for EMQ)
     (function() {
         const urlParams = new URLSearchParams(window.location.search);
         const fbclid = urlParams.get('fbclid');
@@ -139,10 +137,19 @@
             const fbcValue = 'fb.1.' + Date.now() + '.' + fbclid;
             // Set cookie for 90 days (Meta's recommendation)
             const maxAge = 90 * 24 * 60 * 60; // 90 days in seconds
-            document.cookie = '_fbc=' + fbcValue + '; path=/; max-age=' + maxAge + '; SameSite=Lax';
-            console.log('Created _fbc cookie from fbclid:', fbcValue);
+            document.cookie = '_fbc=' + fbcValue + '; path=/; max-age=' + maxAge + '; SameSite=Lax; Secure';
+            console.log('✅ Created _fbc cookie from fbclid:', fbcValue);
         }
     })();
+
+    // Wait for pixel to be ready before tracking PageView
+    fbq('track', 'PageView');
+
+    // Log cookie status for debugging (remove in production)
+    console.log('Meta Pixel Cookies:', {
+        _fbp: getCookie('_fbp'),
+        _fbc: getCookie('_fbc')
+    });
     </script>
     <noscript><img height="1" width="1" style="display:none"
     src="https://www.facebook.com/tr?id=787530457230374&ev=PageView&noscript=1"

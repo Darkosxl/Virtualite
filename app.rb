@@ -11,6 +11,7 @@ require_relative 'database'
 require_relative 'facebook'
 require_relative 'google_sheets'
 require_relative 'geoip'
+# Cloudinary gem not needed - we're only using static URLs in frontend
 
 # Configuration
 set :public_folder, 'public'

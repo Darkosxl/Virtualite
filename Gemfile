@@ -10,6 +10,7 @@ gem 'connection_pool' # Connection pooling for PostgreSQL
 gem 'json'        # JSON parsing
 gem 'dotenv'      # Environment variable management
 gem 'google_drive' # Google Sheets integration
+gem 'cloudinary'
 
 group :development do
   gem 'rerun'  # Auto-restart server on file changes
