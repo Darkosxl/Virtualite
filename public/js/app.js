@@ -530,47 +530,12 @@ function initGalleryCarousel() {
             aspectRatio: '9-16'
         },
         {
-            id: 'umut',
-            name: 'Umut',
-            thumbnail: '/pictures/umutthumbnail.png',
-            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935227/umut_a3gtpi.mov',
-            aspectRatio: '9-16'
-        },
-        {
-            id: 'baran',
-            name: 'Baran',
-            thumbnail: '/pictures/baranthumbnail.png',
-            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935228/baran_b3ft04.mov',
-            aspectRatio: '9-16'
-        },
-        {
-            id: 'gulizar',
-            name: 'Gülizar',
-            thumbnail: '/pictures/gulizarthumbnail.png',
-            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935226/gulizar_zmnz5f.mov',
-            aspectRatio: '9-16'
-        },
-        {
-            id: 'ceyda',
-            name: 'Ceyda',
-            thumbnail: '/pictures/ceydathumbnail.png',
-            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935238/ceyda_jb6bsh.mov',
-            aspectRatio: '16-9'
-        },
-        {
             id: 'enis-hulli',
             name: 'Enis Hulli',
             thumbnail: '/pictures/enishullithumbnail.png',
             videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935229/enis_hulli_btbvvw.mov',
             aspectRatio: '9-16'
         },
-        {
-            id: 'burcu',
-            name: 'Burcu',
-            thumbnail: '/pictures/burcuthumbnail.png',
-            videoSrc: 'https://res.cloudinary.com/datenhjgt/video/upload/v1759935234/burcu_b41zcg.mp4',
-            aspectRatio: '9-16'
-        }
     ];
 
     const track = document.getElementById('galleryCarouselTrack');
