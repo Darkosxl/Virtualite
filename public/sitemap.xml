@@ -3,28 +3,12 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
         xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
 
-  <!-- Homepage - Highest Priority (Brand Name Association) -->
+  <!-- Homepage -->
   <url>
     <loc>https://www.amoredit.com</loc>
     <lastmod>2025-10-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-  </url>
-
-  <!-- Contact/Booking Section - High Priority (Primary Conversion Goal) -->
-  <url>
-    <loc>https://www.amoredit.com/#contact</loc>
-    <lastmod>2025-10-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Hero Section - Brand Messaging -->
-  <url>
-    <loc>https://www.amoredit.com/#hero</loc>
-    <lastmod>2025-10-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
 
 </urlset>
