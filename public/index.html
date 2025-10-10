@@ -753,7 +753,7 @@
             let animationId;
             const animate = () => {
                 animationId = requestAnimationFrame(animate);
-                uniforms.time.value += 0.05625; // 2.25x faster than original (was 0.025)
+                uniforms.time.value += 0.025; // 2.25x faster than original (was 0.025)
                 renderer.render(scene, camera);
             };
 
