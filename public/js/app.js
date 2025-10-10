@@ -884,7 +884,7 @@ function checkSelectionComplete() {
     } else {
         proceedButton.disabled = true;
         proceedButton.classList.add('opacity-50', 'cursor-not-allowed');
-        proceedButton.title = "Lütfen zaman ve tarih seçin."; // Set tooltip when disabled
+        proceedButton.title = "Please select a date and time."; // Set tooltip when disabled
         console.log('Button disabled - Date:', hasDate, 'Time:', hasTime); // Debug log
     }
 }

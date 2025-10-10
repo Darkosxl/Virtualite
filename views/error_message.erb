@@ -1,11 +1,11 @@
 <!-- Error Message - matches success_message.erb style with site background -->
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/pictures/amoreditlogo.png">
-    <title data-tr="Rezervasyon Hatası - Amoredit" data-en="Booking Error - Amoredit" data-it="Errore Prenotazione - Amoredit">Rezervasyon Hatası - Amoredit</title>
+    <title data-en="Booking Error - Amoredit" data-it="Errore Prenotazione - Amoredit">Booking Error - Amoredit</title>
 </head>
 <body>
 
@@ -22,9 +22,9 @@
 
 <div style="text-align: center; padding: 2rem; max-width: 600px; margin: 2rem auto; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
 b    
-    <h2 style="color: white; font-size: 2rem; font-weight: 700; margin-bottom: 1rem; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;" data-tr="Rezervasyon tamamlanamadı :(" data-en="Booking could not be completed :(" data-it="Prenotazione non completata :(">Rezervasyon tamamlanamadı :(</h2>
+    <h2 style="color: white; font-size: 2rem; font-weight: 700; margin-bottom: 1rem; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;" data-en="Booking could not be completed :(" data-it="Prenotazione non completata :(">Booking could not be completed :(</h2>
 
-    <p style="color: white; font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;" data-tr="Lütfen tekrar deneyin veya emailimize yazın" data-en="Please try again or email us" data-it="Per favore riprova o scrivici un'email">Lütfen tekrar deneyin veya emailimize yazın</p>
+    <p style="color: white; font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;" data-en="Please try again or email us" data-it="Per favore riprova o scrivici un'email">Please try again or email us</p>
     
     <!-- Error icon -->
     <div style="margin: 2rem 0;">
@@ -37,12 +37,12 @@ b
     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
         <button onclick="window.history.back()" 
                 style="background: linear-gradient(to right, #ef4444, #dc2626); color: white; padding: 0.75rem 2rem; border-radius: 9999px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s;">
-            <span data-tr="Geri Dön" data-en="Go Back" data-it="Torna Indietro">Geri Dön</span>
+            <span data-en="Go Back" data-it="Torna Indietro">Go Back</span>
         </button>
 
         <button onclick="window.location.href='/'"
                 style="background: linear-gradient(to right, #f87171, #4db5bc); color: white; padding: 0.75rem 2rem; border-radius: 9999px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s;">
-            <span data-tr="Ana Sayfaya Dön" data-en="Back to Homepage" data-it="Torna alla Homepage">Ana Sayfaya Dön</span>
+            <span data-en="Back to Homepage" data-it="Torna alla Homepage">Back to Homepage</span>
         </button>
     </div>
 
@@ -51,8 +51,8 @@ b
 <script>
 // Apply translations on page load
 function applyTranslations() {
-    const selectedLang = localStorage.getItem('selectedLanguage') || 'tr';
-    document.querySelectorAll('[data-tr]').forEach(element => {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'en';
+    document.querySelectorAll('[data-en]').forEach(element => {
         const text = element.getAttribute('data-' + selectedLang);
         if (text) {
             element.textContent = text;

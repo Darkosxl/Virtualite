@@ -576,8 +576,8 @@
 
     <section class="contact-section" id="contact">
         <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <h2 class="contact-title" data-tr="Ücretsiz Bir Görüşme Ayarlayın" data-en="Book a free call" data-it="Prenota una chiamata gratuita">Book a free call</h2>
-            <p class="contact-subtitle" data-tr="Ekibimiz sosyal medya hesaplarınızda yapılabilecek iyileştirmeler hakkında bir rapor hazırlayacak. Ücretsiz görüşmemizde bunları konuşacağız!" data-en="Our team will create a report on potential improvements of your social media. We'll talk about them in our free call!" data-it="Il nostro team creerà un report sui potenziali miglioramenti dei tuoi social media. Ne parleremo nella nostra chiamata gratuita!">Our team will create a report on potential improvements of your social media. We'll talk about them in our free call!</p>
+            <h2 class="contact-title" data-en="Book a free call" data-it="Prenota una chiamata gratuita">Book a free call</h2>
+            <p class="contact-subtitle" data-en="Our team will create a report on potential improvements of your social media. We'll talk about them in our free call!" data-it="Il nostro team creerà un report sui potenziali miglioramenti dei tuoi social media. Ne parleremo nella nostra chiamata gratuita!">Our team will create a report on potential improvements of your social media. We'll talk about them in our free call!</p>
         </div>
 
         <div class="booking-container" id="booking-form-container">
@@ -774,7 +774,7 @@
 
         // Language switching functions
         function switchLanguage(selectedLang) {
-            document.querySelectorAll('[data-tr]').forEach(element => {
+            document.querySelectorAll('[data-en]').forEach(element => {
                 const text = element.getAttribute('data-' + selectedLang);
                 if (text) {
                     element.textContent = text;
@@ -858,7 +858,7 @@
                 mutations.forEach(function(mutation) {
                     mutation.addedNodes.forEach(function(node) {
                         if (node.nodeType === 1) {
-                            const elementsWithTranslations = node.querySelectorAll ? node.querySelectorAll('[data-tr]') : [];
+                            const elementsWithTranslations = node.querySelectorAll ? node.querySelectorAll('[data-en]') : [];
                             elementsWithTranslations.forEach(element => {
                                 const text = element.getAttribute('data-' + selectedLang);
                                 if (text) {
@@ -874,7 +874,7 @@
                                 }
                             });
 
-                            if (node.getAttribute && node.getAttribute('data-tr')) {
+                            if (node.getAttribute && node.getAttribute('data-en')) {
                                 const text = node.getAttribute('data-' + selectedLang);
                                 if (text) {
                                     node.textContent = text;
@@ -966,7 +966,7 @@
                     video.style.objectFit = 'cover';
                     video.style.borderRadius = 'inherit';
                     video.controlsList = 'nodownload nofullscreen noremoteplayback';
-                    video.title = 'Bu videonun sesi yoktur';
+                    video.title = 'This video has no audio';
 
                     video.addEventListener('volumechange', () => {
                         if (!video.muted) {

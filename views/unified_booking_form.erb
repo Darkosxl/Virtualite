@@ -176,7 +176,7 @@
 <form id="unified-booking-form" action="/submit-booking" method="post">
     <input type="hidden" name="load_time" id="loadTime" value="">
     <input type="hidden" name="g-recaptcha-response" id="recaptchaResponse">
-    <input type="hidden" name="language" id="selectedLanguageInput" value="tr">
+    <input type="hidden" name="language" id="selectedLanguageInput" value="en">
 
     <!-- Honeypot trap -->
     <div style="position: absolute; left: -5000px;" aria-hidden="true">
@@ -186,54 +186,50 @@
     <div class="booking-form">
         <!-- Name -->
         <div class="form-field">
-            <label data-tr="Adınız Soyadınız *" data-en="Your Full Name *" data-it="Il Tuo Nome Completo *">Adınız Soyadınız *</label>
+            <label data-en="Your Full Name *" data-it="Il Tuo Nome Completo *">Your Full Name *</label>
             <input type="text" name="name" required
-                   data-placeholder-tr="Adınız ve soyadınızı girin"
                    data-placeholder-en="Enter your full name"
                    data-placeholder-it="Inserisci il tuo nome completo"
-                   placeholder="Adınız ve soyadınızı girin">
+                   placeholder="Enter your full name">
         </div>
 
         <!-- Phone -->
         <div class="form-field">
-            <label data-tr="Telefon Numaranız *" data-en="Your Phone Number *" data-it="Il Tuo Numero di Telefono *">Telefon Numaranız *</label>
+            <label data-en="Your Phone Number *" data-it="Il Tuo Numero di Telefono *">Your Phone Number *</label>
             <input type="tel" name="phone_number" required pattern="[0-9\s\-\+\(\)]*"
-                   data-placeholder-tr="+90 555 123 45 67"
                    data-placeholder-en="+1 555 123 4567"
                    data-placeholder-it="+39 555 123 456"
-                   placeholder="+90 555 123 45 67">
+                   placeholder="+1 555 123 4567">
         </div>
 
         <!-- Email -->
         <div class="form-field full-width">
-            <label data-tr="E-posta Adresiniz *" data-en="Your Email Address *" data-it="Il Tuo Indirizzo Email *">E-posta Adresiniz *</label>
+            <label data-en="Your Email Address *" data-it="Il Tuo Indirizzo Email *">Your Email Address *</label>
             <input type="email" name="email" required
-                   data-placeholder-tr="ornek@email.com"
                    data-placeholder-en="example@email.com"
                    data-placeholder-it="esempio@email.com"
-                   placeholder="ornek@email.com">
+                   placeholder="example@email.com">
         </div>
 
         <!-- Main goal question -->
         <div class="form-field full-width">
-            <label id="budget-label" data-tr="Video editörlüğünü dış kaynaklı kullanmaktaki ana hedefiniz nedir?" data-en="What's your main goal in outsourcing video editing?" data-it="Qual è il tuo obiettivo principale nell'esternalizzare il montaggio video?">Video editörlüğünü dış kaynaklı kullanmaktaki ana hedefiniz nedir?</label>
+            <label id="budget-label" data-en="What's your main goal in outsourcing video editing?" data-it="Qual è il tuo obiettivo principale nell'esternalizzare il montaggio video?">What's your main goal in outsourcing video editing?</label>
             <select name="budget" id="budget-select" required>
-                <option value="" data-tr="Seçiniz..." data-en="Select..." data-it="Seleziona...">Seçiniz...</option>
-                <option value="save_time" data-tr="Zaman kazanmak için" data-en="To save time" data-it="Per risparmiare tempo">Zaman kazanmak için</option>
-                <option value="improve_quality" data-tr="Videolarımın kalitesini artırmak için" data-en="Improve the quality of my videos" data-it="Migliorare la qualità dei miei video">Videolarımın kalitesini artırmak için</option>
-                <option value="exploring" data-tr="Şu an sadece araştırıyorum" data-en="I'm just exploring for now" data-it="Sto solo esplorando per ora">Şu an sadece araştırıyorum</option>
-                <option value="other" data-tr="Diğer" data-en="Other" data-it="Altro">Diğer</option>
+                <option value="" data-en="Select..." data-it="Seleziona...">Select...</option>
+                <option value="save_time" data-en="To save time" data-it="Per risparmiare tempo">To save time</option>
+                <option value="improve_quality" data-en="Improve the quality of my videos" data-it="Migliorare la qualità dei miei video">Improve the quality of my videos</option>
+                <option value="exploring" data-en="I'm just exploring for now" data-it="Sto solo esplorando per ora">I'm just exploring for now</option>
+                <option value="other" data-en="Other" data-it="Altro">Other</option>
             </select>
             <input type="text" name="custom_goal" id="custom-goal-input" style="display: none; margin-top: 0.75rem;"
-                   data-placeholder-tr="Lütfen açıklayın"
                    data-placeholder-en="Please specify"
                    data-placeholder-it="Si prega di specificare"
-                   placeholder="Lütfen açıklayın">
+                   placeholder="Please specify">
         </div>
 
         <!-- Social media platforms -->
         <div class="form-field full-width">
-            <label data-tr="Hangi sosyal medya platformlarında içerik üretiyorsun?" data-en="Which social media platforms do you create content on?" data-it="Su quali piattaforme social crei contenuti?">Hangi sosyal medya platformlarında içerik üretiyorsun?</label>
+            <label data-en="Which social media platforms do you create content on?" data-it="Su quali piattaforme social crei contenuti?">Which social media platforms do you create content on?</label>
             <div class="social-platforms-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 0.5rem;">
                 <!-- TikTok -->
                 <div>
@@ -245,10 +241,9 @@
                         <span style="color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.875rem;">TikTok</span>
                     </label>
                     <input type="text" name="tiktok_username" class="platform-username" data-platform="tiktok" style="display: none; margin-top: 0.5rem;"
-                           data-placeholder-tr="@kullaniciadi"
                            data-placeholder-en="@username"
                            data-placeholder-it="@nomeutente"
-                           placeholder="@kullaniciadi">
+                           placeholder="@username">
                 </div>
 
                 <!-- Instagram -->
@@ -261,10 +256,9 @@
                         <span style="color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.875rem;">Instagram</span>
                     </label>
                     <input type="text" name="instagram_username" class="platform-username" data-platform="instagram" style="display: none; margin-top: 0.5rem;"
-                           data-placeholder-tr="@kullaniciadi"
                            data-placeholder-en="@username"
                            data-placeholder-it="@nomeutente"
-                           placeholder="@kullaniciadi">
+                           placeholder="@username">
                 </div>
 
                 <!-- YouTube -->
@@ -277,10 +271,9 @@
                         <span style="color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.875rem;">YouTube</span>
                     </label>
                     <input type="text" name="youtube_username" class="platform-username" data-platform="youtube" style="display: none; margin-top: 0.5rem;"
-                           data-placeholder-tr="@kanaladi"
                            data-placeholder-en="@channelname"
                            data-placeholder-it="@nomecanale"
-                           placeholder="@kanaladi">
+                           placeholder="@channelname">
                 </div>
             </div>
         </div>
@@ -295,7 +288,7 @@
                         <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                 </span>
-                <span data-tr="Rezervasyonu Tamamla" data-en="Complete Booking" data-it="Completa Prenotazione">Rezervasyonu Tamamla</span>
+                <span data-en="Complete Booking" data-it="Completa Prenotazione">Complete Booking</span>
             </button>
         </div>
     </div>
@@ -346,14 +339,13 @@
     });
     
     const months = {
-        tr: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
         en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         it: ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
     };
 
     // Format full date display
     function formatFullDate(date) {
-        const lang = localStorage.getItem('selectedLanguage') || 'tr';
+        const lang = localStorage.getItem('selectedLanguage') || 'en';
         return `${date.getDate()} ${months[lang][date.getMonth()]} ${date.getFullYear()}`;
     }
 
@@ -366,7 +358,7 @@
 
     // Render calendar for current month (grid layout)
     function renderCalendar() {
-        const lang = localStorage.getItem('selectedLanguage') || 'tr';
+        const lang = localStorage.getItem('selectedLanguage') || 'en';
         monthYearDisplay.textContent = `${months[lang][currentMonth]} ${currentYear}`;
 
         calendarGrid.innerHTML = '';
@@ -834,16 +826,15 @@
 
             // Validate all required fields
             const requiredFields = [
-                { element: document.querySelector('input[name="name"]'), label: document.querySelector('label[data-tr="Adınız Soyadınız *"]'), type: 'input' },
-                { element: document.querySelector('input[name="phone_number"]'), label: document.querySelector('label[data-tr="Telefon Numaranız *"]'), type: 'input' },
-                { element: document.querySelector('input[name="email"]'), label: document.querySelector('label[data-tr="E-posta Adresiniz *"]'), type: 'input' },
+                { element: document.querySelector('input[name="name"]'), label: document.querySelector('label[data-en="Your Full Name *"]'), type: 'input' },
+                { element: document.querySelector('input[name="phone_number"]'), label: document.querySelector('label[data-en="Your Phone Number *"]'), type: 'input' },
+                { element: document.querySelector('input[name="email"]'), label: document.querySelector('label[data-en="Your Email Address *"]'), type: 'input' },
                 { element: budgetSelect, label: document.getElementById('budget-label'), type: 'select' }
             ];
 
             let firstInvalidField = null;
-            const lang = localStorage.getItem('selectedLanguage') || 'tr';
+            const lang = localStorage.getItem('selectedLanguage') || 'en';
             const messages = {
-                tr: 'Lütfen bu alanı doldurun',
                 en: 'Please fill out this field',
                 it: 'Si prega di compilare questo campo'
             };
@@ -921,7 +912,7 @@
             });
 
             if (!hasValidSocial) {
-                const socialLabel = document.querySelector('label[data-tr="Hangi sosyal medya platformlarında içerik üretiyorsun?"]');
+                const socialLabel = document.querySelector('label[data-en="Which social media platforms do you create content on?"]');
                 if (socialLabel && !socialLabel.querySelector('.validation-message')) {
                     const message = document.createElement('span');
                     message.className = 'validation-message';
@@ -966,7 +957,7 @@
 
     // Update language field when language changes
     function updateLanguageField() {
-        const savedLang = localStorage.getItem('selectedLanguage') || 'tr';
+        const savedLang = localStorage.getItem('selectedLanguage') || 'en';
         const languageInput = document.getElementById('selectedLanguageInput');
         if (languageInput) {
             languageInput.value = savedLang;

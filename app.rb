@@ -260,7 +260,7 @@ post '/submit-booking' do
   phone_number = params['phone_number']
   name = params['name']
   email = params['email']
-  language = params['language'] || 'tr'
+  language = params['language'] || 'en'
   selected_date = params['selected_date']
   selected_time = params['selected_time']
 
@@ -347,7 +347,7 @@ post '/submit-booking' do
     }
   else
     status 500
-    erb :error_message, locals: { message: "Rezervasyon kaydedilemedi. Lütfen tekrar deneyin." }
+    erb :error_message, locals: { message: "Booking could not be saved. Please try again." }
   end
 end
 
@@ -443,35 +443,35 @@ def send_notification_email(booking_data)
     # Format social media info
     social_info = ""
     if booking_data[:social_platforms] && !booking_data[:social_platforms].empty?
-      social_info = "\n\nSeçilen Platformlar:"
+      social_info = "\n\nSelected Platforms:"
       booking_data[:social_platforms].each do |platform|
         username = booking_data[:social_usernames][platform]
         if username && !username.empty?
           platform_name = platform.capitalize
           social_info += "\n#{platform_name}: @#{username}"
         else
-          social_info += "\n#{platform.capitalize}: Kullanıcı adı belirtilmemiş"
+          social_info += "\n#{platform.capitalize}: Username not specified"
         end
       end
     else
-      social_info = "\nHenüz platform seçimi yapılmamış"
+      social_info = "\nNo platforms selected yet"
     end
     
     mail = Mail.new do
       from     'hello@amoredit.com'
       to       ['cem@amoredit.com', 'onur@amoredit.com', 'hello@amoredit.com']
-      subject  "Amoredit Rezervasyon - #{booking_data[:name]}"
+      subject  "Amoredit Booking - #{booking_data[:name]}"
       body     <<~EMAIL
-        Yeni bir rezervasyon alındı!
+        New booking received!
 
-        İsim: #{booking_data[:name]}
-        E-posta: #{booking_data[:email]}
-        Telefon: #{booking_data[:phone_number]}
-        Meslek: #{booking_data[:occupation]}
-        Tarih: #{booking_data[:selected_date]}
-        Saat: #{booking_data[:selected_time]}#{social_info}
+        Name: #{booking_data[:name]}
+        Email: #{booking_data[:email]}
+        Phone: #{booking_data[:phone_number]}
+        Occupation: #{booking_data[:occupation]}
+        Date: #{booking_data[:selected_date]}
+        Time: #{booking_data[:selected_time]}#{social_info}
 
-        Lütfen bu kişi ile iletişime geçin.
+        Please contact this person.
       EMAIL
     end
     
@@ -488,53 +488,45 @@ end
 
 def send_customer_confirmation_email(booking_data)
   begin
-    language = booking_data[:language] || 'tr'
+    language = booking_data[:language] || 'en'
 
     # Multilingual content
     subjects = {
-      'tr' => "Amoredit Rezervasyonunuz Onaylandı",
       'en' => "Your Amoredit Booking is Confirmed",
       'it' => "La Tua Prenotazione Amoredit è Confermata"
     }
 
     greetings = {
-      'tr' => "Selam #{booking_data[:name]}!",
       'en' => "Hi #{booking_data[:name]}!",
       'it' => "Ciao #{booking_data[:name]}!"
     }
 
     confirmations = {
-      'tr' => "Rezervasyonunuz başarıyla alındı. Ekibimiz rezervasyon saatinizde sizinle iletişime geçecek.",
       'en' => "Your booking has been successfully received. Our team will contact you at your booking time.",
       'it' => "La tua prenotazione è stata ricevuta con successo. Il nostro team ti contatterà all'orario della tua prenotazione."
     }
 
     booking_details = {
-      'tr' => "Rezervasyon Detayları:",
       'en' => "Booking Details:",
       'it' => "Dettagli della Prenotazione:"
     }
 
     date_labels = {
-      'tr' => "Tarih",
       'en' => "Date",
       'it' => "Data"
     }
 
     time_labels = {
-      'tr' => "Saat",
       'en' => "Time",
       'it' => "Ora"
     }
 
     contact_info = {
-      'tr' => "Herhangi bir sorunuz varsa, hello@amoredit.com adresinden bize ulaşabilirsiniz.",
       'en' => "If you have any questions, you can reach us at hello@amoredit.com.",
       'it' => "Se hai domande, puoi contattarci all'indirizzo hello@amoredit.com."
     }
 
     signatures = {
-      'tr' => "Amoredit Ekibi",
       'en' => "Amoredit Team",
       'it' => "Team Amoredit"
     }
