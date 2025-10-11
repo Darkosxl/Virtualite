@@ -569,8 +569,8 @@ function initGalleryCarousel() {
         carouselItem.innerHTML = `
             <div class="gallery-item-content">
                 <img src="${video.thumbnail}" alt="${video.name}" class="gallery-item-image" loading="lazy">
-                <video class="gallery-item-video" loop muted playsinline>
-                    <source src="${video.videoSrc}" type="video/mp4">
+                <video class="gallery-item-video lazy-video" loop muted playsinline data-src="${video.videoSrc}" preload="none">
+                    <source data-src="${video.videoSrc}" type="video/mp4">
                 </video>
                 <div class="gallery-item-play-overlay">
                     <svg class="gallery-play-icon" xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2">
@@ -598,9 +598,23 @@ function initGalleryCarousel() {
         dotsContainer.appendChild(dot);
     });
 
-    // Play video inline
+    // Play video inline with Instagram in-app browser support
     function playVideoInline(clickedItem) {
         const videoElement = clickedItem.querySelector('.gallery-item-video');
+
+        // Load video source if not already loaded (Instagram in-app browser fix)
+        if (videoElement.dataset.src && !videoElement.src) {
+            const sources = videoElement.querySelectorAll('source');
+            sources.forEach(source => {
+                if (source.dataset.src) {
+                    source.src = source.dataset.src;
+                    source.removeAttribute('data-src');
+                }
+            });
+            videoElement.src = videoElement.dataset.src;
+            videoElement.removeAttribute('data-src');
+            videoElement.load();
+        }
 
         // Stop all other videos in the carousel
         document.querySelectorAll('.gallery-carousel-item').forEach(item => {
@@ -622,6 +636,11 @@ function initGalleryCarousel() {
             clickedItem.classList.add('playing');
             videoElement.play().catch(e => {
                 console.log('Video autoplay prevented:', e);
+                // Fallback: try loading again after a short delay (Instagram WebView fix)
+                setTimeout(() => {
+                    videoElement.load();
+                    videoElement.play().catch(err => console.log('Retry failed:', err));
+                }, 100);
             });
         }
     }
@@ -898,13 +917,16 @@ document.addEventListener('DOMContentLoaded', function() {
 // Viewport-based video loading for all videos
 function initializeViewportVideoLoading() {
     const allVideos = document.querySelectorAll('.lazy-video');
-    
+
+    // Detect Instagram/Facebook in-app browsers (for ads and organic traffic)
+    const isInstagram = /Instagram|FBAN|FBAV/i.test(navigator.userAgent);
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting && entry.target.dataset.src) {
                 const video = entry.target;
                 const sources = video.querySelectorAll('source');
-                
+
                 // Load the video
                 sources.forEach(source => {
                     if (source.dataset.src) {
@@ -912,22 +934,48 @@ function initializeViewportVideoLoading() {
                         source.removeAttribute('data-src');
                     }
                 });
-                
+
                 if (video.dataset.src) {
                     video.src = video.dataset.src;
                     video.removeAttribute('data-src');
                     video.load();
                 }
-                
+
                 // Stop observing once loaded
                 observer.unobserve(video);
             }
         });
     }, {
-        threshold: 0.3 // Load when 30% visible
+        threshold: isInstagram ? 0.1 : 0.3, // More aggressive for Instagram (10% vs 30%)
+        rootMargin: isInstagram ? '100px' : '0px' // Preload earlier for Instagram
     });
-    
+
     allVideos.forEach(video => {
         observer.observe(video);
     });
+
+    // For Instagram in-app browser: also try loading gallery videos on scroll
+    if (isInstagram) {
+        setTimeout(() => {
+            const galleryVideos = document.querySelectorAll('.gallery-item-video[data-src]');
+            galleryVideos.forEach(video => {
+                if (video.dataset.src) {
+                    const rect = video.getBoundingClientRect();
+                    const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                    if (isVisible) {
+                        const sources = video.querySelectorAll('source');
+                        sources.forEach(source => {
+                            if (source.dataset.src) {
+                                source.src = source.dataset.src;
+                                source.removeAttribute('data-src');
+                            }
+                        });
+                        video.src = video.dataset.src;
+                        video.removeAttribute('data-src');
+                        video.load();
+                    }
+                }
+            });
+        }, 500); // Small delay to let page settle
+    }
 }
