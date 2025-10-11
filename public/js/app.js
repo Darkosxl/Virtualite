@@ -558,6 +558,9 @@ function initGalleryCarousel() {
     let currentTranslate = 0;
     let prevTranslate = 0;
 
+    // Detect Instagram/Facebook in-app browsers
+    const isInstagram = /Instagram|FBAN|FBAV/i.test(navigator.userAgent);
+
     // Create carousel items (video cards without text)
     galleryVideos.forEach((video, index) => {
         const carouselItem = document.createElement('button');
@@ -569,7 +572,7 @@ function initGalleryCarousel() {
         carouselItem.innerHTML = `
             <div class="gallery-item-content">
                 <img src="${video.thumbnail}" alt="${video.name}" class="gallery-item-image" loading="lazy">
-                <video class="gallery-item-video lazy-video" loop muted playsinline data-src="${video.videoSrc}" preload="none">
+                <video class="gallery-item-video lazy-video" loop muted playsinline webkit-playsinline data-src="${video.videoSrc}" preload="metadata">
                     <source data-src="${video.videoSrc}" type="video/mp4">
                 </video>
                 <div class="gallery-item-play-overlay">
@@ -577,14 +580,31 @@ function initGalleryCarousel() {
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
                 </div>
+                <div class="gallery-item-loading" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
             </div>
         `;
 
+        // Get video element and set attributes via JavaScript (Instagram requirement)
+        const videoElement = carouselItem.querySelector('.gallery-item-video');
+        videoElement.setAttribute('playsinline', '');
+        videoElement.setAttribute('webkit-playsinline', '');
+        videoElement.setAttribute('muted', '');
+        videoElement.setAttribute('loop', '');
+
         // Click to play video inline
         carouselItem.addEventListener('click', (e) => {
+            e.preventDefault();
             e.stopPropagation();
             playVideoInline(carouselItem);
         });
+
+        // Touchstart for iOS Instagram (click events may not fire)
+        carouselItem.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            playVideoInline(carouselItem);
+        }, { passive: false });
 
         track.appendChild(carouselItem);
 
@@ -599,10 +619,12 @@ function initGalleryCarousel() {
     });
 
     // Play video inline with Instagram in-app browser support
-    function playVideoInline(clickedItem) {
+    function playVideoInline(clickedItem, attempt = 1) {
         const videoElement = clickedItem.querySelector('.gallery-item-video');
+        const loadingSpinner = clickedItem.querySelector('.gallery-item-loading');
+        const playOverlay = clickedItem.querySelector('.gallery-item-play-overlay');
 
-        // Load video source if not already loaded (Instagram in-app browser fix)
+        // Load video source if not already loaded
         if (videoElement.dataset.src && !videoElement.src) {
             const sources = videoElement.querySelectorAll('source');
             sources.forEach(source => {
@@ -613,7 +635,23 @@ function initGalleryCarousel() {
             });
             videoElement.src = videoElement.dataset.src;
             videoElement.removeAttribute('data-src');
+
+            // Show loading spinner
+            if (loadingSpinner) loadingSpinner.style.display = 'flex';
+            if (playOverlay) playOverlay.style.display = 'none';
+
             videoElement.load();
+
+            // Wait for video to be ready before playing
+            videoElement.addEventListener('loadeddata', function onLoaded() {
+                videoElement.removeEventListener('loadeddata', onLoaded);
+                if (loadingSpinner) loadingSpinner.style.display = 'none';
+
+                // Now try to play
+                attemptPlay(clickedItem, videoElement, 1);
+            }, { once: true });
+
+            return;
         }
 
         // Stop all other videos in the carousel
@@ -632,17 +670,105 @@ function initGalleryCarousel() {
         if (clickedItem.classList.contains('playing')) {
             videoElement.pause();
             clickedItem.classList.remove('playing');
+            if (playOverlay) playOverlay.style.display = 'flex';
         } else {
-            clickedItem.classList.add('playing');
-            videoElement.play().catch(e => {
-                console.log('Video autoplay prevented:', e);
-                // Fallback: try loading again after a short delay (Instagram WebView fix)
-                setTimeout(() => {
-                    videoElement.load();
-                    videoElement.play().catch(err => console.log('Retry failed:', err));
-                }, 100);
+            attemptPlay(clickedItem, videoElement, attempt);
+        }
+    }
+
+    // Attempt to play video with retry logic
+    function attemptPlay(clickedItem, videoElement, attempt) {
+        const loadingSpinner = clickedItem.querySelector('.gallery-item-loading');
+        const playOverlay = clickedItem.querySelector('.gallery-item-play-overlay');
+        const maxAttempts = 3;
+
+        clickedItem.classList.add('playing');
+        if (playOverlay) playOverlay.style.display = 'none';
+
+        const playPromise = videoElement.play();
+
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                // Success!
+                if (loadingSpinner) loadingSpinner.style.display = 'none';
+                console.log('✅ Video playing successfully');
+            }).catch(error => {
+                console.log(`❌ Play attempt ${attempt} failed:`, error.message);
+
+                if (attempt < maxAttempts) {
+                    // Retry with exponential backoff
+                    const delay = attempt * 200;
+                    if (loadingSpinner) loadingSpinner.style.display = 'flex';
+
+                    setTimeout(() => {
+                        videoElement.load();
+                        attemptPlay(clickedItem, videoElement, attempt + 1);
+                    }, delay);
+                } else {
+                    // Final fallback: open in new tab
+                    if (loadingSpinner) loadingSpinner.style.display = 'none';
+                    if (playOverlay) playOverlay.style.display = 'flex';
+                    clickedItem.classList.remove('playing');
+
+                    console.log('⚠️ All play attempts failed, opening in new tab');
+                    window.open(videoElement.src, '_blank');
+                }
             });
         }
+    }
+
+    // Preload videos when they come into view (critical for Instagram)
+    function loadVideoSource(videoElement) {
+        if (videoElement.dataset.src && !videoElement.src) {
+            const sources = videoElement.querySelectorAll('source');
+            sources.forEach(source => {
+                if (source.dataset.src) {
+                    source.src = source.dataset.src;
+                    source.removeAttribute('data-src');
+                }
+            });
+            videoElement.src = videoElement.dataset.src;
+            videoElement.removeAttribute('data-src');
+            videoElement.load();
+            console.log('📹 Preloaded video:', videoElement.src.substring(0, 50) + '...');
+        }
+    }
+
+    // IntersectionObserver to preload videos on scroll
+    const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const video = entry.target.querySelector('.gallery-item-video');
+                if (video) {
+                    loadVideoSource(video);
+                    videoObserver.unobserve(entry.target);
+                }
+            }
+        });
+    }, {
+        threshold: isInstagram ? 0.1 : 0.3,
+        rootMargin: isInstagram ? '200px' : '50px'
+    });
+
+    // Observe all carousel items for preloading
+    document.querySelectorAll('.gallery-carousel-item').forEach(item => {
+        videoObserver.observe(item);
+    });
+
+    // Eager loading for Instagram: preload first 3 visible videos immediately
+    if (isInstagram) {
+        setTimeout(() => {
+            const carouselItems = document.querySelectorAll('.gallery-carousel-item');
+            carouselItems.forEach((item, index) => {
+                if (index < 3) {
+                    const video = item.querySelector('.gallery-item-video');
+                    if (video) {
+                        loadVideoSource(video);
+                    }
+                }
+            });
+            console.log('📱 Instagram detected: eagerly loaded first 3 videos');
+        }, 300);
     }
 
     // Update carousel position
