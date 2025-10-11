@@ -705,13 +705,15 @@ function initGalleryCarousel() {
                         attemptPlay(clickedItem, videoElement, attempt + 1);
                     }, delay);
                 } else {
-                    // Final fallback: open in new tab
+                    // Final fallback: show error state, keep trying on next click
                     if (loadingSpinner) loadingSpinner.style.display = 'none';
                     if (playOverlay) playOverlay.style.display = 'flex';
                     clickedItem.classList.remove('playing');
 
-                    console.log('⚠️ All play attempts failed, opening in new tab');
-                    window.open(videoElement.src, '_blank');
+                    console.log('⚠️ All play attempts failed. Video will reload on next click.');
+                    // Reset video source so it reloads on next click attempt
+                    videoElement.removeAttribute('src');
+                    videoElement.dataset.src = clickedItem.dataset.videoSrc;
                 }
             });
         }
