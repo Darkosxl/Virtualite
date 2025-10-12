@@ -212,8 +212,7 @@ post '/submit-booking' do
   # Track form start
   track_facebook_event('Form_Start', request, {
     custom_data: {
-      selected_date: params['selected_date'],
-      selected_time: params['selected_time']
+      form_type: 'unified_booking'
     }
   })
   # Bot protection checks
@@ -326,8 +325,6 @@ post '/submit-booking' do
       external_id: booking_id.to_s,
       custom_data: {
         booking_id: booking_id,
-        selected_date: booking_data[:selected_date],
-        selected_time: booking_data[:selected_time],
         occupation: booking_data[:occupation],
         social_platforms: booking_data[:social_platforms]&.join(',')
       }
@@ -467,9 +464,7 @@ def send_notification_email(booking_data)
         Name: #{booking_data[:name]}
         Email: #{booking_data[:email]}
         Phone: #{booking_data[:phone_number]}
-        Occupation: #{booking_data[:occupation]}
-        Date: #{booking_data[:selected_date]}
-        Time: #{booking_data[:selected_time]}#{social_info}
+        Occupation: #{booking_data[:occupation]}#{social_info}
 
         Please contact this person.
       EMAIL
@@ -502,23 +497,8 @@ def send_customer_confirmation_email(booking_data)
     }
 
     confirmations = {
-      'en' => "Your booking has been successfully received. Our team will contact you at your booking time.",
-      'it' => "La tua prenotazione è stata ricevuta con successo. Il nostro team ti contatterà all'orario della tua prenotazione."
-    }
-
-    booking_details = {
-      'en' => "Booking Details:",
-      'it' => "Dettagli della Prenotazione:"
-    }
-
-    date_labels = {
-      'en' => "Date",
-      'it' => "Data"
-    }
-
-    time_labels = {
-      'en' => "Time",
-      'it' => "Ora"
+      'en' => "Your booking has been successfully received. Our team will contact you soon during our working hours.",
+      'it' => "La tua prenotazione è stata ricevuta con successo. Il nostro team ti contatterà presto durante il nostro orario di lavoro."
     }
 
     contact_info = {
@@ -539,10 +519,6 @@ def send_customer_confirmation_email(booking_data)
         #{greetings[language]}
 
         #{confirmations[language]}
-
-        #{booking_details[language]}
-        #{date_labels[language]}: #{booking_data[:selected_date]}
-        #{time_labels[language]}: #{booking_data[:selected_time]}
 
         #{contact_info[language]}
 

@@ -31,8 +31,8 @@ class GoogleSheetsIntegration
 
       # Prepare row data (matching your CRM columns)
       row_data = [
-        booking_data[:selected_date],           # Date (A)
-        booking_data[:selected_time],           # Time (B)
+        booking_data[:selected_date] || 'N/A',  # Date (A) - N/A if not provided
+        booking_data[:selected_time] || 'N/A',  # Time (B) - N/A if not provided
         booking_data[:name],                    # Name Surname (C)
         booking_data[:phone_number],            # Phone (D)
         social_username,                        # Instagram username (E)

@@ -56,8 +56,8 @@ class Database
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         phone_number VARCHAR(50) NOT NULL,
-        selected_date DATE NOT NULL,
-        selected_time TIME NOT NULL,
+        selected_date DATE,
+        selected_time TIME,
         social_accounts JSONB DEFAULT '{}',
         status VARCHAR(50) DEFAULT '',
         special_note TEXT DEFAULT '',
@@ -69,6 +69,10 @@ class Database
     # Add columns if they don't exist (for existing databases)
     conn.exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT ''")
     conn.exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS special_note TEXT DEFAULT ''")
+
+    # Make date/time fields nullable for existing databases
+    conn.exec("ALTER TABLE bookings ALTER COLUMN selected_date DROP NOT NULL") rescue nil
+    conn.exec("ALTER TABLE bookings ALTER COLUMN selected_time DROP NOT NULL") rescue nil
   rescue PG::Error => e
     puts "Table setup: #{e.message}" unless e.message.include?('already exists')
   end
