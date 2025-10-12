@@ -42,15 +42,46 @@ class GoogleSheetsIntegration
         booking_data[:special_note] || ''       # Special Note (I) - empty by default
       ]
 
-      # SECURITY: Only get row count, never read existing data
-      current_rows = ws.num_rows
+      # Find first row where columns A-E are all empty
+      target_row = nil
+      total_rows = ws.num_rows
 
-      # APPEND-ONLY: Insert new row at the end (no modification of existing rows)
-      ws.insert_rows(current_rows + 1, [row_data])
+      # Start from row 44 onwards
+      (44..total_rows + 1).each do |row_num|
+        # Check if columns A, B, C, D, E are all empty
+        col_a = ws[row_num, 1]  # Column A (Date)
+        col_b = ws[row_num, 2]  # Column B (Time)
+        col_c = ws[row_num, 3]  # Column C (Name)
+        col_d = ws[row_num, 4]  # Column D (Phone)
+        col_e = ws[row_num, 5]  # Column E (Social username)
+
+        # Check if all are empty or nil
+        if (col_a.nil? || col_a.strip.empty?) &&
+           (col_b.nil? || col_b.strip.empty?) &&
+           (col_c.nil? || col_c.strip.empty?) &&
+           (col_d.nil? || col_d.strip.empty?) &&
+           (col_e.nil? || col_e.strip.empty?)
+          target_row = row_num
+          break
+        end
+      end
+
+      # If no empty row found, append at the end
+      if target_row.nil?
+        target_row = total_rows + 1
+        puts "No empty row found, appending at row #{target_row}"
+      else
+        puts "Found empty row at #{target_row}, inserting there"
+      end
+
+      # Write data to the target row
+      row_data.each_with_index do |value, index|
+        ws[target_row, index + 1] = value
+      end
       ws.save
 
-      puts "APPEND-ONLY: Successfully added booking to Google Sheets row #{current_rows + 1}: #{booking_data[:name]}"
-      { success: true, row_added: current_rows + 1 }
+      puts "Successfully added booking to Google Sheets row #{target_row}: #{booking_data[:name]}"
+      { success: true, row_added: target_row }
 
     rescue => e
       puts "Google Sheets APPEND error: #{e.message}"
