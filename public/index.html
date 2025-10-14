@@ -681,6 +681,23 @@
                         console.log('✅ Learn More button overlay handler attached');
                     }
 
+                    // Setup Back to Home button using event delegation (works with dynamically loaded content)
+                    const giveawayOverlay = document.getElementById('giveaway-overlay');
+                    if (giveawayOverlay) {
+                        giveawayOverlay.addEventListener('click', function(e) {
+                            // Check if clicked element is the back button or is inside the back button
+                            const backButton = e.target.closest('#back-to-home');
+                            if (backButton) {
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                giveawayOverlay.classList.remove('active');
+                                console.log('✅ Giveaway overlay closed via back button');
+                            }
+                        });
+                        console.log('✅ Back to Home button handler attached via event delegation');
+                    }
+
                     // Setup navbar links to close giveaway overlay when clicked
                     const navLinks = document.querySelectorAll('.nav-link, .nav-logo');
                     navLinks.forEach(link => {

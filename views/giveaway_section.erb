@@ -235,19 +235,6 @@ body {
         }
     });
 
-    // Handle back to home - close overlay
-    const backButton = document.getElementById('back-to-home');
-    if (backButton) {
-        backButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // Close overlay by removing active class
-            const giveawayOverlay = document.getElementById('giveaway-overlay');
-            if (giveawayOverlay) {
-                giveawayOverlay.classList.remove('active');
-            }
-        });
-    }
+    // Note: Back button handler is now in index.html using event delegation for better reliability
 })();
 </script>
