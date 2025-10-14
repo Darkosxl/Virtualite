@@ -439,6 +439,54 @@
     box-shadow: 0 1.25vw 2.5vw rgba(242, 82, 46, 0.3);
 }
 
+.whatsapp-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2vh 3.5vw;
+    background: linear-gradient(45deg, #25D366, #20BA5A);
+    color: white;
+    text-decoration: none;
+    border-radius: 3.125vw;
+    font-weight: 600;
+    font-size: clamp(1rem, 1.2vw, 1.4rem);
+    transition: all 0.3s ease;
+    border: none;
+    cursor: none;
+    position: relative;
+    overflow: hidden;
+    margin: 2vh 0;
+    text-align: center;
+}
+
+.whatsapp-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.whatsapp-button:hover::before {
+    left: 100%;
+}
+
+.whatsapp-button:hover {
+    transform: translateY(-0.31vw);
+    box-shadow: 0 1.25vw 2.5vw rgba(37, 211, 102, 0.4);
+}
+
+.cta-buttons-container {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 /* WebGL Shader Canvas - now in index.html with fixed positioning */
 
 /* Responsive navbar */
@@ -498,6 +546,19 @@
     .hero p {
         font-size: 0.9rem;
     }
+
+    .cta-buttons-container {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .cta-button,
+    .whatsapp-button {
+        width: 100%;
+        max-width: 300px;
+        padding: 1.5vh 4vw;
+    }
 }
 
 </style>
@@ -549,7 +610,10 @@
                 <h2 style="font-size: clamp(2.34rem, 5.2vw, 5.2rem); font-weight: 900; margin-bottom: 3vh; color: white; line-height: 1.1; letter-spacing: -0.02em;"><span data-en="Edits: the first impression of" data-it="Edits: la prima impressione dell'">Edits: the first impression of</span> <span class="gradient-text" data-en="80.2%" data-it="80,2%">80.2%</span><span data-en=" of your clients" data-it=" dei tuoi clienti"> of your clients</span></h2>
                 <p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4901188/" target="_blank" rel="noopener noreferrer"><span data-en="Data" data-it="Dati">Data</span></a> <span data-en="shows that the first impression your clients have on you is your internet presence, let's design your content, your first contact, to get their attention" data-it="dimostrano che la prima impressione che i tuoi clienti hanno di te è la tua presenza su internet, progettiamo i tuoi contenuti, il tuo primo contatto, per attirare la loro attenzione">shows that the first impression your clients have on you is your internet presence, let's design your content, your first contact, to get their attention</span></p>
             </div>
-            <a href="#contact" class="cta-button" data-en="Book a Free Call" data-it="Prenota una chiamata gratuita">Book a Free Call</a>
+            <div class="cta-buttons-container">
+                <a href="#contact" class="cta-button" data-en="Book a Free Call" data-it="Prenota una chiamata gratuita">Book a Free Call</a>
+                <a href="https://wa.me/12134036295?text=Hi%2C%20I'm%20interested%20in%20your%20video%20editing%20services" target="_blank" rel="noopener noreferrer" class="whatsapp-button" data-en="WhatsApp" data-it="WhatsApp">WhatsApp</a>
+            </div>
         </div>
     </section>
 
