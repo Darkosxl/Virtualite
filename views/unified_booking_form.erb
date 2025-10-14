@@ -303,6 +303,10 @@
 (function() {
     console.log('Form script loaded');
 
+    // Set load time for bot protection
+    document.getElementById('loadTime').value = Date.now();
+    console.log('Load time set:', Date.now());
+
     // Handle goal dropdown selection (show/hide "other" text field)
     const budgetSelect = document.getElementById('budget-select');
     const customGoalInput = document.getElementById('custom-goal-input');

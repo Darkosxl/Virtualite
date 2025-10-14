@@ -357,10 +357,29 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #000000;
+            background: #262626;
             color: white;
             overflow-x: hidden;
             cursor: none;
+        }
+
+        /* Giveaway Overlay */
+        #giveaway-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #F2D194;
+            z-index: 1999;
+            transform: translateY(-100vh);
+            transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1);
+            will-change: transform;
+            overflow-y: auto;
+        }
+
+        #giveaway-overlay.active {
+            transform: translateY(0);
         }
 
         /* Ensure cursor stays consistent */
@@ -512,6 +531,12 @@
     </div>
 
     <div class="cursor"></div>
+
+    <!-- Giveaway Overlay (hidden by default, slides down from top) -->
+    <div id="giveaway-overlay">
+        <!-- Content will be loaded here -->
+    </div>
+
     <div id="hero-container"></div>
 
     <div id="content-container"></div>
@@ -521,7 +546,7 @@
     .contact-section {
         min-height: 100vh;
         padding: 5vh 2vw;
-        background: transparent;
+        background: #262626;
         text-align: center;
         margin-top: 0;
         position: relative;
@@ -590,6 +615,36 @@
     <script>
         // Load all sections first (including booking form), THEN load app.js
         Promise.all([
+            fetch('/giveaway-section').then(r => r.text()).then(html => {
+                // Parse the giveaway section HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+
+                // Extract the content and add to overlay
+                const giveawayOverlay = document.getElementById('giveaway-overlay');
+                const giveawayPage = tempDiv.querySelector('.giveaway-page');
+                if (giveawayPage) {
+                    giveawayOverlay.appendChild(giveawayPage);
+                }
+
+                // Extract and append styles
+                const styles = tempDiv.querySelectorAll('style');
+                styles.forEach(style => {
+                    document.head.appendChild(style.cloneNode(true));
+                });
+
+                // Extract and execute scripts
+                const scripts = tempDiv.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                });
+            }),
             fetch('/hero-section').then(r => r.text()).then(html => {
                 document.getElementById('hero-container').innerHTML = html;
             }),
@@ -605,12 +660,42 @@
         ]).then(() => {
             // All sections loaded - NOW wait for browser to render before initializing
             console.log('📦 All sections fetched, waiting for DOM to render...');
-            
+
             // Use double requestAnimationFrame to ensure DOM is fully rendered
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     console.log('✅ DOM rendered, starting initialization...');
-                    
+
+                    // Setup Learn More button to show giveaway overlay
+                    const learnMoreBtn = document.getElementById('announcement-learn-more');
+                    if (learnMoreBtn) {
+                        learnMoreBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            const giveawayOverlay = document.getElementById('giveaway-overlay');
+                            if (giveawayOverlay) {
+                                giveawayOverlay.classList.add('active');
+                            }
+                        });
+                        console.log('✅ Learn More button overlay handler attached');
+                    }
+
+                    // Setup navbar links to close giveaway overlay when clicked
+                    const navLinks = document.querySelectorAll('.nav-link, .nav-logo');
+                    navLinks.forEach(link => {
+                        link.addEventListener('click', function(e) {
+                            const giveawayOverlay = document.getElementById('giveaway-overlay');
+                            if (giveawayOverlay && giveawayOverlay.classList.contains('active')) {
+                                // Close the overlay
+                                giveawayOverlay.classList.remove('active');
+
+                                // Continue with normal navigation (smooth scroll will be handled by app.js)
+                            }
+                        });
+                    });
+                    console.log('✅ Navbar overlay close handlers attached');
+
                     // 1. Initialize shader animation in hero section
                     initShaderAnimation();
 
@@ -675,7 +760,7 @@
             // Create container div for shader animation
             const container = document.createElement('div');
             container.id = 'shader-animation';
-            container.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; background: #000; overflow: hidden;';
+            container.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; background: #262626; overflow: hidden;';
             heroSection.insertBefore(container, heroSection.firstChild);
 
             // Vertex shader

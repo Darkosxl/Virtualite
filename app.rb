@@ -201,6 +201,10 @@ end
 get '/footer-section' do
   erb :footer_section
 end
+
+get '/giveaway-section' do
+  erb :giveaway_section
+end
 # Social media fields partial - no longer needed but keeping for compatibility
 get '/social-fields' do
   # Return empty content since we now handle platforms directly in the form
