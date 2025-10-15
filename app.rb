@@ -11,6 +11,7 @@ require_relative 'database'
 require_relative 'facebook'
 require_relative 'google_sheets'
 require_relative 'geoip'
+require_relative 'whatsapp_webhook'
 # Cloudinary gem not needed - we're only using static URLs in frontend
 
 # Configuration
@@ -40,6 +41,7 @@ $db = Database.new
 $fb_tracker = FacebookTracker.new
 $google_sheets = GoogleSheetsIntegration.new
 $geoip = GeoIP.new
+$whatsapp_webhook = WhatsAppWebhook.new($db, $fb_tracker)
 configure :development do
   set :host_authorization, { permitted_hosts: [] }
 end
@@ -399,10 +401,10 @@ end
 # Facebook tracking endpoint - receives data from client, sends to Facebook
 post '/track-facebook' do
   content_type :json
-  
+
   begin
     data = JSON.parse(request.body.read)
-    
+
     # Prepare event data for Facebook tracker
     event_data = {
       event_name: data['event_name'],
@@ -415,10 +417,10 @@ post '/track-facebook' do
       fbp: data['fbp'],
       custom_data: data['custom_data'] || {}
     }
-    
+
     # Send to Facebook via our dedicated tracker
     result = $fb_tracker.track_event(event_data)
-    
+
     if result[:error]
       status 500
       { error: result[:error] }.to_json
@@ -426,7 +428,7 @@ post '/track-facebook' do
       status result[:status]
       result[:body].to_json
     end
-    
+
   rescue JSON::ParserError => e
     status 400
     { error: 'Invalid JSON' }.to_json
@@ -435,6 +437,26 @@ post '/track-facebook' do
     status 500
     { error: 'Server error' }.to_json
   end
+end
+
+# WhatsApp Cloud API webhook endpoints
+
+# Webhook verification (GET) - Meta calls this to verify your endpoint during setup
+get '/webhooks/whatsapp' do
+  puts "📞 WhatsApp webhook verification request received"
+  result = $whatsapp_webhook.verify_webhook(params)
+  status result[:status]
+  result[:body]
+end
+
+# Webhook message handler (POST) - Meta sends incoming messages here
+post '/webhooks/whatsapp' do
+  puts "📨 WhatsApp webhook POST request received"
+  payload = request.body.read
+  result = $whatsapp_webhook.process_message(payload)
+  status result[:status]
+  content_type :json
+  { status: result[:body] }.to_json
 end
 
 # Helper methods

@@ -73,6 +73,22 @@ class Database
     # Make date/time fields nullable for existing databases
     conn.exec("ALTER TABLE bookings ALTER COLUMN selected_date DROP NOT NULL") rescue nil
     conn.exec("ALTER TABLE bookings ALTER COLUMN selected_time DROP NOT NULL") rescue nil
+
+    # WhatsApp contacts table for tracking first-time messages and conversion deduplication
+    conn.exec <<~SQL
+      CREATE TABLE IF NOT EXISTS whatsapp_contacts (
+        id SERIAL PRIMARY KEY,
+        phone_number VARCHAR(50) NOT NULL UNIQUE,
+        name VARCHAR(255),
+        first_message TEXT,
+        first_message_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        conversion_tracked BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    SQL
+
+    # Create index on phone_number for fast lookups
+    conn.exec("CREATE INDEX IF NOT EXISTS idx_whatsapp_phone ON whatsapp_contacts(phone_number)")
   rescue PG::Error => e
     puts "Table setup: #{e.message}" unless e.message.include?('already exists')
   end
@@ -169,6 +185,56 @@ class Database
     false
   end
 
+  # WhatsApp contact tracking methods
+
+  # Check if this is the first message from a WhatsApp phone number
+  def is_first_whatsapp_message?(phone_number)
+    with_connection do |conn|
+      result = conn.exec_params(
+        'SELECT id FROM whatsapp_contacts WHERE phone_number = $1',
+        [phone_number]
+      )
+      result.ntuples == 0 # Returns true if no previous contact exists
+    end
+  rescue PG::Error => e
+    puts "WhatsApp deduplication check error: #{e.message}"
+    false # Fail safe - don't track if unsure
+  end
+
+  # Save new WhatsApp contact
+  def save_whatsapp_contact(contact_data)
+    with_connection do |conn|
+      result = conn.exec_params(
+        'INSERT INTO whatsapp_contacts (phone_number, name, first_message, first_message_at) VALUES ($1, $2, $3, $4) RETURNING id',
+        [
+          contact_data[:phone_number],
+          contact_data[:name],
+          contact_data[:first_message],
+          contact_data[:message_timestamp]
+        ]
+      )
+      result[0]['id'].to_i
+    end
+  rescue PG::UniqueViolation => e
+    # Race condition - another request already saved this contact
+    puts "WhatsApp contact already exists: #{contact_data[:phone_number]}"
+    nil
+  rescue PG::Error => e
+    puts "WhatsApp contact save error: #{e.message}"
+    nil
+  end
+
+  # Get all WhatsApp contacts (for admin/debugging)
+  def get_whatsapp_contacts
+    with_connection do |conn|
+      result = conn.exec('SELECT * FROM whatsapp_contacts ORDER BY created_at DESC')
+      result.map { |row| format_whatsapp_contact(row) }
+    end
+  rescue PG::Error => e
+    puts "WhatsApp contacts fetch error: #{e.message}"
+    []
+  end
+
   private
 
   def format_booking(row)
@@ -182,6 +248,18 @@ class Database
       status: row['status'] || '',
       special_note: row['special_note'] || '',
       booking_confirmed_at: row['booking_confirmed_at'],
+      created_at: row['created_at']
+    }
+  end
+
+  def format_whatsapp_contact(row)
+    {
+      id: row['id'].to_i,
+      phone_number: row['phone_number'],
+      name: row['name'],
+      first_message: row['first_message'],
+      first_message_at: row['first_message_at'],
+      conversion_tracked: row['conversion_tracked'] == 't',
       created_at: row['created_at']
     }
   end
