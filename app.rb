@@ -85,6 +85,11 @@ get '/' do
   send_file File.join('public', 'index.html')
 end
 
+# Privacy policy page
+get '/privacy-policy' do
+  send_file File.join('public', 'privacy-policy.html')
+end
+
 # Serve GLB models list - looks in assets directory for .glb files
 get '/api/models' do
   content_type :json
