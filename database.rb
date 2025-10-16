@@ -17,7 +17,7 @@ class Database
 
     # Setup table using a connection from the pool
     with_connection { |conn| setup_table(conn) }
-    puts "✅ Database connection pool initialized (size: #{pool_size})"
+
 
     # Start connection reaper thread to prevent stale connections
     start_connection_reaper
@@ -31,23 +31,19 @@ class Database
       yield conn
     end
   rescue => e
-    puts "❌ Connection pool error: #{e.message}"
     raise
   end
 
   # Graceful shutdown - close all pool connections
   def shutdown
-    puts "🛑 Shutting down database connection pool..."
     @reaper_thread.kill if @reaper_thread
     @pool.shutdown { |conn| conn.close rescue nil }
-    puts "✅ Database pool closed"
   end
 
   private
 
   def reconnect_connection(conn)
     conn.reset
-    puts "🔄 Connection reset"
   end
 
   def setup_table(conn)
@@ -90,7 +86,6 @@ class Database
     # Create index on phone_number for fast lookups
     conn.exec("CREATE INDEX IF NOT EXISTS idx_whatsapp_phone ON whatsapp_contacts(phone_number)")
   rescue PG::Error => e
-    puts "Table setup: #{e.message}" unless e.message.include?('already exists')
   end
 
   # Connection reaper - pings connections periodically to prevent stale/idle timeouts
@@ -100,13 +95,10 @@ class Database
         sleep 300 # Every 5 minutes
         begin
           with_connection { |conn| conn.exec('SELECT 1') }
-          puts "🔄 Connection reaper: pool health check OK"
         rescue => e
-          puts "⚠️  Connection reaper error: #{e.message}"
         end
       end
     rescue => e
-      puts "❌ Reaper thread died: #{e.message}"
     end
   end
 
@@ -129,7 +121,6 @@ class Database
       result[0]['id'].to_i
     end
   rescue PG::Error => e
-    puts "Database save error: #{e.message}"
     nil
   end
 
@@ -139,7 +130,6 @@ class Database
       result.map { |row| format_booking(row) }
     end
   rescue PG::Error => e
-    puts "Database fetch error: #{e.message}"
     []
   end
 
@@ -152,7 +142,6 @@ class Database
       result.map { |row| format_booking(row) }
     end
   rescue PG::Error => e
-    puts "Database fetch error for date #{date}: #{e.message}"
     []
   end
 
@@ -172,7 +161,6 @@ class Database
       end
     end
   rescue PG::Error => e
-    puts "Database fetch error for masked name: #{e.message}"
     nil
   end
 
@@ -181,7 +169,6 @@ class Database
     with_connection { |conn| conn.exec('SELECT 1') }
     true
   rescue => e
-    puts "Connection check failed: #{e.message}"
     false
   end
 
@@ -197,7 +184,6 @@ class Database
       result.ntuples == 0 # Returns true if no previous contact exists
     end
   rescue PG::Error => e
-    puts "WhatsApp deduplication check error: #{e.message}"
     false # Fail safe - don't track if unsure
   end
 
@@ -217,10 +203,8 @@ class Database
     end
   rescue PG::UniqueViolation => e
     # Race condition - another request already saved this contact
-    puts "WhatsApp contact already exists: #{contact_data[:phone_number]}"
     nil
   rescue PG::Error => e
-    puts "WhatsApp contact save error: #{e.message}"
     nil
   end
 
@@ -231,7 +215,6 @@ class Database
       result.map { |row| format_whatsapp_contact(row) }
     end
   rescue PG::Error => e
-    puts "WhatsApp contacts fetch error: #{e.message}"
     []
   end
 

@@ -468,17 +468,22 @@
             }
 
             // All fields are valid, proceed with submission
-            // Check if reCAPTCHA is available
-            if (typeof grecaptcha !== 'undefined') {
-                grecaptcha.ready(function() {
-                    grecaptcha.execute('6LfyocYrAAAAAAO2wxWMTCTxNWrbS-qVSU_woJjU', {action: 'submit'}).then(function(token) {
-                        document.getElementById('recaptchaResponse').value = token;
-                        form.submit();
-                    });
-                });
-            } else {
-                form.submit();
+            // reCAPTCHA is MANDATORY - block submission if not available
+            if (typeof grecaptcha === 'undefined') {
+                console.error('reCAPTCHA not loaded - cannot submit form');
+                alert('Security verification failed to load. Please refresh the page and try again.');
+                return;
             }
+
+            grecaptcha.ready(function() {
+                grecaptcha.execute('6LfyocYrAAAAAAO2wxWMTCTxNWrbS-qVSU_woJjU', {action: 'submit'}).then(function(token) {
+                    document.getElementById('recaptchaResponse').value = token;
+                    form.submit();
+                }).catch(function(error) {
+                    console.error('reCAPTCHA execution failed:', error);
+                    alert('Security verification failed. Please refresh the page and try again.');
+                });
+            });
         });
     }
 

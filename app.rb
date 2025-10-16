@@ -52,13 +52,13 @@ at_exit do
 end
 
 Signal.trap("SIGTERM") do
-  puts "⚠️  SIGTERM received - shutting down gracefully..."
+  
   $db.shutdown if $db
   exit(0)
 end
 
 Signal.trap("SIGINT") do
-  puts "⚠️  SIGINT received - shutting down gracefully..."
+  
   $db.shutdown if $db
   exit(0)
 end
@@ -75,9 +75,9 @@ begin
       enable_starttls_auto: true
     }
   end
-  puts "Mail configuration successful"
+  
 rescue => e
-  puts "Mail configuration error: #{e.message}"
+  
 end
 
 # Routes
@@ -122,18 +122,18 @@ end
 
 # Warm up database connection (called on page load)
 get '/api/warmup' do
-  puts "🔥 [WARMUP] Request received at #{Time.now}"
+  
   start_time = Time.now
   content_type :json
   $db.ensure_connection
   duration = ((Time.now - start_time) * 1000).round(2)
-  puts "✅ [WARMUP] Completed in #{duration}ms"
+  
   { status: 'ready', duration_ms: duration }.to_json
 end
 
 # Check available time slots for a specific date
 get '/api/available-slots/:date' do
-  puts "📅 [API] /api/available-slots/#{params[:date]} - Request received at #{Time.now}"
+  
   request_start = Time.now
   content_type :json
 
@@ -143,7 +143,7 @@ get '/api/available-slots/:date' do
   db_start = Time.now
   existing_bookings = $db.get_bookings_for_date(date)
   db_duration = ((Time.now - db_start) * 1000).round(2)
-  puts "   💾 [DB] get_bookings_for_date took #{db_duration}ms"
+  
 
   # All possible time slots
   # Time slots from 10:00 AM to 9:30 PM
@@ -172,7 +172,7 @@ get '/api/available-slots/:date' do
   available_slots = all_slots - booked_slots
 
   total_duration = ((Time.now - request_start) * 1000).round(2)
-  puts "✅ [API] /api/available-slots/#{params[:date]} completed in #{total_duration}ms"
+  
 
   {
     date: date,
@@ -220,59 +220,98 @@ end
 
 # Submit booking with bot protection
 post '/submit-booking' do
-  # Track form start
+  # Bot protection checks - RUN THESE FIRST before Meta tracking to avoid wasting API calls
+  honeypot_value = params['user_nickname']
+  load_time = params['load_time']
+
+  # 1. Check the Honeypot
+  if honeypot_value && !honeypot_value.empty?
+    # It's a bot. Block this IP for 20 minutes.
+    
+    status 429
+    halt "Bot detected"
+  end
+
+  # 2. Check the Time (must be at least 4 seconds)
+  if load_time && !load_time.empty?
+    submission_time = Time.now.to_f * 1000  # Convert to milliseconds
+    time_difference = submission_time - load_time.to_f
+
+    if time_difference < 4000  # Less than 4 seconds
+      
+      status 429
+      halt "Submission too fast"
+    end
+  end
+
+  # 3. Check reCAPTCHA - MANDATORY (no token = auto reject)
+  recaptcha_token = params['g-recaptcha-response']
+
+  # Reject if no token provided
+  if !recaptcha_token || recaptcha_token.empty?
+    status 400
+    halt "reCAPTCHA verification required"
+  end
+
+  # Verify the token with Google
+  recaptcha_score = verify_recaptcha(recaptcha_token)
+
+  # Reject if verification failed
+  if recaptcha_score.nil?
+    status 400
+    halt "reCAPTCHA verification failed"
+  end
+
+  # Reject if score is too low (likely bot)
+  if recaptcha_score < 0.5
+    status 429
+    halt "reCAPTCHA verification failed - score too low"
+  end
+
+
+  # 4. Validate input for malicious payloads (SQL injection, XSS, etc.)
+  validation_result = validate_booking_input(params)
+  if !validation_result[:valid]
+    status 400
+    halt "Invalid input detected"
+  end
+
+  # Bot checks passed - NOW track form start to Meta
   track_facebook_event('Form_Start', request, {
     custom_data: {
       form_type: 'unified_booking'
     }
   })
-  # Bot protection checks
-  honeypot_value = params['user_nickname']
-  load_time = params['load_time']
-  
-  # 1. Check the Honeypot
-  if honeypot_value && !honeypot_value.empty?
-    # It's a bot. Block this IP for 20 minutes.
-    puts "BOT DETECTED: Honeypot filled by IP #{request.ip}"
-    status 429
-    halt "Bot detected"
-  end
-  
-  # 2. Check the Time (must be at least 4 seconds)
-  if load_time && !load_time.empty?
-    submission_time = Time.now.to_f * 1000  # Convert to milliseconds
-    time_difference = submission_time - load_time.to_f
-    
-    if time_difference < 4000  # Less than 4 seconds
-      puts "BOT DETECTED: Too fast submission (#{time_difference}ms) by IP #{request.ip}"
-      status 429
-      halt "Submission too fast"
-    end
-  end
-  
-  # 3. Check reCAPTCHA (if token is present)
-  recaptcha_token = params['g-recaptcha-response']
-  if recaptcha_token && !recaptcha_token.empty?
-    recaptcha_score = verify_recaptcha(recaptcha_token)
-    
-    # Only block if we got a valid score that's too low
-    # Don't block if verification failed due to technical issues (nil return)
-    if recaptcha_score && recaptcha_score.is_a?(Numeric) && recaptcha_score < 0.5
-      puts "BOT DETECTED: Low reCAPTCHA score (#{recaptcha_score}) by IP #{request.ip}"
-      status 429
-      halt "reCAPTCHA verification failed"
-    elsif recaptcha_score.nil?
-      # reCAPTCHA verification failed due to technical issues - allow booking to proceed
-      puts "reCAPTCHA verification failed (technical issue) - allowing booking to proceed for IP #{request.ip}"
-    end
-  end
-  
+
+  # Extract form data
   phone_number = params['phone_number']
   name = params['name']
   email = params['email']
   language = params['language'] || 'en'
   selected_date = params['selected_date']
   selected_time = params['selected_time']
+
+  # 5. Validate required fields are not empty (frontend enforces this, so empty = bot bypass)
+  required_fields = {
+    'name' => name,
+    'phone_number' => phone_number,
+    'email' => email
+  }
+
+  missing_fields = []
+  required_fields.each do |field_name, value|
+    if value.nil? || value.to_s.strip.empty?
+      missing_fields << field_name
+    end
+  end
+
+  if !missing_fields.empty?
+    # Empty fields = bot bypassing frontend
+    status 400
+    halt erb(:error_message, locals: {
+      message: "Required fields are missing. Please fill out the form completely and try again."
+    })
+  end
 
   # Handle occupation selection
   occupation = params['occupation']
@@ -287,16 +326,11 @@ post '/submit-booking' do
   social_usernames = {}
   
   # Debug: Print received params
-  puts "DEBUG - All params: #{params.inspect}"
-  puts "DEBUG - social_platforms: #{social_platforms.inspect}"
   
   social_platforms.each do |platform|
     username = params["#{platform}_username"]
-    puts "DEBUG - Platform: #{platform}, Username: #{username}"
     social_usernames[platform] = username if username && !username.empty?
   end
-  
-  puts "DEBUG - Final social_usernames: #{social_usernames.inspect}"
   
   booking_data = {
     name: name,
@@ -322,9 +356,6 @@ post '/submit-booking' do
 
   # Add to Google Sheets
   sheets_result = $google_sheets.add_booking_to_sheet(booking_data)
-  if !sheets_result[:success]
-    puts "Google Sheets sync failed: #{sheets_result[:error]}"
-  end
   
   if booking_id && email_success
     # Track successful booking completion (pure lead tracking - no monetary value)
@@ -342,11 +373,7 @@ post '/submit-booking' do
     })
 
     # Log customer email status
-    if customer_email_success
-      puts "Customer confirmation email sent successfully"
-    else
-      puts "Warning: Customer confirmation email failed to send"
-    end
+  
 
     erb :success_message, locals: {
       booking_id: booking_id,
@@ -398,7 +425,6 @@ post '/track/form-field-filled' do
 
     { success: true }.to_json
   rescue => e
-    puts "Form field tracking error: #{e.message}"
     { success: false, error: e.message }.to_json
   end
 end
@@ -438,7 +464,6 @@ post '/track-facebook' do
     status 400
     { error: 'Invalid JSON' }.to_json
   rescue => e
-    puts "Facebook tracking error: #{e.message}"
     status 500
     { error: 'Server error' }.to_json
   end
@@ -448,7 +473,6 @@ end
 
 # Webhook verification (GET) - Meta calls this to verify your endpoint during setup
 get '/webhooks/whatsapp' do
-  puts "📞 WhatsApp webhook verification request received"
   result = $whatsapp_webhook.verify_webhook(params)
   status result[:status]
   result[:body]
@@ -456,7 +480,6 @@ end
 
 # Webhook message handler (POST) - Meta sends incoming messages here
 post '/webhooks/whatsapp' do
-  puts "📨 WhatsApp webhook POST request received"
   payload = request.body.read
   result = $whatsapp_webhook.process_message(payload)
   status result[:status]
@@ -465,6 +488,67 @@ post '/webhooks/whatsapp' do
 end
 
 # Helper methods
+
+# Validate booking input for malicious payloads
+def validate_booking_input(params)
+  # Check for SQL injection patterns
+  sql_patterns = [
+    /(\bwaitfor\b|\bdelay\b).*['"]?\d+:?\d*:?\d*['"]?/i,  # Time-based SQL injection (WAITFOR DELAY)
+    /(\bunion\b.*\bselect\b|\bselect\b.*\bfrom\b)/i,      # UNION/SELECT injection
+    /(\bdrop\b|\bdelete\b|\binsert\b|\bupdate\b).*\btable\b/i,  # Destructive SQL commands
+    /(--|;|\/\*|\*\/|xp_|sp_)/i,                          # SQL comment/procedure markers
+    /(\bor\b|\band\b)\s*['"]?\d+['"]?\s*=\s*['"]?\d+['"]?/i  # Boolean-based injection
+  ]
+
+  # Check for XSS patterns
+  xss_patterns = [
+    /<script\b/i,
+    /javascript:/i,
+    /on\w+\s*=/i,  # Event handlers like onclick=, onerror=
+    /<iframe\b/i
+  ]
+
+  # Fields to validate
+  text_fields = ['name', 'email', 'phone_number', 'custom_occupation', 'custom_goal']
+
+  text_fields.each do |field|
+    value = params[field]
+    next if value.nil? || value.empty?
+
+    # Check SQL injection
+    sql_patterns.each do |pattern|
+      if value.match?(pattern)
+        return { valid: false, reason: "SQL injection pattern detected in #{field}" }
+      end
+    end
+
+    # Check XSS
+    xss_patterns.each do |pattern|
+      if value.match?(pattern)
+        return { valid: false, reason: "XSS pattern detected in #{field}" }
+      end
+    end
+  end
+
+  # Email format validation (basic)
+  email = params['email']
+  if email && !email.empty?
+    # Check for valid email format
+    unless email.match?(/\A[^@\s]+@[^@\s]+\.[^@\s]+\z/)
+      return { valid: false, reason: "Invalid email format" }
+    end
+  end
+
+  # Phone number validation (basic - allow only digits, spaces, +, -, ())
+  phone = params['phone_number']
+  if phone && !phone.empty?
+    unless phone.match?(/\A[\d\s\+\-\(\)]+\z/)
+      return { valid: false, reason: "Invalid phone number format" }
+    end
+  end
+
+  { valid: true }
+end
 
 def send_notification_email(booking_data)
   begin
@@ -502,12 +586,8 @@ def send_notification_email(booking_data)
     end
     
     mail.deliver!
-    puts "Notification email sent successfully"
     true
   rescue => e
-    puts "Email error: #{e.message}"
-    puts "ENV['GMAIL_USERNAME']: #{ENV['GMAIL_USERNAME']}"
-    puts "ENV['GMAIL_PASSWORD']: #{ENV['GMAIL_PASSWORD'] ? '[SET]' : '[NOT SET]'}"
     false
   end
 end
@@ -558,10 +638,8 @@ def send_customer_confirmation_email(booking_data)
     end
 
     mail.deliver!
-    puts "Customer confirmation email sent successfully to #{booking_data[:email]}"
     true
   rescue => e
-    puts "Customer email error: #{e.message}"
     false
   end
 end
@@ -615,7 +693,6 @@ def track_facebook_event(event_name, request, additional_data = {})
 
   $fb_tracker.track_event(event_data)
 rescue => e
-  puts "Facebook tracking error for #{event_name}: #{e.message}"
 end
 
 def extract_fbc_from_request(request)
@@ -624,8 +701,6 @@ def extract_fbc_from_request(request)
         request.params['fbc'] ||
         extract_fbclid_from_url(request)
 
-  # Log for debugging EMQ issues
-  puts "FBC extracted: #{fbc ? 'YES' : 'NO'} from #{request.url}" if ENV['RACK_ENV'] == 'development'
   fbc
 end
 
@@ -655,35 +730,56 @@ def extract_last_name(full_name)
   parts.length > 1 ? parts[1..-1].join(' ') : nil
 end
 
-# reCAPTCHA verification helper
+# reCAPTCHA verification helper with enhanced security validation
 def verify_recaptcha(token)
   begin
     secret_key = ENV['RECAPTCHA_SECRET_KEY']
     return nil unless secret_key
-    
+
     uri = URI.parse('https://www.google.com/recaptcha/api/siteverify')
     request = Net::HTTP::Post.new(uri)
     request.set_form_data(
       'secret' => secret_key,
       'response' => token
     )
-    
+
     response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
       http.request(request)
     end
-    
+
     result = JSON.parse(response.body)
-    
+
     if result['success']
       score = result['score']
-      puts "reCAPTCHA verification successful. Score: #{score}"
+      hostname = result['hostname']
+      action = result['action']
+      challenge_ts = result['challenge_ts']
+
+      # Validate hostname (must be from your domain)
+      valid_hostnames = ['amoredit.com', 'www.amoredit.com', 'localhost']
+      unless valid_hostnames.include?(hostname)
+        return 0.0
+      end
+
+      # Validate action (must match expected action)
+      unless action == 'submit'
+        return 0.0
+      end
+
+      # Validate timestamp (token should be recent - within 2 minutes)
+      if challenge_ts
+        challenge_time = Time.parse(challenge_ts)
+        age_seconds = Time.now - challenge_time
+        if age_seconds > 120 # 2 minutes  
+          return 0.0
+        end
+      end
+
       return score
     else
-      puts "reCAPTCHA verification failed: #{result['error-codes']}"
       return 0.0
     end
   rescue => e
-    puts "reCAPTCHA verification error: #{e.message}"
     return nil
   end
 end

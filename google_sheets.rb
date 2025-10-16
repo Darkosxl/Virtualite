@@ -11,35 +11,27 @@ class GoogleSheetsIntegration
 
   # APPEND-ONLY: This method ONLY adds new rows, never reads or modifies existing data
   def add_booking_to_sheet(booking_data)
-    puts "🔍 Google Sheets - Starting add_booking_to_sheet for #{booking_data[:name]}"
 
     unless @spreadsheet_id
-      puts "❌ Google Sheets ID not configured"
       return { success: false, error: "Google Sheets ID not configured" }
     end
 
     unless @service_account_b64
-      puts "❌ Google Service Account B64 not configured"
       return { success: false, error: "Google Service Account B64 not configured" }
     end
 
-    puts "✅ Credentials found - Spreadsheet ID: #{@spreadsheet_id[0..10]}..."
 
     begin
       # Decode Base64 and create StringIO object
-      puts "🔓 Decoding service account credentials..."
       service_account_json = Base64.decode64(@service_account_b64)
       json_io = StringIO.new(service_account_json)
 
       # Create session using SERVICE ACCOUNT from Base64-decoded JSON
-      puts "🔑 Authenticating with Google Sheets..."
       session = GoogleDrive::Session.from_service_account_key(json_io)
 
       # Get the spreadsheet - READ ONLY to find append position
-      puts "📄 Opening spreadsheet..."
       spreadsheet = session.spreadsheet_by_key(@spreadsheet_id)
       ws = spreadsheet.worksheets[0]
-      puts "✅ Successfully connected to worksheet: #{ws.title}"
 
       # Extract primary social username
       social_username = extract_primary_social_username(booking_data[:social_usernames])
@@ -60,7 +52,6 @@ class GoogleSheetsIntegration
       # Find first row where columns A-E are all empty
       target_row = nil
       total_rows = ws.num_rows
-      puts "📊 Total rows in sheet: #{total_rows}"
 
       # Start from row 44 onwards
       (44..[total_rows + 10, 100].max).each do |row_num|
@@ -75,7 +66,6 @@ class GoogleSheetsIntegration
         if cell_empty?(col_a) && cell_empty?(col_b) && cell_empty?(col_c) &&
            cell_empty?(col_d) && cell_empty?(col_e)
           target_row = row_num
-          puts "✅ Found empty row at: #{target_row}"
           break
         end
       end
@@ -83,27 +73,17 @@ class GoogleSheetsIntegration
       # If no empty row found, append at the end
       if target_row.nil?
         target_row = total_rows + 1
-        puts "No empty row found, appending at row #{target_row}"
-      else
-        puts "Found empty row at #{target_row}, inserting there"
       end
 
       # Write data to the target row
-      puts "✍️  Writing data to row #{target_row}..."
       row_data.each_with_index do |value, index|
         ws[target_row, index + 1] = value
       end
 
-      puts "💾 Saving spreadsheet..."
       ws.save
-      puts "✅ Save successful!"
-
-      puts "🎉 Successfully added booking to Google Sheets row #{target_row}: #{booking_data[:name]}"
       { success: true, row_added: target_row }
 
     rescue => e
-      puts "❌ Google Sheets ERROR: #{e.class} - #{e.message}"
-      puts "📋 Error backtrace: #{e.backtrace.first(3).join("\n")}"
       { success: false, error: "#{e.class}: #{e.message}" }
     end
   end
