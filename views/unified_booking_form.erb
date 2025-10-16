@@ -303,6 +303,10 @@
 (function() {
     console.log('Form script loaded');
 
+    // Get form reference first - needed for scoped queries
+    const form = document.getElementById('unified-booking-form');
+    if (!form) return;
+
     // Set load time for bot protection
     document.getElementById('loadTime').value = Date.now();
     console.log('Load time set:', Date.now());
@@ -324,14 +328,15 @@
         });
     }
 
-    // Handle social platform checkbox selection
-    const socialCheckboxes = document.querySelectorAll('.social-checkbox');
+    // Handle social platform checkbox selection - SCOPED to this form only
+    const socialCheckboxes = form.querySelectorAll('.social-checkbox');
     console.log('Found social checkboxes:', socialCheckboxes.length);
 
     socialCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const platform = this.getAttribute('data-platform');
-            const usernameInput = document.querySelector(`input.platform-username[data-platform="${platform}"]`);
+            // Find username input within the SAME form, not globally
+            const usernameInput = form.querySelector(`input.platform-username[data-platform="${platform}"]`);
 
             console.log('Checkbox changed:', platform, 'checked:', this.checked);
             console.log('Username input found:', usernameInput);
@@ -348,9 +353,7 @@
     });
 
     // Handle form submission with reCAPTCHA
-    const form = document.getElementById('unified-booking-form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function(e) {
             e.preventDefault();
 
             const submitBtn = document.getElementById('submit-booking-btn');
@@ -484,8 +487,7 @@
                     alert('Security verification failed. Please refresh the page and try again.');
                 });
             });
-        });
-    }
+    });
 
     // Update language field when language changes
     function updateLanguageField() {
