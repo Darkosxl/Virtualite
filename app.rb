@@ -226,8 +226,6 @@ post '/submit-booking' do
 
   # 1. Check the Honeypot
   if honeypot_value && !honeypot_value.empty?
-    # It's a bot. Block this IP for 20 minutes.
-    
     status 429
     halt "Bot detected"
   end
@@ -238,7 +236,6 @@ post '/submit-booking' do
     time_difference = submission_time - load_time.to_f
 
     if time_difference < 4000  # Less than 4 seconds
-      
       status 429
       halt "Submission too fast"
     end
@@ -491,59 +488,121 @@ end
 
 # Validate booking input for malicious payloads
 def validate_booking_input(params)
-  # Check for SQL injection patterns
+  # Check for SQL injection patterns - ENHANCED to catch more attack vectors
   sql_patterns = [
-    /(\bwaitfor\b|\bdelay\b).*['"]?\d+:?\d*:?\d*['"]?/i,  # Time-based SQL injection (WAITFOR DELAY)
-    /(\bunion\b.*\bselect\b|\bselect\b.*\bfrom\b)/i,      # UNION/SELECT injection
-    /(\bdrop\b|\bdelete\b|\binsert\b|\bupdate\b).*\btable\b/i,  # Destructive SQL commands
-    /(--|;|\/\*|\*\/|xp_|sp_)/i,                          # SQL comment/procedure markers
-    /(\bor\b|\band\b)\s*['"]?\d+['"]?\s*=\s*['"]?\d+['"]?/i  # Boolean-based injection
+    # Time-based injections
+    /(\bwaitfor\b|\bdelay\b|\bsleep\b|\bbenchmark\b)/i,
+    # SELECT/FROM patterns (with or without spaces/parentheses)
+    /select.*from/i,
+    /select\s*\(.*\)/i,
+    /\(select/i,
+    # UNION injections
+    /union.*select/i,
+    # Boolean-based injections (various forms)
+    /(\bor\b|\band\b)\s*['"]?\d+/i,
+    /['"]?\d+\s*=\s*['"]?\d+/i,
+    /\d+\s*(=|!=|<>)\s*\d+/i,
+    # Common SQL keywords
+    /(\bdrop\b|\bdelete\b|\binsert\b|\bupdate\b|\bexec\b|\bexecute\b)/i,
+    # SQL comments and special characters
+    /(--|#|\/\*|\*\/|;)/,
+    # SQL system procedures
+    /(xp_|sp_|@@)/i,
+    # Hex/char encoding attempts
+    /(0x[0-9a-f]+|char\()/i
   ]
 
   # Check for XSS patterns
   xss_patterns = [
     /<script\b/i,
+    /<\/script>/i,
     /javascript:/i,
     /on\w+\s*=/i,  # Event handlers like onclick=, onerror=
-    /<iframe\b/i
+    /<iframe\b/i,
+    /<embed\b/i,
+    /<object\b/i,
+    /eval\s*\(/i,
+    /expression\s*\(/i
   ]
 
-  # Fields to validate
-  text_fields = ['name', 'email', 'phone_number', 'custom_occupation', 'custom_goal']
+  # Fields to validate with length limits
+  text_fields = {
+    'name' => 100,
+    'email' => 255,
+    'phone_number' => 30,
+    'custom_occupation' => 200,
+    'custom_goal' => 500,
+    'tiktok_username' => 100,
+    'instagram_username' => 100,
+    'youtube_username' => 100
+  }
 
-  text_fields.each do |field|
+  text_fields.each do |field, max_length|
     value = params[field]
-    next if value.nil? || value.empty?
+    next if value.nil? || value.to_s.empty?
+
+    value_str = value.to_s
+
+    # Check length limits
+    if value_str.length > max_length
+      return { valid: false, reason: "Input too long in #{field}" }
+    end
+
+    # Check for excessive special characters (likely injection attempt)
+    special_char_count = value_str.scan(/[^a-zA-Z0-9\s@._\-\+\(\)]/).length
+    if special_char_count > 10
+      return { valid: false, reason: "Invalid characters in #{field}" }
+    end
 
     # Check SQL injection
     sql_patterns.each do |pattern|
-      if value.match?(pattern)
-        return { valid: false, reason: "SQL injection pattern detected in #{field}" }
+      if value_str.match?(pattern)
+        return { valid: false, reason: "Invalid input detected in #{field}" }
       end
     end
 
     # Check XSS
     xss_patterns.each do |pattern|
-      if value.match?(pattern)
-        return { valid: false, reason: "XSS pattern detected in #{field}" }
+      if value_str.match?(pattern)
+        return { valid: false, reason: "Invalid input detected in #{field}" }
       end
     end
   end
 
-  # Email format validation (basic)
+  # Email format validation (strict)
   email = params['email']
-  if email && !email.empty?
-    # Check for valid email format
-    unless email.match?(/\A[^@\s]+@[^@\s]+\.[^@\s]+\z/)
+  if email && !email.to_s.empty?
+    email_str = email.to_s
+    # Check for valid email format - must have exactly one @, valid characters
+    unless email_str.match?(/\A[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\z/)
+      return { valid: false, reason: "Invalid email format" }
+    end
+    # Additional check: no SQL keywords in email
+    if email_str.match?(/\b(select|union|drop|insert|delete|script)\b/i)
       return { valid: false, reason: "Invalid email format" }
     end
   end
 
-  # Phone number validation (basic - allow only digits, spaces, +, -, ())
+  # Phone number validation (strict - allow only digits, spaces, +, -, ())
   phone = params['phone_number']
-  if phone && !phone.empty?
-    unless phone.match?(/\A[\d\s\+\-\(\)]+\z/)
+  if phone && !phone.to_s.empty?
+    phone_str = phone.to_s
+    unless phone_str.match?(/\A[\d\s\+\-\(\)]+\z/)
       return { valid: false, reason: "Invalid phone number format" }
+    end
+    # Phone should have at least 7 digits
+    digit_count = phone_str.scan(/\d/).length
+    if digit_count < 7
+      return { valid: false, reason: "Invalid phone number" }
+    end
+  end
+
+  # Validate budget/goal selection (must be from allowed list)
+  budget = params['budget']
+  if budget && !budget.empty?
+    allowed_budgets = ['save_time', 'improve_quality', 'exploring', 'other']
+    unless allowed_budgets.include?(budget)
+      return { valid: false, reason: "Invalid selection" }
     end
   end
 
