@@ -426,6 +426,29 @@ post '/track/form-field-filled' do
   end
 end
 
+# Track WhatsApp button click as Booking_Complete conversion
+post '/track/whatsapp-click' do
+  content_type :json
+
+  begin
+    event_id = params['event_id'] # Unique event_id from frontend for deduplication
+
+    # Track as Booking_Complete conversion (WhatsApp lead)
+    track_facebook_event('Booking_Complete', request, {
+      event_id: event_id,
+      custom_data: {
+        source: 'whatsapp_button',
+        lead_type: 'whatsapp_click',
+        action: 'whatsapp_redirect'
+      }
+    })
+
+    { success: true }.to_json
+  rescue => e
+    { success: false, error: e.message }.to_json
+  end
+end
+
 # Facebook tracking endpoint - receives data from client, sends to Facebook
 post '/track-facebook' do
   content_type :json

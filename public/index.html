@@ -1082,6 +1082,112 @@
             });
         }
 
+        // Centralized WhatsApp Click Tracking (Booking_Complete conversion)
+        // Tracks ALL WhatsApp buttons with class "whatsapp-tracking"
+        // Prevents duplicate tracking - only tracks once per session
+        (function initWhatsAppTracking() {
+            'use strict';
+
+            const TRACKING_KEY = 'whatsapp_conversion_tracked';
+
+            // Check if already tracked this session
+            function hasTrackedThisSession() {
+                return sessionStorage.getItem(TRACKING_KEY) === 'true';
+            }
+
+            // Mark as tracked for this session
+            function markAsTracked() {
+                sessionStorage.setItem(TRACKING_KEY, 'true');
+            }
+
+            // Generate unique event ID for deduplication
+            function generateEventId() {
+                return 'wa_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            // Track WhatsApp click to backend
+            function trackWhatsAppClick() {
+                // Don't track if already tracked this session
+                if (hasTrackedThisSession()) {
+                    console.log('⏭️  WhatsApp conversion already tracked this session');
+                    return;
+                }
+
+                const eventId = generateEventId();
+                const data = new URLSearchParams({
+                    event_id: eventId
+                });
+
+                // Use sendBeacon for reliable tracking even when navigating away
+                if (navigator.sendBeacon) {
+                    const blob = new Blob([data.toString()], { type: 'application/x-www-form-urlencoded' });
+                    navigator.sendBeacon('/track/whatsapp-click', blob);
+                } else {
+                    // Fallback for older browsers
+                    fetch('/track/whatsapp-click', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: data,
+                        keepalive: true
+                    }).catch(function(error) {
+                        console.error('WhatsApp tracking error:', error);
+                    });
+                }
+
+                // Mark as tracked
+                markAsTracked();
+                console.log('✅ WhatsApp Booking_Complete conversion tracked:', eventId);
+            }
+
+            // Attach handlers to all WhatsApp buttons
+            function attachWhatsAppHandlers() {
+                const whatsappButtons = document.querySelectorAll('.whatsapp-tracking');
+
+                whatsappButtons.forEach(function(button) {
+                    button.addEventListener('click', function(e) {
+                        trackWhatsAppClick();
+                        // Let the link proceed normally (opens WhatsApp)
+                    });
+                });
+
+                if (whatsappButtons.length > 0) {
+                    console.log(`✅ WhatsApp tracking initialized for ${whatsappButtons.length} button(s)`);
+                }
+            }
+
+            // Initialize when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', attachWhatsAppHandlers);
+            } else {
+                attachWhatsAppHandlers();
+            }
+
+            // Also watch for dynamically added WhatsApp buttons
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) {
+                            if (node.classList && node.classList.contains('whatsapp-tracking')) {
+                                node.addEventListener('click', function(e) {
+                                    trackWhatsAppClick();
+                                });
+                            }
+                            const newButtons = node.querySelectorAll ? node.querySelectorAll('.whatsapp-tracking') : [];
+                            newButtons.forEach(function(button) {
+                                button.addEventListener('click', function(e) {
+                                    trackWhatsAppClick();
+                                });
+                            });
+                        }
+                    });
+                });
+            });
+
+            observer.observe(document.body, { childList: true, subtree: true });
+        })();
+
     </script>
     
 </body>
