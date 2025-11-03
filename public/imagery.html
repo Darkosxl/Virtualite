@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Imagery Desktop – Download</title>
+  <link rel="icon" type="image/png" href="/pictures/imagery-logo.png" />
+  <meta name="description" content="Download Imagery desktop app for Windows and Linux. Version 0.0.1 (beta)." />
+  <meta property="og:title" content="Imagery Desktop – Download" />
+  <meta property="og:description" content="Available for Windows and Linux. Version 0.0.1 (beta)." />
+  <meta property="og:image" content="/pictures/imagery-logo.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://imagery.amoredit.com" />
+  <!-- Inline SVG filter to duotone the PNG into Cursor colors (accent + bg) -->
+  <svg aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute">
+    <defs>
+      <filter id="duotone-cursor" color-interpolation-filters="sRGB">
+        <!-- Convert to luminance -->
+        <feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0 0 0 1 0"/>
+        <!-- Map black -> #171611, white -> #F6F2EA -->
+        <feComponentTransfer>
+          <feFuncR type="table" tableValues="0.090 0.965"/>
+          <feFuncG type="table" tableValues="0.086 0.949"/>
+          <feFuncB type="table" tableValues="0.067 0.918"/>
+          <feFuncA type="table" tableValues="0 1"/>
+        </feComponentTransfer>
+      </filter>
+    </defs>
+  </svg>
+  <style>
+    :root {
+      /* Two-color palette using Cursor-like colors */
+      --bg: #F6F2EA;      /* warm light background */
+      --accent: #171611;  /* near-black accent */
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--accent);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 20px 80px;
+    }
+
+    /* Hero */
+    .hero {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .logo-wrap {
+      width: 96px; height: 96px;
+      display: grid; place-items: center;
+      border-radius: 20px;
+      background: rgba(23, 22, 17, 0.05); /* accent with alpha */
+      border: 1px solid rgba(23, 22, 17, 0.18);
+      overflow: hidden;
+    }
+    .logo-wrap img { width: 80px; height: 80px; object-fit: contain; filter: url(#duotone-cursor); }
+
+    .title { font-size: 28px; font-weight: 700; letter-spacing: 0.2px; margin: 0 0 6px; }
+    .subtitle { margin: 0; opacity: 0.9; }
+
+    .cta {
+      margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 700;
+      border: none; /* remove odd border outline */
+      text-decoration: none;
+      outline: none;
+    }
+    .cta:hover { filter: brightness(0.96); text-decoration: none; }
+    .cta:focus { outline: none; }
+    .cta:focus-visible { outline: 2px solid rgba(23,22,17,0.5); outline-offset: 2px; }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, rgba(23,22,17,0.0), rgba(23,22,17,0.3), rgba(23,22,17,0.0));
+      margin: 28px 0 18px;
+      border: 0;
+    }
+
+    /* Version row */
+    .version-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .version { font-size: 18px; font-weight: 700; }
+    .chip {
+      font-size: 12px; font-weight: 700; letter-spacing: .3px;
+      padding: 5px 10px; border-radius: 999px;
+      background: rgba(23, 22, 17, 0.08);
+      border: 1px solid rgba(23, 22, 17, 0.22);
+      text-transform: uppercase;
+    }
+
+    /* Cards */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: rgba(23, 22, 17, 0.03);
+      border: 1px solid rgba(23, 22, 17, 0.16);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .card h3 { margin: 0 0 8px; font-size: 16px; text-transform: none; }
+    .muted { opacity: 0.9; }
+
+    .list { list-style: none; padding: 0; margin: 0; }
+    .row { border-top: 1px solid rgba(23, 22, 17, 0.12); }
+    .row:first-child { border-top: 0; }
+    .dl { text-decoration: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 14px 8px; }
+    .arrow { opacity: 0.9; width: 16px; height: 16px; }
+
+    /* Footer note (unused now) */
+    .note { display: none; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="logo-wrap">
+        <img src="/pictures/imagery-logo.png" alt="Imagery logo" />
+      </div>
+      <div>
+        <h1 class="title">Download Imagery</h1>
+        <p class="subtitle">Available for Windows in beta.</p>
+        <a class="cta" href="https://github.com/Darkosxl/Virtualite/releases/download/v0.0.1/Imagery-0.0.1-Setup.exe" aria-label="Download for Windows">
+          <span>Download for Windows</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="margin-left:6px">
+            <path d="M12 3v10m0 0l4-4m-4 4l-4-4M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <div class="version-row">
+      <div class="version">0.0.1 (beta)</div>
+      <div class="chip">Latest</div>
+    </div>
+
+    <section class="grid">
+      <!-- Windows card -->
+      <article class="card" aria-labelledby="windows-title">
+        <h3 id="windows-title">Windows</h3>
+        <ul class="list">
+          <li class="row">
+            <a id="win-setup" class="dl" href="https://github.com/Darkosxl/Virtualite/releases/download/v0.0.1/Imagery-0.0.1-Setup.exe">
+              <span>Windows Setup (x64)</span>
+              <svg class="arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 4v9m0 0l4-4m-4 4l-4-4M5 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </li>
+          <li class="row">
+            <a class="dl" href="https://github.com/Darkosxl/Virtualite/releases/download/v0.0.1/Imagery-0.0.1-Portable.exe">
+              <span>Windows Portable (x64)</span>
+              <svg class="arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 4v9m0 0l4-4m-4 4l-4-4M5 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </li>
+        </ul>
+      </article>
+
+      
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,13 @@
+cursor_info.md
+.gitignore
+.env
+srvaccnt.json
+key.b64
+claudestuff
+.claude/
+config/cloudinary.rb
+notlar.txt
+public/downloads
+# Imagery exe files (served from GitHub releases)
+Imagery-*.exe
+*.exe

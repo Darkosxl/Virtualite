@@ -31,7 +31,7 @@ configure :production do
   # Enable gzip compression
   use Rack::Deflater
   # Allow localhost for healthchecks, plus production domains (with and without www)
-  set :host_authorization, { permitted_hosts: ["amoredit.com", "www.amoredit.com", "localhost", "127.0.0.1"] }
+  set :host_authorization, { permitted_hosts: ["amoredit.com", "www.amoredit.com", "imagery.amoredit.com", "localhost", "127.0.0.1"] }
   # Serve static files efficiently
   set :static_cache_control, [:public, max_age: 31536000]
 end
@@ -82,12 +82,47 @@ end
 
 # Routes
 get '/' do
-  send_file File.join('public', 'index.html')
+  # Check if this is the imagery subdomain
+  if request.host.start_with?('imagery.')
+    # Set marker cookie that will block access to main site for 15 minutes
+    response.set_cookie('imagery_visitor',
+      value: 'true',
+      domain: '.amoredit.com', # Accessible across all subdomains
+      path: '/',
+      expires: Time.now + (15 * 60), # 15 minutes
+      httponly: true
+    )
+    send_file File.join('public', 'imagery.html')
+  else
+    # Main site - block access if they visited imagery subdomain
+    if request.cookies['imagery_visitor'] == 'true'
+      halt 404, "Not Found"
+    end
+    send_file File.join('public', 'index.html')
+  end
 end
 
 # Privacy policy page
 get '/privacy-policy' do
   send_file File.join('public', 'privacy-policy.html')
+end
+
+# Imagery desktop app download page
+get '/imagery' do
+  # Set marker cookie that will block access to main site for 15 minutes
+  response.set_cookie('imagery_visitor',
+    value: 'true',
+    domain: '.amoredit.com', # Accessible across all subdomains
+    path: '/',
+    expires: Time.now + (15 * 60), # 15 minutes
+    httponly: true
+  )
+  send_file File.join('public', 'imagery.html')
+end
+
+# Optional alias for convenience (/download)
+get '/download' do
+  redirect '/imagery'
 end
 
 # Serve GLB models list - looks in assets directory for .glb files
