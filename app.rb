@@ -82,8 +82,13 @@ end
 
 # Routes
 get '/' do
+  # Debug logging
+  puts "Request Host: #{request.host}"
+  puts "Request Host Header: #{request.env['HTTP_HOST']}"
+
   # Check if this is the imagery subdomain
   if request.host.start_with?('imagery.')
+    puts "Serving imagery.html"
     # Set marker cookie that will block access to main site for 15 minutes
     response.set_cookie('imagery_visitor',
       value: 'true',
@@ -94,6 +99,7 @@ get '/' do
     )
     send_file File.join('public', 'imagery.html')
   else
+    puts "Serving index.html"
     # Main site - block access if they visited imagery subdomain
     if request.cookies['imagery_visitor'] == 'true'
       halt 404, "Not Found"
